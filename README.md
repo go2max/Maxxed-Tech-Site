@@ -1,6 +1,7 @@
 # Maxxed Technical Systems Website
 
-Company app catalog for Maxxed Technical Systems. The site is a buildless Cloudflare Worker ES module prepared for OpenAI Sites hosting.
+Company app catalog for Maxxed Technical Systems. It includes a normal static
+`index.html` and a Cloudflare Worker ES module prepared for Sites hosting.
 
 ## Included products
 
@@ -14,9 +15,11 @@ Company app catalog for Maxxed Technical Systems. The site is a buildless Cloudf
 
 ## Build and validate
 
-```bash
-bash scripts/build.sh
+```powershell
+npm run build
 node scripts/validate-artifact.mjs
 ```
 
-The deployable artifact is written to `dist/`.
+The cross-platform build works in Windows PowerShell, macOS, and Linux. The
+deployable Worker artifact is written to `dist/`, while `index.html` can be
+opened directly or uploaded to any static website host.
