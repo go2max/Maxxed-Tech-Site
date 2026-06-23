@@ -66,10 +66,51 @@ if (supportSelect && supportLink) {
   }
   const updateSupportLink = () => {
     const subject = encodeURIComponent(`${supportSelect.value} support request`);
-    supportLink.href = `mailto:support@maxxedtechnicalsystems.com?subject=${subject}`;
+    const email = supportLink.dataset.email || "support@techmaxxed.com";
+    supportLink.href = `mailto:${email}?subject=${subject}`;
   };
   supportSelect.addEventListener("change", updateSupportLink);
   updateSupportLink();
+}
+
+const betaForm = document.querySelector("[data-beta-form]");
+if (betaForm) {
+  const appInputs = [...betaForm.querySelectorAll('input[name="apps"]')];
+  const status = betaForm.querySelector("[data-beta-status]");
+  const requestedBetaApp = new URLSearchParams(window.location.search).get("app");
+  const requestedInput = appInputs.find((input) => input.dataset.appSlug === requestedBetaApp);
+  if (requestedInput) requestedInput.checked = true;
+
+  betaForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const selectedApps = appInputs.filter((input) => input.checked).map((input) => input.value);
+
+    appInputs[0]?.setCustomValidity(selectedApps.length ? "" : "Select at least one app to test.");
+    if (!betaForm.reportValidity() || !selectedApps.length) return;
+
+    const data = new FormData(betaForm);
+    const email = betaForm.dataset.email || "beta@techmaxxed.com";
+    const subject = encodeURIComponent(`Beta tester application - ${selectedApps.join(", ")}`);
+    const body = encodeURIComponent([
+      "Tech Maxxed beta tester application",
+      "",
+      `Applicant email: ${data.get("email")}`,
+      `Public credit name: ${data.get("creditName") || "Not provided"}`,
+      `Apps requested: ${selectedApps.join(", ")}`,
+      `Android device: ${data.get("device")}`,
+      `Android version: ${data.get("androidVersion")}`,
+      `Testing experience or notes: ${data.get("notes") || "None provided"}`,
+      `Public credit permission: ${data.get("creditConsent") ? "Yes" : "No"}`,
+      "Age or guardian confirmation: Yes",
+      "Compensation acknowledged: Yes",
+      "Beta contact consent: Yes",
+    ].join("\n"));
+
+    if (status) status.textContent = "Your email app should open with the application filled in. Send that email to finish applying.";
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+  });
+
+  appInputs.forEach((input) => input.addEventListener("change", () => appInputs[0]?.setCustomValidity("")));
 }
 
 document.querySelectorAll("[data-year]").forEach((element) => {

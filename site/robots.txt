@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://maxxedtechnicalsystems.com/sitemap.xml
+Sitemap: https://techmaxxed.com/sitemap.xml

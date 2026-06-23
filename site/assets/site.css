@@ -351,6 +351,64 @@ p { margin-bottom: 18px; }
   color: var(--ink);
 }
 
+.form-shell { max-width: 880px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.field { display: grid; gap: 7px; }
+.field.full { grid-column: 1 / -1; }
+.field label,
+.fieldset legend { color: #dce4e7; font-size: 13px; font-weight: 800; }
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.field input { min-height: 46px; padding: 0 13px; }
+.field textarea { min-height: 120px; padding: 12px 13px; resize: vertical; }
+.field small { color: var(--muted); }
+.fieldset { grid-column: 1 / -1; margin: 8px 0 0; padding: 0; border: 0; }
+.check-grid { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.check-option {
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: start;
+  background: var(--surface);
+}
+.check-option input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--lime); }
+.check-option strong { display: block; margin-bottom: 3px; }
+.check-option small { display: block; color: var(--muted); }
+.consent-list { grid-column: 1 / -1; display: grid; gap: 10px; margin-top: 6px; }
+.consent-list label { display: flex; gap: 10px; align-items: flex-start; color: #cad4d8; font-size: 13px; }
+.consent-list input { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 2px; accent-color: var(--lime); }
+.form-actions { grid-column: 1 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+.form-status { margin: 0; color: var(--lime); font-size: 13px; }
+.notice { padding: 20px; border-left: 3px solid var(--accent, var(--lime)); background: var(--surface); }
+.notice p:last-child { margin-bottom: 0; }
+
+.credit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.credit-group { padding: 26px; border-top: 3px solid var(--lime); background: var(--surface); }
+.credit-group ul { margin: 20px 0 0; padding: 0; list-style: none; }
+.credit-group li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.credit-empty { color: var(--muted); font-size: 13px; }
+
+.policy-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 30px; }
+.policy-summary div { padding: 20px; border-top: 3px solid var(--accent); background: var(--surface); }
+.policy-summary strong { display: block; margin-bottom: 7px; }
+.policy-summary span { color: var(--muted); font-size: 13px; }
+.policy-table { width: 100%; border-collapse: collapse; }
+.policy-table th,
+.policy-table td { padding: 14px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.policy-table th { width: 30%; color: var(--ink); }
+.policy-table td { color: #c0cbd0; }
+.policy-list { padding-left: 20px; }
+.policy-list li { margin-bottom: 9px; color: #c0cbd0; }
+
 .contact-band {
   margin-bottom: 72px;
   padding: 52px;
@@ -430,6 +488,8 @@ p { margin-bottom: 18px; }
   .road-item { grid-template-columns: 36px 1fr; }
   .road-item .kind { grid-column: 2; }
   .support-grid { grid-template-columns: 1fr; }
+  .form-grid, .check-grid, .credit-grid, .policy-summary { grid-template-columns: 1fr; }
+  .field.full, .fieldset, .consent-list, .form-actions { grid-column: auto; }
   .contact-band { padding: 34px 24px; grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }

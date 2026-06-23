@@ -30,6 +30,14 @@ const product = await workerModule.default.fetch(new Request("https://example.te
 assert.equal(product.status, 200);
 assert.match(await product.text(), /<h1>Maxxed Compass<\/h1>/);
 
+const privacy = await workerModule.default.fetch(new Request("https://example.test/apps/rival-rush/privacy/"));
+assert.equal(privacy.status, 200);
+assert.match(await privacy.text(), /<h1>Rival Rush Privacy Policy<\/h1>/);
+
+const beta = await workerModule.default.fetch(new Request("https://example.test/beta/?app=rival-rush"));
+assert.equal(beta.status, 200);
+assert.match(await beta.text(), /<h1>Become a beta tester<\/h1>/);
+
 const redirect = await workerModule.default.fetch(new Request("https://example.test/apps"));
 assert.equal(redirect.status, 308);
 assert.equal(redirect.headers.get("location"), "https://example.test/apps/");
