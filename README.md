@@ -42,3 +42,7 @@ tester automation design.
 The proposed private monitoring, release, help, and strictly sequential APK
 test system is specified in `docs/PRIVATE_OPERATIONS_PLATFORM.md`. It is a
 separate private application and is not included in the public deployment.
+
+`docs/MAXXED_PLATFORM_V1_SPECIFICATION.md` is the canonical security-first
+platform specification. Supporting design documents must follow its RBAC,
+audit, promotion, privacy, and readiness-gate requirements.

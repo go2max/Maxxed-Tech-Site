@@ -1,5 +1,9 @@
 # Admin and Beta Automation Decision
 
+> **Security First.** Every feature, API, administrative page, automation, and
+> integration must be designed with least privilege, auditability, and secure
+> defaults. Convenience never overrides security.
+
 ## Decision
 
 Do not add a public custom-password admin login to the first website release.
@@ -14,6 +18,9 @@ Do not store site-specific passwords.
 
 The broader monitoring, release, help, and sequential APK testing design is in
 `PRIVATE_OPERATIONS_PLATFORM.md`.
+
+The canonical platform-wide requirements and role model are defined in
+`MAXXED_PLATFORM_V1_SPECIFICATION.md`.
 
 ## Beta Program: Current Phase
 

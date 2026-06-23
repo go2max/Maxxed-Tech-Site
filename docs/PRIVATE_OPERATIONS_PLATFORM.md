@@ -1,5 +1,13 @@
 # Maxxed Private Operations Platform
 
+> **Security First.** Every feature, API, administrative page, automation, and
+> integration must be designed with least privilege, auditability, and secure
+> defaults. Convenience never overrides security.
+
+The canonical product, role, workflow, audit, and readiness requirements are
+defined in `MAXXED_PLATFORM_V1_SPECIFICATION.md`. This document expands the
+private operations and APK execution architecture.
+
 ## Objective
 
 Build `admin.techmaxxed.com` as a private operating console for Maxxed Technical
