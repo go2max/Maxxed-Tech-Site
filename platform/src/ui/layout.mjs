@@ -27,7 +27,9 @@ export function renderShell({ title, identity, content, csrfToken }) {
     .hero { background:var(--panel); border-radius:20px; padding:24px; box-shadow: 0 12px 32px rgba(18,32,51,0.08); }
     .grid { display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top:16px; }
     .card { background:var(--panel); border-radius:16px; padding:18px; box-shadow: 0 10px 24px rgba(18,32,51,0.06); }
-    code { background:#e6eef4; padding:2px 6px; border-radius:6px; }\n    nav { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }\n    nav a { color:var(--accent); font-weight:600; }
+    code { background:#e6eef4; padding:2px 6px; border-radius:6px; }
+    nav { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
+    nav a { color:var(--accent); font-weight:600; }
   </style>
 </head>
 <body>
