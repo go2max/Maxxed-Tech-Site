@@ -3,6 +3,7 @@ import { loadMigrationSql } from "./database.mjs";
 export const MIGRATIONS = Object.freeze([
   { id: "0001_initial", file: "0001_initial.sql", requiredMarker: "CREATE TABLE IF NOT EXISTS audit_events" },
   { id: "0002_runner_nodes", file: "0002_runner_nodes.sql", requiredMarker: "CREATE TABLE IF NOT EXISTS runner_nodes" },
+  { id: "0003_test_evidence_objects", file: "0003_test_evidence_objects.sql", requiredMarker: "CREATE TABLE IF NOT EXISTS test_evidence_objects" },
 ]);
 
 export async function applyAllMigrations(database) {
