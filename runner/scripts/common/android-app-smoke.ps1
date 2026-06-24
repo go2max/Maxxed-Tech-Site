@@ -47,11 +47,10 @@ if (($logcat -join [Environment]::NewLine) -match $crashPattern) {
     throw "app_crash_detected"
 }
 
+$remoteScreenshot = "/sdcard/maxxed-screen.png"
+Invoke-Adb shell screencap -p $remoteScreenshot | Out-Null
 $screenshotPath = Join-Path $OutputDirectory "screen.png"
-& $adb -s $DeviceSerial exec-out screencap -p > $screenshotPath
-if ($LASTEXITCODE -ne 0) {
-    throw "screenshot_failed"
-}
+Invoke-Adb pull $remoteScreenshot $screenshotPath | Out-Null
 
 if ($Mode -eq "Inventory") {
     $remoteXml = "/sdcard/maxxed-window.xml"
