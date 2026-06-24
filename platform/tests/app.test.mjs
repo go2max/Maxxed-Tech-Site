@@ -398,15 +398,17 @@ test("Remote testing function queues only the server-approved step order", async
   }));
 
   assert.equal(response.status, 200);
+  const body = await response.json();
   const jobs = await state.database.transaction((tx) => tx.list("automation_jobs"));
-  assert.equal(jobs.length, 1);
-  assert.deepEqual(JSON.parse(jobs[0].ordered_steps_json), [
+  const queuedJob = jobs.find((job) => job.id === body.record.id);
+  assert.ok(queuedJob);
+  assert.deepEqual(JSON.parse(queuedJob.ordered_steps_json), [
     "artifact-verify",
     "launch-smoke",
     "full-ux-connection",
   ]);
-  assert.equal(jobs[0].lease_state, "queued");
+  assert.equal(queuedJob.lease_state, "queued");
 
   const audit = await state.database.transaction((tx) => tx.list("audit_events"));
-  assert.equal(audit.some((event) => event.action_name === "automation_job.create"), true);
+  assert.equal(audit.some((event) => event.action_name === "automation_job.create" && event.target_id === queuedJob.id), true);
 });
