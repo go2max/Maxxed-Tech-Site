@@ -1323,7 +1323,7 @@ export function createPlatformApp(options = {}) {
           await purgeExpiredBackups({ state, store, actor, requestId });
         }
       }
-      return { testing, backup };
+      return { ...testing, backup };
     },
   };
 }
