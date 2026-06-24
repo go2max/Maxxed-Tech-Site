@@ -85,7 +85,8 @@ by default with the current approved step and completed-step count.
   `interrupted` and audited before the runner claims another job.
 
 Set the server lease TTL comfortably above the heartbeat interval. The default
-is five minutes.
+is five minutes. Local cross-process leases default to one hour so the 20-minute
+Remote hardware step cannot outlive its device lock.
 
 ## Evidence and Results
 
