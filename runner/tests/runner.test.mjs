@@ -6,6 +6,9 @@ import { resolve } from "node:path";
 
 import { inspectApk } from "../src/inspector.mjs";
 import { runSequentialJob } from "../src/runner.mjs";
+import { loadArtifactCatalog, selectArtifact } from "../src/artifacts.mjs";
+import { loadScriptPackManifest } from "../src/catalog.mjs";
+import { runHeartbeatLoop } from "../src/control-loop.mjs";
 import { buildRemoteCliArgs, checkAgentReadiness, runAgent, validateAgentConfig } from "../agent.mjs";
 
 async function tempDir() {
@@ -35,9 +38,10 @@ function baseOptions(dir) {
     deviceId: "device-1",
     apkPath: resolve("runner/tests/fixtures/sample.apk"),
     productsConfigPath: resolve("runner/tests/fixtures/products.test.json"),
-    scriptPackManifestPath: resolve("runner/config/script-packs/maxxed-remote/manifest.json"),
+    scriptPackManifestPath: resolve("runner/tests/fixtures/test-manifest.json"),
     stepIds: ["artifact-verify", "launch-smoke"],
     inspectionMode: "test",
+    allowTestManifest: true,
   };
 }
 
@@ -53,7 +57,14 @@ test("local dry run completes sequentially and writes deterministic reports", as
 
 test("package mismatch, manifest traversal, absolute paths, and cross-product manifests fail closed", async () => {
   const dir = await tempDir();
-  await assert.rejects(() => runSequentialJob({ ...baseOptions(dir), productsConfigPath: resolve("runner/config/products.example.json") }), /package_mismatch_or_unconfigured_product/);
+  const mismatchProductsPath = resolve(dir, "mismatch-products.json");
+  await writeFile(mismatchProductsPath, JSON.stringify({
+    products: [{ slug: "other-app", packageId: "com.example.other" }],
+  }));
+  await assert.rejects(
+    () => runSequentialJob({ ...baseOptions(dir), productsConfigPath: mismatchProductsPath }),
+    /package_mismatch_or_unconfigured_product/
+  );
 
   const traversalManifestPath = resolve(dir, "manifest.json");
   await writeFile(traversalManifestPath, JSON.stringify({
@@ -235,7 +246,7 @@ test("agent readiness checks local dependencies without exposing credentials", a
 
   const checked = [];
   const readiness = await checkAgentReadiness(config, async (path) => checked.push(path));
-  assert.deepEqual(readiness.checkedFiles, ["apk", "products", "manifest", "aaptPath"]);
+  assert.deepEqual(readiness.checkedFiles, ["products", "apk", "manifest", "aaptPath"]);
   assert.equal(checked.length, 4);
   assert.doesNotMatch(JSON.stringify(readiness), /token|secret|authorization/i);
 
@@ -245,4 +256,135 @@ test("agent readiness checks local dependencies without exposing credentials", a
     }),
     /agent_missing_file:manifest/
   );
+});
+
+
+test("all portfolio manifests are package-bound and use the real Android harness", async () => {
+  const products = [
+    ["maxxed-remote", "com.maxxedtechnicalsystems.maxxedremote"],
+    ["maxxed-compass", "com.maxxed.compass"],
+    ["maxxed-measure", "com.maxxed.measure"],
+    ["maxxed-gold-estimator", "com.maxxed.goldestimator"],
+    ["fishing-maxxed", "com.maxxed.fishingmaxxed"],
+    ["rival-rush", "com.maxxed_technical_systems.rivalrushlaunch"],
+  ];
+  for (const [slug, packageId] of products) {
+    const { manifest } = await loadScriptPackManifest({
+      rootDir: resolve("."),
+      product: { slug, packageId },
+      requestedManifestPath: resolve(`runner/config/script-packs/${slug}/manifest.json`),
+    });
+    assert.equal(manifest.packageIds.includes(packageId), true);
+    assert.equal(manifest.steps.some((step) =>
+      step.id === "launch-smoke" && /android-app-smoke\.mjs$/.test(step.commandRef)
+    ), true);
+  }
+});
+
+test("artifact catalog resolves exact app artifacts and rejects unsupported claims", async () => {
+  const dir = await tempDir();
+  const path = resolve(dir, "artifacts.json");
+  await writeFile(path, JSON.stringify({
+    products: {
+      "maxxed-compass": {
+        apk: "./maxxed-compass.apk",
+        manifest: "./maxxed-compass-manifest.json",
+      },
+      "rival-rush": {
+        apk: "./rival-rush.apk",
+        manifest: "./rival-rush-manifest.json",
+      },
+    },
+  }));
+  const catalog = await loadArtifactCatalog(path);
+  assert.equal(selectArtifact(catalog, "maxxed-compass").apk, resolve(dir, "maxxed-compass.apk"));
+  assert.throws(() => selectArtifact(catalog, "maxxed-remote"), /unsupported_claimed_product/);
+  await rm(dir, { recursive: true, force: true });
+});
+
+test("heartbeat loop requests cooperative cancellation and fails closed after repeated loss", async () => {
+  const stop = new AbortController();
+  let cancellationReason = null;
+  const cancelled = await runHeartbeatLoop({
+    intervalMs: 1,
+    stopSignal: stop.signal,
+    heartbeat: async () => ({ lease_state: "cancelling" }),
+    cancel: (reason) => {
+      cancellationReason = reason;
+    },
+  });
+  assert.equal(cancelled.beats, 1);
+  assert.equal(cancellationReason, "server_cancellation_requested");
+
+  let attempts = 0;
+  cancellationReason = null;
+  const failed = await runHeartbeatLoop({
+    intervalMs: 1,
+    stopSignal: new AbortController().signal,
+    heartbeat: async () => {
+      attempts += 1;
+      throw new Error("network");
+    },
+    cancel: (reason) => {
+      cancellationReason = reason;
+    },
+  });
+  assert.equal(attempts, 3);
+  assert.equal(failed.consecutiveFailures, 3);
+  assert.equal(cancellationReason, "lease_heartbeat_failed");
+});
+
+test("active sequential step is killed and reported cancelled when its lease is cancelled", async () => {
+  const dir = await tempDir();
+  const manifestPath = resolve(dir, "cancel-manifest.json");
+  await writeFile(manifestPath, JSON.stringify({
+    app: "maxxed-remote",
+    packageIds: ["com.maxxedtechnicalsystems.maxxedremote"],
+    steps: [
+      { id: "artifact-verify", timeoutSeconds: 5, continueOnFailure: false, commandRef: "runner/scripts/common/slow-step.mjs" },
+    ],
+  }, null, 2));
+  const controller = new AbortController();
+  const running = runSequentialJob({
+    ...baseOptions(dir),
+    scriptPackManifestPath: manifestPath,
+    allowTestManifest: true,
+    stepIds: ["artifact-verify"],
+    signal: controller.signal,
+  });
+  await waitForActiveLease(dir);
+  controller.abort();
+  const report = await running;
+  assert.equal(report.finalStatus, "cancelled");
+  assert.equal(report.steps.at(-1).status, "cancelled");
+  await rm(dir, { recursive: true, force: true });
+});
+
+test("agent readiness validates every configured portfolio artifact", async () => {
+  const config = validateAgentConfig({
+    platform: "https://admin.techmaxxed.com",
+    products: "products.json",
+    artifactCatalog: "artifacts.json",
+    stateDir: "state",
+    reportDir: "reports",
+    runnerId: "runner-1",
+    deviceId: "device-1",
+    heartbeatSeconds: 20,
+  }, resolve("."));
+  const checked = [];
+  const readiness = await checkAgentReadiness(
+    config,
+    async (path) => checked.push(path),
+    async () => ({
+      products: {
+        "maxxed-compass": { apk: resolve("compass.apk"), manifest: resolve("compass-manifest.json") },
+        "rival-rush": { apk: resolve("rival.apk"), manifest: resolve("rival-manifest.json") },
+      },
+    }),
+  );
+  assert.deepEqual(readiness.productIds, ["maxxed-compass", "rival-rush"]);
+  assert.equal(checked.length, 6);
+  assert.equal(buildRemoteCliArgs(config).some((value) => value.startsWith("--artifacts=")), true);
+  assert.equal(buildRemoteCliArgs(config).some((value) => value.startsWith("--heartbeatSeconds=20")), true);
+  assert.equal(buildRemoteCliArgs(config).some((value) => value.startsWith("--localLeaseSeconds=3600")), true);
 });

@@ -1,0 +1,18 @@
+{
+  "app": "maxxed-remote",
+  "packageIds": ["com.maxxedtechnicalsystems.maxxedremote"],
+  "steps": [
+    {
+      "id": "artifact-verify",
+      "timeoutSeconds": 2,
+      "continueOnFailure": false,
+      "commandRef": "runner/scripts/common/pass-step.mjs"
+    },
+    {
+      "id": "launch-smoke",
+      "timeoutSeconds": 2,
+      "continueOnFailure": false,
+      "commandRef": "runner/scripts/common/pass-step.mjs"
+    }
+  ]
+}

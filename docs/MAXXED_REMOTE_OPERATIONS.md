@@ -45,21 +45,23 @@ Remote UX, discovery, and television connection test.
 
 A queued job can be cancelled before a runner claims it. A terminal job can be
 retried; retry creates a new job and keeps the original result and audit trail.
-Running jobs cannot be cancelled from the dashboard because the current runner
-protocol does not provide a cooperative process-stop acknowledgement.
+Running jobs enter `cancelling`. The next runner heartbeat terminates the
+active isolated step and records a terminal `cancelled` result.
 
 ## Job States
 
 - `queued`: waiting for the exact runner and device
 - `running`: claimed and executing sequentially
+- `cancelling`: stop requested and awaiting runner acknowledgement
 - `completed`: all required automated work passed
 - `failed`: one or more required checks failed
 - `blocked`: physical television observation or unavailable hardware blocked completion
 - `interrupted`: the runner stopped unexpectedly
 - `cancelled`: an operator cancelled the job before claim
 
-Only `queued` can transition to `cancelled`. Only terminal states can be
-retried. Invalid transitions return HTTP `409` and do not mutate the job.
+Queued jobs cancel immediately. Running jobs transition through `cancelling`.
+Only terminal states can be retried. Invalid transitions return HTTP `409` and
+do not mutate the job.
 
 ## Recovery
 
@@ -109,3 +111,7 @@ node scripts/security-scan.mjs
 
 GitHub Actions runs the same repository checks on Windows for pushes and pull
 requests.
+
+
+Portfolio-wide setup and lease behavior are documented in
+`docs/PORTFOLIO_TESTING_CONTROL_PLANE.md`.

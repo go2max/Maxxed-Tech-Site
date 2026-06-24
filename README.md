@@ -54,3 +54,7 @@ audit, promotion, privacy, and readiness-gate requirements.
 
 The production checklist and recovery procedures for the Maxxed Remote
 admin-to-runner test are in `docs/MAXXED_REMOTE_OPERATIONS.md`.
+
+The six-app batch testing console, package inventory, runner capability model,
+and lease protocol are documented in
+`docs/PORTFOLIO_TESTING_CONTROL_PLANE.md`.

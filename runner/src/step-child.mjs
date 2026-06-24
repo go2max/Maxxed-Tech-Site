@@ -6,6 +6,7 @@ process.on("message", async (message) => {
     const result = await runnerModule.run({
       reportDir: message.context.reportDir,
       inspection: message.context.inspection,
+      deviceId: message.context.deviceId,
       step: message.step,
       signal: AbortSignal.timeout ? AbortSignal.timeout(message.step.timeoutSeconds * 1000) : undefined,
     });

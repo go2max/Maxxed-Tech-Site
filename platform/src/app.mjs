@@ -12,6 +12,7 @@ import { applyAllMigrations } from "./persistence/migrations.mjs";
 import { createPlatformDatabase } from "./persistence/database.mjs";
 import { createPlatformServices } from "./persistence/services.mjs";
 import { renderShell } from "./ui/layout.mjs";
+import { getTestingProduct, requireTestingProducts, TESTING_PRODUCTS } from "./testing/catalog.mjs";
 
 const stateCache = new WeakMap();
 
@@ -61,6 +62,7 @@ function routeTable() {
   return [
     ["GET", /^\/health$/, { public: true, handler: async ({ requestId }) => json({ ok: true, service: "maxxed-private-platform", requestId }) }],
     ["POST", /^\/runner\/jobs\/claim$/, { runner: true, handler: claimRunnerJob }],
+    ["POST", /^\/runner\/jobs\/[^/]+\/heartbeat$/, { runner: true, handler: heartbeatRunnerJob }],
     ["POST", /^\/runner\/jobs\/[^/]+\/complete$/, { runner: true, handler: completeRunnerJob }],
     ["GET", /^\/$/, { permission: PERMISSIONS.PRODUCTS_READ, handler: handlePortfolio }],
     ["GET", /^\/portfolio$/, { permission: PERMISSIONS.PRODUCTS_READ, handler: handlePortfolio }],
@@ -73,9 +75,12 @@ function routeTable() {
     ["GET", /^\/automation$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleAutomation }],
     ["GET", /^\/testing-functions$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctions }],
     ["GET", /^\/testing-functions\.js$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctionsScript }],
+    ["POST", /^\/testing-functions\/jobs\/batch$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: mutateTestingBatch }],
+    ["POST", /^\/testing-functions\/jobs\/[^/]+\/cancel$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: cancelTestingJob }],
+    ["POST", /^\/testing-functions\/jobs\/[^/]+\/retry$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: retryTestingJob }],
     ["POST", /^\/testing-functions\/maxxed-remote\/run$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: mutateRemoteTestJob }],
-    ["POST", /^\/testing-functions\/maxxed-remote\/jobs\/[^/]+\/cancel$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: cancelRemoteTestJob }],
-    ["POST", /^\/testing-functions\/maxxed-remote\/jobs\/[^/]+\/retry$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: retryRemoteTestJob }],
+    ["POST", /^\/testing-functions\/maxxed-remote\/jobs\/[^/]+\/cancel$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: cancelTestingJob }],
+    ["POST", /^\/testing-functions\/maxxed-remote\/jobs\/[^/]+\/retry$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: retryTestingJob }],
     ["GET", /^\/incidents$/, { permission: PERMISSIONS.INCIDENTS_READ, handler: handleIncidents }],
     ["GET", /^\/security\/audit$/, { permission: PERMISSIONS.AUDIT_READ, handler: handleSecurityAudit }],
     ["GET", /^\/knowledge-base$/, { permission: PERMISSIONS.DOCS_READ, handler: handleKnowledgeBase }],
@@ -199,19 +204,22 @@ async function handleAutomation({ identity, csrfToken, state }) {
 
 
 async function handleTestingFunctions({ identity, csrfToken, state }) {
+  const approvedProductIds = new Set(TESTING_PRODUCTS.map((product) => product.id));
   const jobs = (await snapshot(state, "automation_jobs"))
-    .filter((job) => job.product_id === "maxxed-remote");
+    .filter((job) => approvedProductIds.has(job.product_id));
   return renderDashboardPage({
     title: "Testing Functions",
     identity,
     csrfToken,
-    content: renderTestingFunctionsPage({ jobs }),
+    content: renderTestingFunctionsPage({ products: TESTING_PRODUCTS, jobs }),
   });
 }
 
 async function handleTestingFunctionsScript() {
-  return new Response(`const status = document.querySelector("#remote-test-status");
+  return new Response(`const status = document.querySelector("#testing-status");
 const csrfToken = () => document.querySelector("[data-csrf-token]")?.textContent || "";
+const runnerId = () => document.querySelector("[name=runnerId]")?.value || "";
+const deviceId = () => document.querySelector("[name=deviceId]")?.value || "";
 
 async function post(path, body = {}) {
   const response = await fetch(path, {
@@ -224,27 +232,43 @@ async function post(path, body = {}) {
   });
   const result = await response.json();
   if (!response.ok) throw new Error(result.error || "request_failed");
-  return result.record;
+  return result;
 }
 
-const form = document.querySelector("#remote-test-form");
-form?.addEventListener("submit", async (event) => {
+async function queueProducts(productIds) {
+  status.textContent = "Queueing " + productIds.length + " approved app test(s)...";
+  const result = await post("/testing-functions/jobs/batch", {
+    productIds,
+    runnerId: runnerId(),
+    deviceId: deviceId(),
+  });
+  status.textContent = "Queued " + result.records.length + " job(s). Refreshing...";
+  window.setTimeout(() => location.reload(), 500);
+}
+
+document.querySelector("#portfolio-test-form")?.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const button = form.querySelector("button");
+  const productIds = [...event.currentTarget.querySelectorAll("[name=productId]:checked")].map((input) => input.value);
+  const button = event.currentTarget.querySelector("[type=submit]");
   button.disabled = true;
-  status.textContent = "Queueing approved Remote test...";
-  const data = new FormData(form);
   try {
-    const record = await post("/testing-functions/maxxed-remote/run", {
-      runnerId: data.get("runnerId"),
-      deviceId: data.get("deviceId"),
-    });
-    status.textContent = "Queued job " + record.id + ". Refreshing...";
-    window.setTimeout(() => location.reload(), 500);
+    await queueProducts(productIds);
   } catch (error) {
-    status.textContent = "Could not queue test: " + error.message;
+    status.textContent = "Could not queue tests: " + error.message;
     button.disabled = false;
   }
+});
+
+document.querySelectorAll("[data-run-product]").forEach((button) => {
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    try {
+      await queueProducts([button.dataset.runProduct]);
+    } catch (error) {
+      status.textContent = "Could not queue test: " + error.message;
+      button.disabled = false;
+    }
+  });
 });
 
 document.querySelectorAll("[data-job-action]").forEach((button) => {
@@ -256,10 +280,9 @@ document.querySelectorAll("[data-job-action]").forEach((button) => {
     button.disabled = true;
     status.textContent = verb + " request in progress...";
     try {
-      const record = await post(
-        "/testing-functions/maxxed-remote/jobs/" + encodeURIComponent(jobId) + "/" + action
-      );
-      status.textContent = verb + " succeeded for " + record.id + ". Refreshing...";
+      const result = await post("/testing-functions/jobs/" + encodeURIComponent(jobId) + "/" + action);
+      const record = result.record;
+      status.textContent = verb + " accepted for " + record.id + ". Refreshing...";
       window.setTimeout(() => location.reload(), 500);
     } catch (error) {
       status.textContent = verb + " failed: " + error.message;
@@ -268,8 +291,18 @@ document.querySelectorAll("[data-job-action]").forEach((button) => {
   });
 });
 
+function applyFilters() {
+  const product = document.querySelector("[name=historyProduct]")?.value || "";
+  const state = document.querySelector("[name=historyState]")?.value || "";
+  document.querySelectorAll("[data-history-job]").forEach((row) => {
+    row.hidden = Boolean((product && row.dataset.product !== product) || (state && row.dataset.state !== state));
+  });
+}
+document.querySelector("[name=historyProduct]")?.addEventListener("change", applyFilters);
+document.querySelector("[name=historyState]")?.addEventListener("change", applyFilters);
+
 window.setInterval(() => {
-  const editing = document.activeElement?.matches?.("input, button");
+  const editing = document.activeElement?.matches?.("input, select, button");
   const busy = document.querySelector("button:disabled");
   if (document.visibilityState === "visible" && !editing && !busy) location.reload();
 }, 30000);`, {
@@ -280,36 +313,63 @@ window.setInterval(() => {
   });
 }
 
-async function mutateRemoteTestJob({ requestId, identity, payload, state }) {
+async function createTestingJobs({ requestId, identity, state }, payload) {
   const runnerId = String(payload.runnerId || "");
   const deviceId = String(payload.deviceId || "");
   const safeId = /^[A-Za-z0-9._:-]{1,80}$/;
   if (!safeId.test(runnerId)) throw new Error("invalid_runner_id");
   if (!safeId.test(deviceId)) throw new Error("invalid_device_id");
-  return ok(await state.services.createAutomationJob({ actor: identity, requestId }, {
-    productId: "maxxed-remote",
-    orderedSteps: ["artifact-verify", "launch-smoke", "full-ux-connection"],
-    deviceId,
-    runnerId,
-    leaseState: "queued",
-    result: {},
-    evidence: [],
-  }));
+  const products = requireTestingProducts(payload.productIds);
+  const records = [];
+  for (const product of products) {
+    records.push(await state.services.createAutomationJob({ actor: identity, requestId }, {
+      productId: product.id,
+      orderedSteps: [...product.orderedSteps],
+      deviceId,
+      runnerId,
+      leaseState: "queued",
+      result: { packageId: product.packageId },
+      evidence: [],
+    }));
+  }
+  return records;
 }
-async function cancelRemoteTestJob({ requestId, request, identity, payload, state }) {
+
+async function mutateTestingBatch(context) {
+  const records = await createTestingJobs(context, context.payload);
+  return json({ ok: true, records });
+}
+
+async function mutateRemoteTestJob(context) {
+  const records = await createTestingJobs(context, {
+    ...context.payload,
+    productIds: ["maxxed-remote"],
+  });
+  return ok(records[0]);
+}
+
+async function resolveApprovedTestingJob(state, jobId) {
+  const job = (await snapshot(state, "automation_jobs")).find((record) => record.id === jobId);
+  if (!job || !getTestingProduct(job.product_id)) throw new Error("missing_row:automation_job");
+  return job;
+}
+
+async function cancelTestingJob({ requestId, request, identity, payload, state }) {
   const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  const job = await resolveApprovedTestingJob(state, jobId);
   return ok(await state.services.cancelAutomationJob({ actor: identity, requestId }, {
     jobId,
-    productId: "maxxed-remote",
+    productId: job.product_id,
     reason: payload.reason,
   }));
 }
 
-async function retryRemoteTestJob({ requestId, request, identity, state }) {
+async function retryTestingJob({ requestId, request, identity, state }) {
   const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  const job = await resolveApprovedTestingJob(state, jobId);
   return ok(await state.services.retryAutomationJob({ actor: identity, requestId }, {
     jobId,
-    productId: "maxxed-remote",
+    productId: job.product_id,
   }));
 }
 
@@ -377,8 +437,21 @@ function ok(data) {
   return json({ ok: true, record: data });
 }
 
-async function claimRunnerJob({ requestId, identity, payload, state }) {
+async function claimRunnerJob({ requestId, identity, payload, state, config }) {
+  await state.services.expireAutomationLeases({ actor: identity, requestId }, {
+    runnerId: payload.runnerId,
+    deviceId: payload.deviceId,
+    cutoff: new Date(Date.now() - config.runnerLeaseTtlMs).toISOString(),
+  });
   return ok(await state.services.claimAutomationJob({ actor: identity, requestId }, payload));
+}
+
+async function heartbeatRunnerJob({ requestId, request, identity, payload, state }) {
+  const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  return ok(await state.services.heartbeatAutomationJob({ actor: identity, requestId }, {
+    ...payload,
+    jobId,
+  }));
 }
 
 async function completeRunnerJob({ requestId, request, identity, payload, state }) {
@@ -503,6 +576,7 @@ export function createPlatformApp(options = {}) {
             identity: runnerActor(runnerId),
             payload,
             state,
+            config,
           });
           return appendSecurityHeaders(response, requestId, url.protocol === "https:");
         } catch (error) {

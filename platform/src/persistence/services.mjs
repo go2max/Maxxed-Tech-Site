@@ -1,6 +1,7 @@
 import { hasPermission, PERMISSIONS } from "../auth/roles.mjs";
 import { AuditEventRepository } from "./audit.mjs";
 import { createRepositories } from "./repositories.mjs";
+import { TERMINAL_JOB_STATES } from "../testing/catalog.mjs";
 
 function requirePermission(identity, permission) {
   if (!hasPermission(identity, permission)) {
@@ -24,6 +25,15 @@ function optionalString(value, maximumLength, code) {
   if (value == null || value === "") return "";
   if (typeof value !== "string" || value.trim().length > maximumLength) throw new Error(code);
   return value.trim();
+}
+
+function parseObjectJson(value) {
+  try {
+    const parsed = JSON.parse(value || "{}");
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
 }
 
 function nowIso(now) {
@@ -323,17 +333,23 @@ export function createPlatformServices(database) {
           const productId = requireString(payload.productId, "invalid_product_id");
           const before = await repositories.automationJobs.get(tx, jobId);
           if (!before || before.product_id !== productId) throw new Error("missing_row:automation_job");
-          if (before.lease_state !== "queued") throw new Error("job_state_conflict:cancel_requires_queued");
+          if (!["queued", "running"].includes(before.lease_state)) {
+            throw new Error("job_state_conflict:cancel_requires_active");
+          }
           const reason = optionalString(payload.reason, 240, "invalid_cancel_reason");
+          const currentResult = parseObjectJson(before.result_json);
+          const cancelling = before.lease_state === "running";
           return {
             before,
             after: await repositories.automationJobs.update(tx, before.id, {
-              lease_state: "cancelled",
+              lease_state: cancelling ? "cancelling" : "cancelled",
               result_json: JSON.stringify({
-                finalStatus: "cancelled",
+                ...currentResult,
+                finalStatus: cancelling ? "cancelling" : "cancelled",
+                cancellationRequested: true,
                 ...(reason ? { reason } : {}),
               }),
-              evidence_json: "[]",
+              ...(cancelling ? {} : { evidence_json: "[]" }),
             }, now),
           };
         },
@@ -351,7 +367,7 @@ export function createPlatformServices(database) {
           const productId = requireString(payload.productId, "invalid_product_id");
           const before = await repositories.automationJobs.get(tx, jobId);
           if (!before || before.product_id !== productId) throw new Error("missing_row:automation_job");
-          if (!["completed", "failed", "blocked", "interrupted", "cancelled"].includes(before.lease_state)) {
+          if (!TERMINAL_JOB_STATES.includes(before.lease_state)) {
             throw new Error("job_state_conflict:retry_requires_terminal");
           }
           let orderedSteps;
@@ -375,6 +391,78 @@ export function createPlatformServices(database) {
         },
       });
     },
+    heartbeatAutomationJob(context, payload) {
+      requirePermission(context.actor, PERMISSIONS.QA_EXECUTE);
+      return database.transaction(async (tx) => {
+        const jobId = requireString(payload.jobId, "invalid_job_id");
+        const runnerId = requireString(payload.runnerId, "invalid_runner_id");
+        const before = await repositories.automationJobs.get(tx, jobId);
+        if (!before) throw new Error("missing_row:automation_job");
+        if (before.runner_id !== runnerId || !["running", "cancelling"].includes(before.lease_state)) {
+          throw new Error("forbidden:automation_job_lease");
+        }
+        const progress = payload.progress == null ? null : {
+          stepId: optionalString(payload.progress.stepId, 80, "invalid_job_progress"),
+          completedSteps: Math.max(0, Math.min(100, Number(payload.progress.completedSteps) || 0)),
+        };
+        return repositories.automationJobs.update(tx, before.id, {
+          result_json: JSON.stringify({
+            ...parseObjectJson(before.result_json),
+            ...(progress ? { progress } : {}),
+            heartbeatAt: new Date().toISOString(),
+          }),
+        }, new Date().toISOString());
+      });
+    },
+    async expireAutomationLeases(context, payload) {
+      requirePermission(context.actor, PERMISSIONS.QA_EXECUTE);
+      const runnerId = requireString(payload.runnerId, "invalid_runner_id");
+      const deviceId = requireString(payload.deviceId, "invalid_device_id");
+      const cutoff = new Date(payload.cutoff).getTime();
+      if (!Number.isFinite(cutoff)) throw new Error("invalid_lease_cutoff");
+      const candidates = await database.transaction(async (tx) =>
+        (await repositories.automationJobs.list(tx))
+          .filter((job) =>
+            job.runner_id === runnerId &&
+            job.device_id === deviceId &&
+            ["running", "cancelling"].includes(job.lease_state) &&
+            new Date(job.updated_at).getTime() < cutoff
+          )
+          .map((job) => job.id)
+      );
+      const expired = [];
+      for (const jobId of candidates) {
+        const record = await database.transaction(async (tx) => {
+          const before = await repositories.automationJobs.get(tx, jobId);
+          if (!before ||
+              !["running", "cancelling"].includes(before.lease_state) ||
+              new Date(before.updated_at).getTime() >= cutoff) {
+            return null;
+          }
+          const now = new Date().toISOString();
+          const after = await repositories.automationJobs.update(tx, before.id, {
+            lease_state: "interrupted",
+            result_json: JSON.stringify({
+              ...parseObjectJson(before.result_json),
+              finalStatus: "interrupted",
+              error: "runner_lease_expired",
+            }),
+          }, now);
+          await appendAuditEvent(auditRepository, tx, {
+            actor: context.actor,
+            action: "automation_job.expire",
+            targetType: "automation_job",
+            requestId: context.requestId,
+            before,
+            after,
+            createdAt: now,
+          });
+          return after;
+        });
+        if (record) expired.push(record);
+      }
+      return expired;
+    },
     claimAutomationJob(context, payload) {
       return auditedMutation({
         actor: context.actor,
@@ -385,11 +473,18 @@ export function createPlatformServices(database) {
         mutation: async (tx, now) => {
           const runnerId = requireString(payload.runnerId, "invalid_runner_id");
           const deviceId = requireString(payload.deviceId, "invalid_device_id");
+          const productIds = requireArray(payload.productIds ?? ["maxxed-remote"], "invalid_runner_products");
+          if (productIds.length === 0 || productIds.length > 20 ||
+              productIds.some((productId) => typeof productId !== "string" || !/^[A-Za-z0-9._:-]{1,80}$/.test(productId))) {
+            throw new Error("invalid_runner_products");
+          }
+          const supportedProducts = new Set(productIds);
           const jobs = await repositories.automationJobs.list(tx);
           const before = jobs.find((job) =>
             job.lease_state === "queued" &&
             job.runner_id === runnerId &&
-            job.device_id === deviceId
+            job.device_id === deviceId &&
+            supportedProducts.has(job.product_id)
           );
           if (!before) throw new Error("missing_row:automation_job");
           return {
@@ -413,11 +508,11 @@ export function createPlatformServices(database) {
           const runnerId = requireString(payload.runnerId, "invalid_runner_id");
           const before = await repositories.automationJobs.get(tx, jobId);
           if (!before) throw new Error("missing_row:automation_job");
-          if (before.runner_id !== runnerId || before.lease_state !== "running") {
+          if (before.runner_id !== runnerId || !["running", "cancelling"].includes(before.lease_state)) {
             throw new Error("forbidden:automation_job_lease");
           }
           const status = requireString(payload.status, "invalid_job_status");
-          if (!["completed", "failed", "blocked", "interrupted"].includes(status)) {
+          if (![...TERMINAL_JOB_STATES].includes(status)) {
             throw new Error("invalid_job_status");
           }
           return {

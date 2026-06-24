@@ -3,15 +3,24 @@ import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { loadArtifactCatalog } from "./src/artifacts.mjs";
+
 const agentPath = fileURLToPath(import.meta.url);
 const runnerRoot = resolve(dirname(agentPath), "..");
 
 export function validateAgentConfig(input, configDir = runnerRoot) {
-  const required = ["platform", "apk", "products", "manifest", "stateDir", "reportDir", "runnerId", "deviceId"];
+  const required = ["platform", "products", "stateDir", "reportDir", "runnerId", "deviceId"];
   for (const key of required) {
     if (typeof input[key] !== "string" || !input[key].trim()) {
       throw new Error(`invalid_agent_config_${key}`);
     }
+  }
+  const usesArtifactCatalog = typeof input.artifactCatalog === "string" && input.artifactCatalog.trim();
+  if (!usesArtifactCatalog && (
+    typeof input.apk !== "string" || !input.apk.trim() ||
+    typeof input.manifest !== "string" || !input.manifest.trim()
+  )) {
+    throw new Error("invalid_agent_config_artifacts");
   }
   const platform = new URL(input.platform);
   if (platform.protocol !== "https:" && !["localhost", "127.0.0.1"].includes(platform.hostname)) {
@@ -23,11 +32,14 @@ export function validateAgentConfig(input, configDir = runnerRoot) {
   }
   const pollSeconds = boundedNumber(input.pollSeconds, 10, 1, 3600, "invalid_agent_poll_seconds");
   const errorBackoffSeconds = boundedNumber(input.errorBackoffSeconds, 30, 1, 3600, "invalid_agent_backoff_seconds");
+  const heartbeatSeconds = boundedNumber(input.heartbeatSeconds, 15, 5, 120, "invalid_agent_heartbeat_seconds");
+  const localLeaseSeconds = boundedNumber(input.localLeaseSeconds, 3600, 300, 14400, "invalid_agent_local_lease_seconds");
   return {
     platform: platform.toString(),
-    apk: resolve(configDir, input.apk),
+    apk: usesArtifactCatalog ? null : resolve(configDir, input.apk),
     products: resolve(configDir, input.products),
-    manifest: resolve(configDir, input.manifest),
+    manifest: usesArtifactCatalog ? null : resolve(configDir, input.manifest),
+    artifactCatalog: usesArtifactCatalog ? resolve(configDir, input.artifactCatalog) : null,
     stateDir: resolve(configDir, input.stateDir),
     reportDir: resolve(configDir, input.reportDir),
     runnerId: input.runnerId,
@@ -36,14 +48,17 @@ export function validateAgentConfig(input, configDir = runnerRoot) {
     aaptPath: input.aaptPath ? resolve(configDir, input.aaptPath) : null,
     pollSeconds,
     errorBackoffSeconds,
+    heartbeatSeconds,
+    localLeaseSeconds,
   };
 }
 
-export async function checkAgentReadiness(config, accessPath = access) {
+export async function checkAgentReadiness(config, accessPath = access, loadCatalog = loadArtifactCatalog) {
   const requiredFiles = {
-    apk: config.apk,
     products: config.products,
-    manifest: config.manifest,
+    ...(config.artifactCatalog
+      ? { artifactCatalog: config.artifactCatalog }
+      : { apk: config.apk, manifest: config.manifest }),
     ...(config.aaptPath ? { aaptPath: config.aaptPath } : {}),
   };
   for (const [key, path] of Object.entries(requiredFiles)) {
@@ -53,9 +68,24 @@ export async function checkAgentReadiness(config, accessPath = access) {
       throw new Error(`agent_missing_file:${key}`);
     }
   }
+  let productIds = ["maxxed-remote"];
+  if (config.artifactCatalog) {
+    const catalog = await loadCatalog(config.artifactCatalog);
+    productIds = Object.keys(catalog.products);
+    for (const [productId, artifact] of Object.entries(catalog.products)) {
+      for (const [kind, path] of Object.entries(artifact)) {
+        try {
+          await accessPath(path);
+        } catch {
+          throw new Error(`agent_missing_artifact:${productId}:${kind}`);
+        }
+      }
+    }
+  }
   return {
     runnerId: config.runnerId,
     deviceId: config.deviceId,
+    productIds,
     checkedFiles: Object.keys(requiredFiles),
   };
 }
@@ -69,14 +99,17 @@ function boundedNumber(value, fallback, minimum, maximum, code) {
 export function buildRemoteCliArgs(config) {
   const values = {
     platform: config.platform,
-    apk: config.apk,
     products: config.products,
-    manifest: config.manifest,
+    ...(config.artifactCatalog
+      ? { artifacts: config.artifactCatalog }
+      : { apk: config.apk, manifest: config.manifest }),
     stateDir: config.stateDir,
     reportDir: config.reportDir,
     runnerId: config.runnerId,
     deviceId: config.deviceId,
     inspectionMode: config.inspectionMode,
+    heartbeatSeconds: config.heartbeatSeconds,
+    localLeaseSeconds: config.localLeaseSeconds,
     ...(config.aaptPath ? { aaptPath: config.aaptPath } : {}),
   };
   return Object.entries(values).map(([key, value]) => `--${key}=${value}`);

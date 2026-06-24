@@ -1,7 +1,26 @@
 {
   "app": "maxxed-gold-estimator",
+  "packageIds": [
+    "com.maxxed.goldestimator"
+  ],
   "steps": [
-    { "id": "artifact-verify", "timeoutSeconds": 2, "continueOnFailure": false, "commandRef": "runner/scripts/common/pass-step.mjs" },
-    { "id": "fixture-image", "timeoutSeconds": 2, "continueOnFailure": false, "commandRef": "runner/scripts/common/pass-step.mjs" }
+    {
+      "id": "artifact-verify",
+      "timeoutSeconds": 10,
+      "continueOnFailure": false,
+      "commandRef": "runner/scripts/common/pass-step.mjs"
+    },
+    {
+      "id": "launch-smoke",
+      "timeoutSeconds": 180,
+      "continueOnFailure": false,
+      "commandRef": "runner/scripts/common/android-app-smoke.mjs"
+    },
+    {
+      "id": "ux-inventory",
+      "timeoutSeconds": 180,
+      "continueOnFailure": false,
+      "commandRef": "runner/scripts/common/android-app-smoke.mjs"
+    }
   ]
 }

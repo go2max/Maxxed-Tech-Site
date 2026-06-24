@@ -1,0 +1,28 @@
+{
+  "products": {
+    "maxxed-remote": {
+      "apk": "../../local-artifacts/maxxed-remote.apk",
+      "manifest": "./script-packs/maxxed-remote/manifest.json"
+    },
+    "maxxed-compass": {
+      "apk": "../../local-artifacts/maxxed-compass.apk",
+      "manifest": "./script-packs/maxxed-compass/manifest.json"
+    },
+    "maxxed-measure": {
+      "apk": "../../local-artifacts/maxxed-measure.apk",
+      "manifest": "./script-packs/maxxed-measure/manifest.json"
+    },
+    "maxxed-gold-estimator": {
+      "apk": "../../local-artifacts/maxxed-gold-estimator.apk",
+      "manifest": "./script-packs/maxxed-gold-estimator/manifest.json"
+    },
+    "fishing-maxxed": {
+      "apk": "../../local-artifacts/fishing-maxxed.apk",
+      "manifest": "./script-packs/fishing-maxxed/manifest.json"
+    },
+    "rival-rush": {
+      "apk": "../../local-artifacts/rival-rush.apk",
+      "manifest": "./script-packs/rival-rush/manifest.json"
+    }
+  }
+}

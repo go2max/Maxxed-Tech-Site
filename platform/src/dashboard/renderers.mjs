@@ -41,57 +41,81 @@ function parseStoredJson(value, fallback) {
   }
 }
 
-export function renderTestingFunctionsPage({ jobs = [] } = {}) {
+export function renderTestingFunctionsPage({ products = [], jobs = [] } = {}) {
+  const productById = new Map(products.map((product) => [product.id, product]));
   const recentJobs = [...jobs]
     .sort((left, right) => String(right.updated_at).localeCompare(String(left.updated_at)))
-    .slice(0, 10);
+    .slice(0, 50);
   const counts = jobs.reduce((summary, job) => {
     summary[job.lease_state] = (summary[job.lease_state] || 0) + 1;
     return summary;
   }, {});
   const terminalStates = new Set(["completed", "failed", "blocked", "interrupted", "cancelled"]);
+  const productChoices = products.map((product) => `
+    <label><input type="checkbox" name="productId" value="${escapeHtml(product.id)}"> ${escapeHtml(product.name)}</label>
+  `).join("");
+  const productCatalog = products.map((product) => `<li>
+    <strong>${escapeHtml(product.name)}</strong> <code>${escapeHtml(product.packageId)}</code><br>
+    <span>${escapeHtml(product.coverage)}</span><br>
+    <span>Steps: ${product.orderedSteps.map(escapeHtml).join(" | ")}</span><br>
+    <button type="button" data-run-product="${escapeHtml(product.id)}">Queue ${escapeHtml(product.name)}</button>
+  </li>`).join("");
+  const productFilterOptions = products.map((product) =>
+    `<option value="${escapeHtml(product.id)}">${escapeHtml(product.name)}</option>`
+  ).join("");
+  const stateFilterOptions = ["queued", "running", "cancelling", ...terminalStates].map((state) =>
+    `<option value="${escapeHtml(state)}">${escapeHtml(state)}</option>`
+  ).join("");
+
   const history = recentJobs.length
     ? `<ul>${recentJobs.map((job) => {
+        const product = productById.get(job.product_id);
         const result = parseStoredJson(job.result_json, {});
         const evidence = parseStoredJson(job.evidence_json, []);
         const steps = Array.isArray(result.steps) ? result.steps : [];
+        const progress = result.progress?.stepId
+          ? `<span>Current step: ${escapeHtml(result.progress.stepId)} | Completed steps: ${escapeHtml(result.progress.completedSteps || 0)}</span><br>`
+          : "";
         const stepSummary = steps.length
           ? `<span>${steps.map((step) => `${escapeHtml(step.stepId)}: ${escapeHtml(step.status)}`).join(" | ")}</span>`
-          : "<span>No step results yet.</span>";
+          : "<span>No completed step results yet.</span>";
         const retrySource = result.retryOfJobId
           ? `<br><span>Retry of <code>${escapeHtml(result.retryOfJobId)}</code></span>`
           : "";
-        const controls = job.lease_state === "queued"
-          ? `<button type="button" data-job-action="cancel" data-job-id="${escapeHtml(job.id)}">Cancel queued job</button>`
+        const controls = ["queued", "running"].includes(job.lease_state)
+          ? `<button type="button" data-job-action="cancel" data-job-id="${escapeHtml(job.id)}">${job.lease_state === "running" ? "Request cancellation" : "Cancel queued job"}</button>`
           : terminalStates.has(job.lease_state)
             ? `<button type="button" data-job-action="retry" data-job-id="${escapeHtml(job.id)}">Retry as new job</button>`
             : "";
-        return `<li>
-          <strong>${escapeHtml(job.lease_state)}</strong> <code>${escapeHtml(job.id)}</code><br>
+        return `<li data-history-job data-product="${escapeHtml(job.product_id)}" data-state="${escapeHtml(job.lease_state)}">
+          <strong>${escapeHtml(product?.name || job.product_id)}</strong> | <strong>${escapeHtml(job.lease_state)}</strong> <code>${escapeHtml(job.id)}</code><br>
           <span>Final result: ${escapeHtml(result.finalStatus || "pending")} | Runner: ${escapeHtml(job.runner_id)} | Device: ${escapeHtml(job.device_id)}</span><br>
-          ${stepSummary}${retrySource}<br>
+          ${progress}${stepSummary}${retrySource}<br>
           <span>Evidence records: ${escapeHtml(Array.isArray(evidence) ? evidence.length : 0)} | Updated: ${escapeHtml(job.updated_at)}</span>
           ${controls ? `<p>${controls}</p>` : ""}
         </li>`;
       }).join("")}</ul>`
-    : '<p class="empty-state">No Maxxed Remote test jobs have been queued yet.</p>';
+    : '<p class="empty-state">No portfolio test jobs have been queued yet.</p>';
 
   return `<section class="grid">
-    ${card("Maxxed Remote", `<p><strong>Full UX, discovery, and TV connection test</strong></p>
-      <p>Approved steps: <code>artifact-verify</code>, <code>launch-smoke</code>, <code>full-ux-connection</code></p>
-      <form id="remote-test-form">
-        <label>Runner ID <input name="runnerId" value="local-windows-runner" required maxlength="80"></label>
-        <label>Device ID <input name="deviceId" value="android-device-1" required maxlength="80"></label>
-        <button type="submit">Queue full test</button>
-      </form>
-      <p id="remote-test-status" aria-live="polite"></p>
-      <p>Real television pairing, power, reconnect, and response require operator observation.</p>
-      <script src="/testing-functions.js" defer></script>`)}
-    ${card("Remote job status", `<p>Queued: ${escapeHtml(counts.queued || 0)} | Running: ${escapeHtml(counts.running || 0)} | Completed: ${escapeHtml(counts.completed || 0)} | Needs attention: ${escapeHtml((counts.failed || 0) + (counts.blocked || 0) + (counts.interrupted || 0))} | Cancelled: ${escapeHtml(counts.cancelled || 0)}</p>
-      <p>Results refresh automatically every 30 seconds while this page is idle.</p>`)}
-    ${card("Recent Remote jobs", `${history}<p><a href="/testing-functions">Refresh results</a> | <a href="/automation">All automation jobs</a></p>`)}
-    ${card("Runner boundary", `<p>The server owns the ordered step list. The browser cannot submit commands, executable paths, or shell arguments.</p>
-      <p>Cancellation is limited to queued jobs. Retries create new audited jobs so prior evidence remains intact.</p>`)}
+    ${card("Run portfolio tests", `<form id="portfolio-test-form">
+      <label>Runner ID <input name="runnerId" value="local-windows-runner" required maxlength="80"></label>
+      <label>Device ID <input name="deviceId" value="android-device-1" required maxlength="80"></label>
+      <fieldset><legend>Apps</legend>${productChoices}</fieldset>
+      <button type="submit">Queue selected tests</button>
+    </form>
+    <p id="testing-status" aria-live="polite"></p>
+    <p>The server supplies each app's package-bound steps. Batch requests cannot add commands or paths.</p>
+    <script src="/testing-functions.js" defer></script>`)}
+    ${card("Approved app tests", `<ul>${productCatalog}</ul>`)}
+    ${card("Portfolio job status", `<p>Queued: ${escapeHtml(counts.queued || 0)} | Running: ${escapeHtml(counts.running || 0)} | Cancelling: ${escapeHtml(counts.cancelling || 0)} | Completed: ${escapeHtml(counts.completed || 0)} | Needs attention: ${escapeHtml((counts.failed || 0) + (counts.blocked || 0) + (counts.interrupted || 0))} | Cancelled: ${escapeHtml(counts.cancelled || 0)}</p>
+      <p>Runner heartbeats maintain active leases. Results refresh every 30 seconds while this page is idle.</p>`)}
+    ${card("Recent test jobs", `<p>
+      <label>App <select name="historyProduct"><option value="">All apps</option>${productFilterOptions}</select></label>
+      <label>State <select name="historyState"><option value="">All states</option>${stateFilterOptions}</select></label>
+    </p>${history}<p><a href="/testing-functions">Refresh results</a> | <a href="/automation">All automation jobs</a></p>`)}
+    ${card("Execution boundary", `<p>APK identity is verified before the package-bound manifest runs. Tests execute sequentially on one selected Android device.</p>
+      <p>Queued jobs cancel immediately. Running jobs enter <code>cancelling</code> until the runner stops the active child and reports completion.</p>`)}
   </section>`;
 }
 

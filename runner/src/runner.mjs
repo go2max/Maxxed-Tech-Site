@@ -45,10 +45,14 @@ export async function runSequentialJob(options) {
     await acquireLeases(store, options.runnerId, options.deviceId, jobId, options.leaseDurationMs || 15 * 60 * 1000);
     leaseAcquired = true;
     for (const step of selectedSteps) {
+      if (options.signal?.aborted) throw new Error("job_cancelled");
+      await options.onStepStart?.({ stepId: step.id, completedSteps: steps.length });
       const result = redactStepResult(await executeStep(step, {
         rootDir: options.rootDir,
         reportDir: options.reportDir,
         inspection,
+        deviceId: options.deviceId,
+        signal: options.signal,
       }));
       steps.push(result);
       if (result.status === "fail" && !step.continueOnFailure) {
@@ -61,7 +65,10 @@ export async function runSequentialJob(options) {
       }
     }
   } catch (error) {
-    finalStatus = error.message === "lease_contention" ? "blocked" : error.message === "step_timeout" ? "fail" : "interrupted";
+    finalStatus = error.message === "lease_contention" ? "blocked"
+      : error.message === "step_timeout" ? "fail"
+        : error.message === "job_cancelled" ? "cancelled"
+          : "interrupted";
     steps.push({ stepId: "runtime", status: finalStatus, stdout: "", stderr: error.message, evidence: [] });
   } finally {
     if (leaseAcquired) {

@@ -1,8 +1,7 @@
 {
   "platform": "https://admin.techmaxxed.com",
-  "apk": "../../local-artifacts/maxxed-remote.apk",
   "products": "./products.local.json",
-  "manifest": "./script-packs/maxxed-remote/manifest.json",
+  "artifactCatalog": "./artifacts.local.json",
   "stateDir": "../state",
   "reportDir": "../reports",
   "runnerId": "local-windows-runner",
@@ -10,5 +9,7 @@
   "inspectionMode": "production",
   "aaptPath": "C:\\Android\\build-tools\\35.0.0\\aapt.exe",
   "pollSeconds": 10,
-  "errorBackoffSeconds": 30
+  "errorBackoffSeconds": 30,
+  "heartbeatSeconds": 15,
+  "localLeaseSeconds": 3600
 }
