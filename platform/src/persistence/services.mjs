@@ -147,6 +147,7 @@ export function createPlatformServices(database) {
           const userId = requireString(payload.userId, "invalid_user_id");
           const roleName = requireString(payload.roleName, "invalid_role_name");
           if (!Object.values(ROLES).includes(roleName)) throw new Error("invalid_role_name");
+          if (roleName === ROLES.OWNER) requirePermission(context.actor, PERMISSIONS.SECURITY_MANAGE);
           const user = await repositories.users.get(tx, userId);
           if (!user) throw new Error("missing_row:user");
           const roles = currentRoles(
@@ -177,6 +178,7 @@ export function createPlatformServices(database) {
           const userId = requireString(payload.userId, "invalid_user_id");
           const roleName = requireString(payload.roleName, "invalid_role_name");
           if (!Object.values(ROLES).includes(roleName)) throw new Error("invalid_role_name");
+          if (roleName === ROLES.OWNER) requirePermission(context.actor, PERMISSIONS.SECURITY_MANAGE);
           const users = await repositories.users.list(tx);
           const user = users.find((record) => record.id === userId);
           if (!user) throw new Error("missing_row:user");
@@ -217,10 +219,12 @@ export function createPlatformServices(database) {
           const before = users.find((record) => record.id === userId);
           if (!before) throw new Error("missing_row:user");
           if (before.status === status) throw new Error("access_state_conflict:status_unchanged");
+          const legacy = await repositories.roleAssignments.list(tx);
+          const events = await repositories.accessRoleEvents.list(tx);
+          const targetIsOwner = currentRoles(userId, legacy, events).includes(ROLES.OWNER);
+          if (targetIsOwner) requirePermission(context.actor, PERMISSIONS.SECURITY_MANAGE);
           if (status === "inactive") {
-            const legacy = await repositories.roleAssignments.list(tx);
-            const events = await repositories.accessRoleEvents.list(tx);
-            if (currentRoles(userId, legacy, events).includes(ROLES.OWNER)) {
+            if (targetIsOwner) {
               const activeOwners = users.filter((candidate) =>
                 candidate.status === "active" &&
                 currentRoles(candidate.id, legacy, events).includes(ROLES.OWNER)
