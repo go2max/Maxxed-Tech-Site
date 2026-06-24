@@ -33,6 +33,7 @@ export function validateAgentConfig(input, configDir = runnerRoot) {
   const pollSeconds = boundedNumber(input.pollSeconds, 10, 1, 3600, "invalid_agent_poll_seconds");
   const errorBackoffSeconds = boundedNumber(input.errorBackoffSeconds, 30, 1, 3600, "invalid_agent_backoff_seconds");
   const heartbeatSeconds = boundedNumber(input.heartbeatSeconds, 15, 5, 120, "invalid_agent_heartbeat_seconds");
+  const localLeaseSeconds = boundedNumber(input.localLeaseSeconds, 3600, 300, 14400, "invalid_agent_local_lease_seconds");
   return {
     platform: platform.toString(),
     apk: usesArtifactCatalog ? null : resolve(configDir, input.apk),
@@ -48,6 +49,7 @@ export function validateAgentConfig(input, configDir = runnerRoot) {
     pollSeconds,
     errorBackoffSeconds,
     heartbeatSeconds,
+    localLeaseSeconds,
   };
 }
 
@@ -107,6 +109,7 @@ export function buildRemoteCliArgs(config) {
     deviceId: config.deviceId,
     inspectionMode: config.inspectionMode,
     heartbeatSeconds: config.heartbeatSeconds,
+    localLeaseSeconds: config.localLeaseSeconds,
     ...(config.aaptPath ? { aaptPath: config.aaptPath } : {}),
   };
   return Object.entries(values).map(([key, value]) => `--${key}=${value}`);
