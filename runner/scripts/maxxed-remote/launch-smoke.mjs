@@ -1,1 +1,1 @@
-export { run } from "../common/pass-step.mjs";
+export { run } from "../common/android-app-smoke.mjs";
