@@ -18,6 +18,7 @@ export async function createSeededPlatformState() {
   const services = createPlatformServices(database);
 
   const owner = actor("owner@techmaxxed.com", [ROLES.OWNER]);
+  const admin = actor("admin@techmaxxed.com", [ROLES.ADMINISTRATOR]);
   const qaLead = actor("qa-lead@techmaxxed.com", [ROLES.QA_LEAD]);
   const betaManager = actor("beta-manager@techmaxxed.com", [ROLES.BETA_MANAGER]);
   const docsEditor = actor("docs@techmaxxed.com", [ROLES.DOCUMENTATION_EDITOR]);
@@ -89,7 +90,7 @@ export async function createSeededPlatformState() {
     status: "investigating",
     evidence: [{ type: "metric", ref: "m1" }],
   });
-  await services.updateIntegrationState({ actor: analytics, requestId: "seed-10" }, {
+  await services.updateIntegrationState({ actor: admin, requestId: "seed-10" }, {
     productId: product.id,
     monitorName: "play-reporting",
     freshnessState: "stale",
@@ -101,7 +102,7 @@ export async function createSeededPlatformState() {
     publicationState: "internal",
     body: "Run through staging checks before promotion.",
   });
-  await services.recordReadinessSnapshot({ actor: analytics, requestId: "seed-12" }, {
+  await services.recordReadinessSnapshot({ actor: admin, requestId: "seed-12" }, {
     productId: product.id,
     score: 82,
     mandatoryGates: { qaApproval: true, productionOwner: false },

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { ROLES, permissionsForRoles } from "../src/auth/roles.mjs";
-import { MemoryPlatformDatabase, loadMigrationSql } from "../src/persistence/database.mjs";
+import { D1PlatformDatabase, MemoryD1Binding, MemoryPlatformDatabase, loadMigrationSql } from "../src/persistence/database.mjs";
 import { applyAllMigrations, MIGRATIONS } from "../src/persistence/migrations.mjs";
 import { createPlatformServices } from "../src/persistence/services.mjs";
 
@@ -15,20 +15,31 @@ function actor(email, roles) {
   };
 }
 
-test("fresh migration and repeat migration succeed", async () => {
-  const database = new MemoryPlatformDatabase();
+async function listTable(database, table) {
+  return database.transaction((tx) => tx.list(table));
+}
+
+test("fresh migration and repeat migration succeed for memory and D1 adapters", async () => {
   const sql = await loadMigrationSql("0001_initial.sql");
   assert.match(sql, /CREATE TABLE IF NOT EXISTS users/);
   assert.match(sql, /CREATE TABLE IF NOT EXISTS audit_events/);
 
-  await applyAllMigrations(database);
-  assert.deepEqual([...database.appliedMigrations], MIGRATIONS.map((migration) => migration.id));
+  const memory = new MemoryPlatformDatabase();
+  await applyAllMigrations(memory);
+  for (const migration of MIGRATIONS) {
+    assert.equal(await memory.hasMigration(migration.id), true);
+  }
+  await applyAllMigrations(memory);
 
-  await applyAllMigrations(database);
-  assert.deepEqual([...database.appliedMigrations], MIGRATIONS.map((migration) => migration.id));
+  const d1 = new D1PlatformDatabase(new MemoryD1Binding());
+  await applyAllMigrations(d1);
+  for (const migration of MIGRATIONS) {
+    assert.equal(await d1.hasMigration(migration.id), true);
+  }
+  await applyAllMigrations(d1);
 });
 
-test("repositories and services cover the required record families with audit events", async () => {
+test("repositories and services cover required record families with append-only audit events", async () => {
   const database = new MemoryPlatformDatabase();
   await applyAllMigrations(database);
   const services = createPlatformServices(database);
@@ -36,7 +47,9 @@ test("repositories and services cover the required record families with audit ev
   const qaLead = actor("qa-lead@techmaxxed.com", [ROLES.QA_LEAD]);
   const betaManager = actor("beta-manager@techmaxxed.com", [ROLES.BETA_MANAGER]);
   const docsEditor = actor("docs@techmaxxed.com", [ROLES.DOCUMENTATION_EDITOR]);
-  const analytics = actor("analytics@techmaxxed.com", [ROLES.ANALYTICS_VIEWER]);
+  const admin = actor("admin@techmaxxed.com", [ROLES.ADMINISTRATOR]);
+  const support = actor("support@techmaxxed.com", [ROLES.SUPPORT]);
+  const betaTester = actor("beta-tester@techmaxxed.com", [ROLES.BETA_TESTER]);
 
   const product = await services.createProduct({ actor: owner, requestId: "req-1" }, {
     slug: "maxxed-remote",
@@ -89,7 +102,12 @@ test("repositories and services cover the required record families with audit ev
     credits: { total: 1 },
     consent: { publicCredit: true },
   });
-  const job = await services.createAutomationJob({ actor: qaLead, requestId: "req-8" }, {
+  const feedback = await services.recordBetaFeedback({ actor: betaTester, requestId: "req-8" }, {
+    email: "beta-tester@techmaxxed.com",
+    productSlug: "maxxed-remote",
+    feedback: "Looks good.",
+  });
+  const job = await services.createAutomationJob({ actor: qaLead, requestId: "req-9" }, {
     productId: product.id,
     orderedSteps: ["artifact-verify", "launch-smoke"],
     deviceId: "device-1",
@@ -98,38 +116,53 @@ test("repositories and services cover the required record families with audit ev
     result: { state: "pass" },
     evidence: [{ type: "report", ref: "r1" }],
   });
-  const incident = await services.recordIncident({ actor: owner, requestId: "req-9" }, {
+  const supportCase = await services.createSupportCase({ actor: support, requestId: "req-10" }, {
+    email: "customer@example.com",
+    subject: "Need help",
+    status: "open",
+    details: "Pairing issue",
+  });
+  const incident = await services.recordIncident({ actor: admin, requestId: "req-11" }, {
     productId: product.id,
     severity: "high",
     status: "open",
     evidence: [{ type: "metric", ref: "m1" }],
   });
-  const integration = await services.updateIntegrationState({ actor: analytics, requestId: "req-10" }, {
+  const integration = await services.updateIntegrationState({ actor: admin, requestId: "req-12" }, {
     productId: product.id,
     monitorName: "play-reporting",
     freshnessState: "stale",
     details: { lastSuccessAt: null },
   });
-  const kb = await services.publishKnowledgeBaseEntry({ actor: docsEditor, requestId: "req-11" }, {
+  const kb = await services.publishKnowledgeBaseEntry({ actor: docsEditor, requestId: "req-13" }, {
     slug: "release-runbook",
     title: "Release Runbook",
     publicationState: "internal",
     body: "step-by-step",
   });
-  const readiness = await services.recordReadinessSnapshot({ actor: analytics, requestId: "req-12" }, {
+  const readiness = await services.recordReadinessSnapshot({ actor: admin, requestId: "req-14" }, {
     productId: product.id,
     score: 82,
     mandatoryGates: { signer: true, qa: false },
     evidence: [{ type: "release", id: release.id }],
   });
+  const approvedRelease = await services.approveReleaseQa({ actor: qaLead, requestId: "req-15" }, {
+    releaseId: release.id,
+    releaseNotes: "approved",
+  });
+  const promotedRelease = await services.promoteReleaseToProduction({ actor: owner, requestId: "req-16" }, {
+    releaseId: release.id,
+    releaseNotes: "promoted",
+    confirmation: "PROMOTE",
+  });
 
-  assert.ok(product.id && build.id && release.id && plan.id && execution.id && bug.id && beta.id && job.id && incident.id && integration.id && kb.id && readiness.id);
-  const events = services.auditRepository.list({ list: (table) => database.tables[table] ? [...database.tables[table].values()] : [] });
-  assert.equal(events.length, 12);
+  assert.ok(product.id && build.id && plan.id && execution.id && bug.id && beta.id && feedback.id && job.id && supportCase.id && incident.id && integration.id && kb.id && readiness.id && approvedRelease.id && promotedRelease.id);
+  const events = await listTable(database, "audit_events");
+  assert.equal(events.length, 16);
   assert.equal(services.auditRepository.verifyIntegrity(events), true);
 });
 
-test("authorization failures and append-only audit protections are enforced", async () => {
+test("authorization failures, release gates, and append-only audit protections are enforced", async () => {
   const database = new MemoryPlatformDatabase();
   await applyAllMigrations(database);
   const services = createPlatformServices(database);
@@ -141,15 +174,48 @@ test("authorization failures and append-only audit protections are enforced", as
   );
 
   const owner = actor("owner@techmaxxed.com", [ROLES.OWNER]);
-  await services.createProduct({ actor: owner, requestId: "req-ok" }, {
-    slug: "maxxed-compass",
-    name: "Maxxed Compass",
-    packageId: "com.maxxed.compass",
-    lifecycleStatus: "development",
+  const release = await services.createRelease({ actor: owner, requestId: "req-release" }, {
+    productId: "product-1",
+    buildId: "build-1",
+    stage: "internal_beta",
+    qaApprovalState: "pending",
+    ownerApprovalState: "pending",
+    releaseNotes: "notes",
+    blockers: ["manual-check"],
   });
 
   await assert.rejects(
-    () => database.transaction((tx) => tx.update("audit_events", services.auditRepository.list(tx)[0].id, (row) => row)),
+    () => services.promoteReleaseToProduction({ actor: owner, requestId: "req-promote" }, {
+      releaseId: release.id,
+      releaseNotes: "promote",
+      confirmation: "PROMOTE",
+    }),
+    /release_gate_failed:qa_approval_required/,
+  );
+
+  await assert.rejects(
+    () => database.transaction(async (tx) => tx.update("audit_events", "missing", (row) => row)),
     /audit_events_append_only/,
   );
+});
+
+test("D1-backed transactions preserve audit integrity under concurrent writes", async () => {
+  const database = new D1PlatformDatabase(new MemoryD1Binding());
+  await applyAllMigrations(database);
+  const services = createPlatformServices(database);
+  const owner = actor("owner@techmaxxed.com", [ROLES.OWNER]);
+
+  await Promise.all(Array.from({ length: 10 }, (_, index) => services.createProduct({
+    actor: owner,
+    requestId: `req-${index}`,
+  }, {
+    slug: `product-${index}`,
+    name: `Product ${index}`,
+    packageId: `com.maxxed.product${index}`,
+    lifecycleStatus: "development",
+  })));
+
+  const events = await listTable(database, "audit_events");
+  assert.equal(events.length, 10);
+  assert.equal(services.auditRepository.verifyIntegrity(events), true);
 });

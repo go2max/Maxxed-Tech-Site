@@ -24,15 +24,34 @@ async function sign(secret, payload) {
   return Buffer.from(signature).toString("base64url");
 }
 
-export async function createSession(identity, config, now = Date.now()) {
+export async function createSession(identity, config, now = Date.now(), existingSession = null) {
+  const issuedAt =
+    existingSession?.subject === identity.subject
+    && existingSession?.email === identity.email
+    && existingSession.expiresAt > now
+      ? existingSession.issuedAt
+      : now;
+  const expiresAt =
+    existingSession?.subject === identity.subject
+    && existingSession?.email === identity.email
+    && existingSession.expiresAt > now
+      ? existingSession.expiresAt
+      : now + config.sessionAbsoluteTtlMs;
+  const nonce =
+    existingSession?.subject === identity.subject
+    && existingSession?.email === identity.email
+    && existingSession.expiresAt > now
+      ? existingSession.nonce
+      : crypto.randomUUID();
   const body = {
     email: identity.email,
+    subject: identity.subject,
     roles: identity.roles,
     source: identity.source,
-    issuedAt: now,
-    expiresAt: now + config.sessionAbsoluteTtlMs,
+    issuedAt,
+    expiresAt,
     idleAt: now + config.sessionIdleTtlMs,
-    nonce: crypto.randomUUID(),
+    nonce,
   };
   const payload = toBase64Url(JSON.stringify(body));
   const signature = await sign(config.sessionSecret, payload);
@@ -51,6 +70,10 @@ export async function readSession(sessionToken, config, now = Date.now()) {
 }
 
 export async function createCsrfToken(session, config) {
-  const payload = `${session.email}:${session.nonce}:${session.expiresAt}`;
+  const payload = `${session.email}:${session.subject}:${session.nonce}:${session.expiresAt}`;
   return sign(config.sessionSecret, payload);
+}
+
+export function sessionMatchesIdentity(session, identity) {
+  return session?.email === identity.email && session?.subject === identity.subject;
 }

@@ -19,13 +19,13 @@ export class GenericRepository {
     return tx.list(this.tableName);
   }
 
-  insert(tx, record, now) {
+  async insert(tx, record, now) {
     const row = stamp(record, now);
-    tx.insert(this.tableName, row);
+    await tx.insert(this.tableName, row);
     return row;
   }
 
-  update(tx, id, patch, now) {
+  async update(tx, id, patch, now) {
     return tx.update(this.tableName, id, (current) => stamp({ ...current, ...patch }, now));
   }
 }
@@ -41,7 +41,9 @@ export function createRepositories() {
     qaExecutions: new GenericRepository("qa_executions"),
     bugs: new GenericRepository("bugs"),
     betaApplications: new GenericRepository("beta_applications"),
+    betaFeedback: new GenericRepository("beta_feedback"),
     automationJobs: new GenericRepository("automation_jobs"),
+    supportCases: new GenericRepository("support_cases"),
     incidents: new GenericRepository("incidents"),
     integrationStates: new GenericRepository("integration_states"),
     knowledgeBaseEntries: new GenericRepository("knowledge_base_entries"),

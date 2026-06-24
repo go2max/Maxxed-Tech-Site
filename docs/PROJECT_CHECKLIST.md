@@ -123,12 +123,12 @@ These are website display states, not final Play Console approvals.
 - [x] Trusted server-side identity extraction with an explicit development-only override gate.
 - [x] Deny-by-default representative route authorization with canonical role and permission mappings.
 - [x] Signed session-cookie model with expiry, origin checks, CSRF enforcement, and strict security headers.
-- [x] Focused tests proving unauthenticated rejection, role allow/deny behavior, role-header distrust, CSRF/origin rejection, and secret redaction.
+- [x] Focused regression tests for unauthenticated rejection, role allow/deny behavior, role-header distrust, CSRF/origin rejection, stored-XSS escape paths, and secret redaction.
 
 ### Persistence Complete
 
 - [x] Initial D1-oriented SQL migration catalog for users, roles, products, builds, releases, QA, bugs, beta records, automation jobs, incidents, integrations, knowledge-base entries, readiness snapshots, and audit events.
-- [x] Deterministic transactional persistence harness for repository and service tests.
+- [x] Deterministic transactional persistence harness for repository and service tests, including a D1-shaped adapter.
 - [x] Append-only audit hash chaining with integrity verification.
 - [x] Authorization-tested services covering the required record families.
 - [x] Rollback strategy documentation for schema and data recovery.
@@ -142,9 +142,9 @@ These are website display states, not final Play Console approvals.
 ### Runner Foundation Complete
 
 - [x] Windows-first local runner command path using Node and PowerShell-friendly arguments.
-- [x] APK dry-run inspection using local bytes plus sidecar metadata without installation or execution.
+- [x] APK dry-run inspection using streamed local bytes plus test-only sidecar metadata without installation or execution.
 - [x] Product matching fails closed when real package IDs are not configured locally.
-- [x] Allowlisted script-pack manifests for the six current Android apps.
+- [x] Allowlisted script-pack manifests bound to the detected application package ID.
 - [x] Sequential step execution with durable runner and device lease state.
 - [x] Deterministic JSON and HTML report generation.
 - [x] Runner tests for dry run, mismatch rejection, allowlist enforcement, failure redaction, and lease contention.
@@ -177,9 +177,9 @@ These are website display states, not final Play Console approvals.
 - [x] Execute exactly one job and one script step at a time.
 - [x] Lock the selected emulator or physical device for the job.
 - [ ] Capture logcat, screenshots, video where enabled, performance, and failures.
-- [ ] Apply per-step timeouts and guaranteed cleanup.
+- [x] Apply per-step timeouts and hard child-process termination.
 - [x] Produce local HTML and JSON reports.
-- [ ] Recover safely after runner or device interruption.
+- [x] Recover safely after stale runner or device interruption.
 - [x] Keep production signing keys and production secrets off the runner.
 
 ### Later Phases

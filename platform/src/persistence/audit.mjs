@@ -15,28 +15,34 @@ export class AuditEventRepository {
     return tx.list("audit_events");
   }
 
-  append(tx, event) {
-    const previous = this.list(tx).at(-1) ?? null;
-    const previousHash = previous?.eventHash ?? "root";
+  async append(tx, event) {
+    const previous = (await this.list(tx)).at(-1) ?? null;
+    const previousHash = previous?.event_hash ?? "root";
     const payload = { ...event, previousHash };
     const record = {
-      ...payload,
-      eventHash: hashEvent(previousHash, payload),
+      ...event,
+      previous_hash: previousHash,
+      event_hash: hashEvent(previousHash, payload),
     };
-    tx.insert("audit_events", record);
+    await tx.insert("audit_events", record);
     return record;
   }
 
   verifyIntegrity(events) {
     let previousHash = "root";
     for (const event of events) {
-      const payload = { ...event, eventHash: undefined };
-      delete payload.eventHash;
-      const expected = hashEvent(previousHash, payload);
-      if (event.previousHash !== previousHash || event.eventHash !== expected) {
+      const payload = {
+        ...event,
+        previous_hash: undefined,
+        event_hash: undefined,
+      };
+      delete payload.previous_hash;
+      delete payload.event_hash;
+      const expected = hashEvent(previousHash, { ...payload, previousHash });
+      if (event.previous_hash !== previousHash || event.event_hash !== expected) {
         return false;
       }
-      previousHash = event.eventHash;
+      previousHash = event.event_hash;
     }
     return true;
   }

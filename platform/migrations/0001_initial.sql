@@ -97,6 +97,16 @@ CREATE TABLE IF NOT EXISTS beta_applications (
   updated_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS beta_feedback (
+  id TEXT PRIMARY KEY,
+  beta_application_id TEXT,
+  email TEXT NOT NULL,
+  product_slug TEXT NOT NULL,
+  feedback TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS automation_jobs (
   id TEXT PRIMARY KEY,
   product_id TEXT NOT NULL,
@@ -106,6 +116,16 @@ CREATE TABLE IF NOT EXISTS automation_jobs (
   lease_state TEXT NOT NULL,
   result_json TEXT NOT NULL,
   evidence_json TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS support_cases (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  status TEXT NOT NULL,
+  details TEXT NOT NULL,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );

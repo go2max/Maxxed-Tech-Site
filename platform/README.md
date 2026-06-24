@@ -10,4 +10,6 @@ node .\scripts\check-platform.mjs
 ```
 
 The platform trusts identity only from configured server-side headers. Browser
-code does not assign roles or permissions.
+code does not assign roles or permissions. Production requests must present a
+validated server-side identity JWT; mirrored identity headers are treated only
+as consistency checks.

@@ -6,11 +6,11 @@ export const MIGRATIONS = Object.freeze([
 
 export async function applyAllMigrations(database) {
   for (const migration of MIGRATIONS) {
-    if (database.appliedMigrations.has(migration.id)) continue;
+    if (await database.hasMigration(migration.id)) continue;
     const sql = await loadMigrationSql(migration.file);
     if (!sql.includes("CREATE TABLE IF NOT EXISTS audit_events")) {
       throw new Error(`invalid_migration:${migration.id}`);
     }
-    await database.applyMigration(migration.id);
+    await database.applyMigration(migration.id, sql);
   }
 }

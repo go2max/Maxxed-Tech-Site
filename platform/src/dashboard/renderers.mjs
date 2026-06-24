@@ -12,7 +12,7 @@ function card(title, body) {
 
 function list(items, render) {
   return items.length
-    ? `<ul>${items.map((item) => `<li>${render(item)}</li>`).join("")}</ul>`
+    ? `<ul>${items.map((item) => `<li>${escapeHtml(render(item))}</li>`).join("")}</ul>`
     : '<p class="empty-state">No records are available yet.</p>';
 }
 
