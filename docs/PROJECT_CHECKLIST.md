@@ -11,7 +11,7 @@ implemented feature.
 
 - [x] Public multi-page website source is complete for the initial launch.
 - [x] Website build and validation pass on Node.js without Bash or WSL.
-- [x] Full source is restored on GitHub `main` at commit `7f2be00`.
+- [x] Wave 1 platform foundation is merged on GitHub `main` at commit `3ff97c2`.
 - [ ] Public website is deployed to production hosting.
 - [ ] `techmaxxed.com` is purchased, connected, and serving the site.
 - [ ] Production support, privacy, and beta email addresses are active.
@@ -161,7 +161,7 @@ These are website display states, not final Play Console approvals.
 - [ ] Internal knowledge base editing workflow.
 - [ ] Product Readiness Score calculation and evidence gates in the dashboard.
 - [ ] Full beta enrollment workflow and adapters.
-- [ ] Final hardening and release-preparation runbooks.
+- [x] Repository hardening and release-preparation runbooks.
 
 ## Sequential APK Test Environment
 
