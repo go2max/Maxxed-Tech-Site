@@ -31,7 +31,8 @@ products to the claim API.
 
 The agent waits for each child before polling again. Successful and idle cycles
 use `pollSeconds`; failed cycles use `errorBackoffSeconds`. Active jobs send
-heartbeats at `heartbeatSeconds`. A server cancellation kills the isolated
+heartbeats at `heartbeatSeconds`; local cross-process leases use
+`localLeaseSeconds` and default to one hour. A server cancellation kills the isolated
 active step and records `cancelled`; repeated heartbeat failure stops work to
 avoid split-brain execution.
 
@@ -51,7 +52,8 @@ node runner/remote-cli.mjs `
   --deviceId=R3CT... `
   --inspectionMode=production `
   --aaptPath=C:\Android\build-tools\35.0.0\aapt.exe `
-  --heartbeatSeconds=15
+  --heartbeatSeconds=15 `
+  --localLeaseSeconds=3600
 ```
 
 Legacy `--apk` and `--manifest` arguments remain available for a dedicated
