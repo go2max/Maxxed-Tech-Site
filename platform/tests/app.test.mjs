@@ -570,3 +570,17 @@ test("Remote job cancellation and retry preserve history and enforce state trans
   assert.equal(audit.some((event) => event.action_name === "automation_job.cancel" && event.target_id === queuedJob.id), true);
   assert.equal(audit.some((event) => event.action_name === "automation_job.retry" && event.target_id === retryJob.id), true);
 });
+
+
+test("Testing Functions client script parses and exposes lifecycle actions", async () => {
+  const { app } = await bootstrap("qa-lead@techmaxxed.com", "/testing-functions");
+  const response = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions.js", {
+    headers: authHeaders("qa-lead@techmaxxed.com"),
+  }));
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type"), /application\/javascript/);
+  const source = await response.text();
+  assert.doesNotThrow(() => new Function(source));
+  assert.match(source, /data-job-action/);
+  assert.match(source, /encodeURIComponent\(jobId\)/);
+});
