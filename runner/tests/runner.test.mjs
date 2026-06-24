@@ -386,4 +386,5 @@ test("agent readiness validates every configured portfolio artifact", async () =
   assert.equal(checked.length, 6);
   assert.equal(buildRemoteCliArgs(config).some((value) => value.startsWith("--artifacts=")), true);
   assert.equal(buildRemoteCliArgs(config).some((value) => value.startsWith("--heartbeatSeconds=20")), true);
+  assert.equal(buildRemoteCliArgs(config).some((value) => value.startsWith("--localLeaseSeconds=3600")), true);
 });
