@@ -9,6 +9,7 @@ export const MIGRATIONS = Object.freeze([
   { id: "0006_backup_snapshots", file: "0006_backup_snapshots.sql", requiredMarker: "CREATE TABLE IF NOT EXISTS backup_snapshots" },
   { id: "0007_knowledge_base_revisions", file: "0007_knowledge_base_revisions.sql", requiredMarker: "CREATE TABLE IF NOT EXISTS knowledge_base_revisions" },
   { id: "0008_readiness_security_monitoring", file: "0008_readiness_security_monitoring.sql", requiredMarker: "CREATE TABLE IF NOT EXISTS readiness_evidence" },
+  { id: "0009_beta_enrollment_play_integrations", file: "0009_beta_enrollment_play_integrations.sql", requiredMarker: "CREATE TABLE IF NOT EXISTS beta_enrollment_events" },
 ]);
 
 export async function applyAllMigrations(database) {
