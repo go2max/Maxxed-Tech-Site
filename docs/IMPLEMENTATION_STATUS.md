@@ -4,19 +4,21 @@ Last updated: June 23, 2026
 
 ## Current State
 
-- Phase 0 through Phase 7 repository changes are in progress on `codex/platform-v1-implementation`.
-- Public-site source remains the validated baseline and must stay independently deployable.
-- Repository-controlled private platform, runner, beta-adapter contracts, readiness scoring, and hardening docs exist in the repository.
-- Blocking PR #6 security findings are being addressed in code, but the full repository gate could not be re-run from this session because sandboxed Node module resolution cannot traverse the local parent path.
+- Wave 1 repository implementation merged to `main` through PR #6 at merge commit `3ff97c2`.
+- Public-site source remains independently deployable and its 23-page validation remains green.
+- Repository-controlled private platform, D1 adapter, audited services, runner, beta-adapter contracts, readiness scoring, security tests, and operational runbooks are implemented.
+- The complete Windows CI gate passed twice on the final PR head, including the tracked-file secret scan.
+- Production hosting, Cloudflare Access configuration, D1/R2 provisioning, Google credentials, physical-device validation, and release authorization remain explicit external gates.
 
 ## Validation Evidence
 
-- `npm run check`
-  - Result: not re-run in this session; blocked by sandboxed Node path-resolution failure before test execution
-- `node .\scripts\security-scan.mjs`
-  - Result: updated to scan all tracked text files; not re-run in this session because of the same Node path-resolution block
-- `powershell -ExecutionPolicy Bypass -File .\scripts\check.ps1`
-  - Result: not re-run in this session
+- GitHub Actions run `28074769428`, attempt 1
+  - `npm run check`: passed
+  - `node .\scripts\security-scan.mjs`: passed
+- GitHub Actions run `28074769428`, attempt 2
+  - `npm run check`: passed
+  - `node .\scripts\security-scan.mjs`: passed
+- Verified coverage includes the public site, private platform security, D1 migration and concurrent audit integrity, mutation authorization and release gates, stored-XSS regression, beta and readiness contracts, runner manifest binding, hard child-process timeout, cross-job lease ownership, stale-job recovery, backup recovery, and secret scanning.
 
 ## Phase Log
 
@@ -29,7 +31,7 @@ Last updated: June 23, 2026
 | 4 | Complete | `855ce35` | `node --test .\runner\tests\runner.test.mjs`; `npm run check` | Sequential runner foundation |
 | 5 | Complete | `ea9d797` | `node --test .\platform\tests\beta.test.mjs`; `npm run check` | Beta adapters and consent separation |
 | 6 | Complete | `7d9ecab` | `node --test .\platform\tests\readiness.test.mjs`; `npm run check` | Monitoring summaries and readiness scoring |
-| 7 | In progress | Pending | Blocked in-session by sandboxed Node path-resolution failure; re-run `npm run check` twice and `node .\scripts\security-scan.mjs` from a normal local shell | Final hardening, review-finding remediation, environment inventory, deployment notes, and expanded secret scan |
+| 7 | Complete | `1ebe190` plus PR #6 remediation through `fc6c39a` | Windows GitHub Actions run `28074769428` passed twice | Final hardening, review-finding remediation, environment inventory, deployment notes, runner isolation, D1 audit concurrency, and expanded secret scan |
 
 ## Known Limitations
 
