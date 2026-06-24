@@ -27,7 +27,10 @@ class TransactionContext {
     if (table === "audit_events") {
       return rows.sort((left, right) => Number(left.sequence) - Number(right.sequence));
     }
-    return rows.sort((left, right) => String(left.created_at || left.id).localeCompare(String(right.created_at || right.id)) || String(left.id).localeCompare(String(right.id)));
+    return rows.sort((left, right) =>
+      String(left.created_at || left.applied_at || left.id).localeCompare(String(right.created_at || right.applied_at || right.id)) ||
+      String(left.id).localeCompare(String(right.id))
+    );
   }
 
   insert(table, row) {
@@ -114,7 +117,9 @@ class D1TransactionContext {
   }
 
   async list(table) {
-    const orderBy = table === "audit_events" ? "sequence ASC" : "created_at ASC, id ASC";
+    const orderBy = table === "audit_events" ? "sequence ASC"
+      : table === "schema_migrations" ? "applied_at ASC, id ASC"
+        : "created_at ASC, id ASC";
     return unwrapAll(this.binding.prepare(`SELECT * FROM ${quoteIdentifier(table)} ORDER BY ${orderBy}`));
   }
 
