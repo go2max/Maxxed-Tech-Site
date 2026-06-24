@@ -165,7 +165,8 @@ export class D1PlatformDatabase {
 
   async transaction(work) {
     const operation = this.queue.then(async () => {
-      for (let attempt = 0; attempt < 4; attempt += 1) {
+      const maxAuditHeadAttempts = 16;
+      for (let attempt = 0; attempt < maxAuditHeadAttempts; attempt += 1) {
         const tx = new D1TransactionContext(this.binding);
         try {
           const result = await work(tx);
@@ -175,7 +176,8 @@ export class D1PlatformDatabase {
           }
           return result;
         } catch (error) {
-          if (!isAuditHeadConflict(error) || attempt === 3) throw error;
+          if (!isAuditHeadConflict(error) || attempt === maxAuditHeadAttempts - 1) throw error;
+          await new Promise((resolveDelay) => setTimeout(resolveDelay, Math.min(25, attempt + 1)));
         }
       }
       throw new Error("audit_head_retry_exhausted");
