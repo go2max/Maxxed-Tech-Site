@@ -5,7 +5,7 @@ import { decryptBackupSnapshot, encryptBackupSnapshot } from "../src/backups/cod
 import { MemoryBackupStore, R2BackupStore, UnavailableBackupStore } from "../src/backups/storage.mjs";
 import { createEncryptedBackup, verifyEncryptedBackup } from "../src/backups/service.mjs";
 import { D1PlatformDatabase, MemoryD1Binding } from "../src/persistence/database.mjs";
-import { applyAllMigrations } from "../src/persistence/migrations.mjs";
+import { applyAllMigrations, MIGRATIONS } from "../src/persistence/migrations.mjs";
 import { createPlatformServices } from "../src/persistence/services.mjs";
 import { ROLES, permissionsForRoles } from "../src/auth/roles.mjs";
 
@@ -86,7 +86,7 @@ test("D1 backup includes migrations and passes non-destructive restore verificat
     maximumBytes: 10 * 1024 * 1024,
     now: new Date("2026-06-24T12:00:00.000Z"),
   });
-  assert.equal(created.tableCounts.schema_migrations, 6);
+  assert.equal(created.tableCounts.schema_migrations, MIGRATIONS.length);
   const verified = await verifyEncryptedBackup({
     state,
     store,

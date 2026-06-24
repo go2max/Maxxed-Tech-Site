@@ -76,3 +76,6 @@ are documented in `docs/ACCESS_DIRECTORY_OPERATIONS.md`.
 
 Encrypted D1 backup automation, private storage, restore verification, retention,
 and disaster recovery are documented in `docs/ENCRYPTED_BACKUP_OPERATIONS.md`.
+
+Versioned knowledge-base drafts, review approval, publication, archiving, and
+audit procedures are documented in `docs/KNOWLEDGE_BASE_OPERATIONS.md`.

@@ -1,5 +1,5 @@
 import { createSeededPlatformState } from "./dashboard/state.mjs";
-import { renderAuditPage, renderBackupPage, renderPortfolioPage, renderRecordPage, renderTestingFunctionsPage, renderTestingJobPage, renderUserAdminPage } from "./dashboard/renderers.mjs";
+import { renderAuditPage, renderBackupPage, renderKnowledgeBasePage, renderPortfolioPage, renderRecordPage, renderTestingFunctionsPage, renderTestingJobPage, renderUserAdminPage } from "./dashboard/renderers.mjs";
 import { defaultAccessStore, PersistentAccessStore } from "./auth/access-store.mjs";
 import { extractTrustedIdentity } from "./auth/identity.mjs";
 import { createCsrfToken, createSession, readSession, sessionMatchesIdentity } from "./auth/session.mjs";
@@ -163,6 +163,11 @@ function routeTable() {
     ["POST", /^\/security\/backups\/purge$/, { permission: PERMISSIONS.SECURITY_MANAGE, csrf: true, handler: purgeBackups }],
     ["POST", /^\/security\/backups\/[^/]+\/verify$/, { permission: PERMISSIONS.SECURITY_MANAGE, csrf: true, handler: verifyBackup }],
     ["GET", /^\/knowledge-base$/, { permission: PERMISSIONS.DOCS_READ, handler: handleKnowledgeBase }],
+    ["GET", /^\/knowledge-base\.js$/, { permission: PERMISSIONS.DOCS_EDIT, handler: handleKnowledgeBaseScript }],
+    ["POST", /^\/knowledge-base\/drafts$/, { permission: PERMISSIONS.DOCS_EDIT, csrf: true, handler: createKnowledgeBaseDraft }],
+    ["POST", /^\/knowledge-base\/revisions\/[^/]+\/submit$/, { permission: PERMISSIONS.DOCS_EDIT, csrf: true, handler: submitKnowledgeBaseRevision }],
+    ["POST", /^\/knowledge-base\/revisions\/[^/]+\/publish$/, { permission: PERMISSIONS.DOCS_PUBLISH, csrf: true, handler: publishKnowledgeBaseRevision }],
+    ["POST", /^\/knowledge-base\/entries\/[^/]+\/archive$/, { permission: PERMISSIONS.DOCS_PUBLISH, csrf: true, handler: archiveKnowledgeBaseEntry }],
     ["GET", /^\/readiness$/, { permission: PERMISSIONS.READINESS_READ, handler: handleReadiness }],
     ["GET", /^\/beta\/portal$/, { permission: PERMISSIONS.BETA_PORTAL, handler: handleBetaPortal }],
     ["GET", /^\/docs\/editor$/, { permission: PERMISSIONS.DOCS_READ, handler: handleDocsEditor }],
@@ -883,8 +888,87 @@ async function handleKnowledgeBase({ identity, csrfToken, state }) {
     title: "Knowledge Base",
     identity,
     csrfToken,
-    content: renderRecordPage("Runbooks", "Publication state", await snapshot(state, "knowledge_base_entries"), (row) => `${row.title} => ${row.publication_state}`),
+    content: renderKnowledgeBasePage({
+      entries: await snapshot(state, "knowledge_base_entries"),
+      revisions: await snapshot(state, "knowledge_base_revisions"),
+      canEdit: hasPermission(identity, PERMISSIONS.DOCS_EDIT),
+      canPublish: hasPermission(identity, PERMISSIONS.DOCS_PUBLISH),
+    }),
   });
+}
+
+async function handleKnowledgeBaseScript() {
+  return new Response(`const status = document.querySelector("#knowledge-base-status");
+const csrfToken = () => document.querySelector("[data-csrf-token]")?.textContent || "";
+
+async function post(path, body = {}) {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-csrf-token": csrfToken() },
+    body: JSON.stringify(body),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || "request_failed");
+  return result;
+}
+
+async function mutate(button, path, body) {
+  button.disabled = true;
+  if (status) status.textContent = "Updating knowledge base...";
+  try {
+    await post(path, body);
+    location.reload();
+  } catch (error) {
+    if (status) status.textContent = "Knowledge-base update failed: " + error.message;
+    button.disabled = false;
+  }
+}
+
+document.querySelector("#knowledge-base-form")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  mutate(form.querySelector("[type=submit]"), "/knowledge-base/drafts", {
+    slug: form.elements.slug.value,
+    title: form.elements.title.value,
+    section: form.elements.section.value,
+    classification: form.elements.classification.value,
+    audience: form.elements.audience.value,
+    productId: form.elements.productId.value,
+    changeSummary: form.elements.changeSummary.value,
+    body: form.elements.body.value,
+  });
+});
+
+document.querySelectorAll("[data-kb-submit]").forEach((button) => button.addEventListener("click", () => {
+  mutate(button, "/knowledge-base/revisions/" + encodeURIComponent(button.dataset.revisionId) + "/submit", {});
+}));
+document.querySelectorAll("[data-kb-publish]").forEach((button) => button.addEventListener("click", () => {
+  mutate(button, "/knowledge-base/revisions/" + encodeURIComponent(button.dataset.revisionId) + "/publish", {});
+}));
+document.querySelectorAll("[data-kb-archive]").forEach((button) => button.addEventListener("click", () => {
+  mutate(button, "/knowledge-base/entries/" + encodeURIComponent(button.dataset.entryId) + "/archive", {});
+}));`, {
+    headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-store" },
+  });
+}
+
+async function createKnowledgeBaseDraft({ requestId, identity, payload, state }) {
+  return ok(await state.services.saveKnowledgeBaseDraft({ actor: identity, requestId }, payload));
+}
+
+async function submitKnowledgeBaseRevision({ requestId, request, identity, state }) {
+  const revisionId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  return ok(await state.services.submitKnowledgeBaseRevision({ actor: identity, requestId }, { revisionId }));
+}
+
+async function publishKnowledgeBaseRevision({ requestId, request, identity, state }) {
+  const revisionId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  return ok(await state.services.publishKnowledgeBaseRevision({ actor: identity, requestId }, { revisionId }));
+}
+
+async function archiveKnowledgeBaseEntry({ requestId, request, identity, state }) {
+  const entryId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  return ok(await state.services.archiveKnowledgeBaseEntry({ actor: identity, requestId }, { entryId }));
 }
 
 async function handleReadiness({ identity, csrfToken, state }) {
@@ -905,13 +989,8 @@ async function handleBetaPortal({ identity, csrfToken }) {
   });
 }
 
-async function handleDocsEditor({ identity, csrfToken }) {
-  return renderDashboardPage({
-    title: "Documentation Workspace",
-    identity,
-    csrfToken,
-    content: `<section class="card"><h2>Managed content</h2><p>Documentation editors can draft and publish approved internal and public content without broader administrative access.</p></section>`,
-  });
+async function handleDocsEditor(context) {
+  return handleKnowledgeBase(context);
 }
 
 function ok(data) {
@@ -1268,6 +1347,8 @@ export function createPlatformApp(options = {}) {
                 error.message.startsWith("access_state_conflict:") ||
                 error.message.startsWith("access_safety_conflict:") ||
                 error.message.startsWith("backup_state_conflict:") ||
+                error.message.startsWith("knowledge_base_state_conflict:") ||
+                error.message.startsWith("knowledge_base_approval_conflict:") ||
                 error.message.startsWith("backup_integrity_") ||
                 error.message.startsWith("backup_table_") ||
                 error.message.startsWith("backup_audit_") ||

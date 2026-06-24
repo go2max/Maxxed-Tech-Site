@@ -48,6 +48,30 @@ function optionalString(value, maximumLength, code) {
   return value.trim();
 }
 
+const KNOWLEDGE_SECTIONS = new Set(["architecture", "security", "release", "qa", "store-submission", "runner", "incident-response", "backup", "marketing", "coding-standards", "app-specific", "general"]);
+const KNOWLEDGE_CLASSIFICATIONS = new Set(["internal", "confidential", "public"]);
+const KNOWLEDGE_AUDIENCES = new Set(["internal", "engineering", "qa", "support", "beta", "public"]);
+
+function requireKnowledgeValue(value, allowed, code) {
+  const normalized = requireString(value, code).toLowerCase();
+  if (!allowed.has(normalized)) throw new Error(code);
+  return normalized;
+}
+
+function requireKnowledgeSlug(value) {
+  const slug = requireString(value, "invalid_knowledge_base_slug").toLowerCase();
+  if (slug.length > 100 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+    throw new Error("invalid_knowledge_base_slug");
+  }
+  return slug;
+}
+
+function requireKnowledgeText(value, maximumLength, code) {
+  const text = requireString(value, code);
+  if (text.length > maximumLength) throw new Error(code);
+  return text;
+}
+
 function parseObjectJson(value) {
   try {
     const parsed = JSON.parse(value || "{}");
@@ -1081,6 +1105,127 @@ export function createPlatformServices(database) {
         }),
       });
     },
+    saveKnowledgeBaseDraft(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.DOCS_EDIT,
+        action: "knowledge_base_revision.create",
+        targetType: "knowledge_base_revision",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const slug = requireKnowledgeSlug(payload.slug);
+          const title = requireKnowledgeText(payload.title, 160, "invalid_knowledge_base_title");
+          const body = requireKnowledgeText(payload.body, 60000, "invalid_knowledge_base_body");
+          const section = requireKnowledgeValue(payload.section || "general", KNOWLEDGE_SECTIONS, "invalid_knowledge_base_section");
+          const classification = requireKnowledgeValue(payload.classification || "internal", KNOWLEDGE_CLASSIFICATIONS, "invalid_knowledge_base_classification");
+          const audience = requireKnowledgeValue(payload.audience || "internal", KNOWLEDGE_AUDIENCES, "invalid_knowledge_base_audience");
+          if ((classification === "public") !== (audience === "public")) {
+            throw new Error("invalid_knowledge_base_public_scope");
+          }
+          const productId = optionalString(payload.productId, 100, "invalid_knowledge_base_product");
+          const changeSummary = requireKnowledgeText(payload.changeSummary, 500, "invalid_knowledge_base_change_summary");
+          let entry = (await repositories.knowledgeBaseEntries.list(tx)).find((item) => item.slug === slug) ?? null;
+          if (!entry) {
+            entry = await repositories.knowledgeBaseEntries.insert(tx, makeRecord("kb", {
+              slug,
+              title,
+              publication_state: "draft",
+              body: "",
+            }), now);
+          }
+          const revisions = (await repositories.knowledgeBaseRevisions.list(tx)).filter((revision) => revision.entry_id === entry.id);
+          const revisionNumber = Math.max(0, ...revisions.map((revision) => Number(revision.revision_number) || 0)) + 1;
+          return {
+            after: await repositories.knowledgeBaseRevisions.insert(tx, makeRecord("kb-revision", {
+              entry_id: entry.id,
+              revision_number: revisionNumber,
+              title,
+              body,
+              section,
+              classification,
+              audience,
+              product_id: productId,
+              change_summary: changeSummary,
+              workflow_state: "draft",
+              author_email: context.actor.email,
+              reviewer_email: "",
+              submitted_at: "",
+              published_at: "",
+            }), now),
+          };
+        },
+      });
+    },
+    submitKnowledgeBaseRevision(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.DOCS_EDIT,
+        action: "knowledge_base_revision.submit",
+        targetType: "knowledge_base_revision",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const revisionId = requireString(payload.revisionId, "invalid_knowledge_base_revision_id");
+          const existing = await repositories.knowledgeBaseRevisions.get(tx, revisionId);
+          if (!existing) throw new Error("missing_row:knowledge_base_revision");
+          if (existing.workflow_state !== "draft") throw new Error("knowledge_base_state_conflict:revision_not_draft");
+          const after = await repositories.knowledgeBaseRevisions.update(tx, revisionId, {
+            workflow_state: "in_review",
+            submitted_at: now,
+          }, now);
+          return { before: existing, after };
+        },
+      });
+    },
+    publishKnowledgeBaseRevision(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.DOCS_PUBLISH,
+        action: "knowledge_base_revision.publish",
+        targetType: "knowledge_base_revision",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const revisionId = requireString(payload.revisionId, "invalid_knowledge_base_revision_id");
+          const existing = await repositories.knowledgeBaseRevisions.get(tx, revisionId);
+          if (!existing) throw new Error("missing_row:knowledge_base_revision");
+          if (existing.workflow_state !== "in_review") throw new Error("knowledge_base_state_conflict:revision_not_in_review");
+          if (existing.author_email.toLowerCase() === context.actor.email.toLowerCase()) {
+            throw new Error("knowledge_base_approval_conflict:self_approval");
+          }
+          const entry = await repositories.knowledgeBaseEntries.get(tx, existing.entry_id);
+          if (!entry) throw new Error("missing_row:knowledge_base_entry");
+          await repositories.knowledgeBaseEntries.update(tx, entry.id, {
+            title: existing.title,
+            body: existing.body,
+            publication_state: existing.classification === "public" ? "public" : "internal",
+          }, now);
+          const after = await repositories.knowledgeBaseRevisions.update(tx, revisionId, {
+            workflow_state: "published",
+            reviewer_email: context.actor.email,
+            published_at: now,
+          }, now);
+          return { before: existing, after };
+        },
+      });
+    },
+    archiveKnowledgeBaseEntry(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.DOCS_PUBLISH,
+        action: "knowledge_base.archive",
+        targetType: "knowledge_base_entry",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const entryId = requireString(payload.entryId, "invalid_knowledge_base_entry_id");
+          const existing = await repositories.knowledgeBaseEntries.get(tx, entryId);
+          if (!existing) throw new Error("missing_row:knowledge_base_entry");
+          if (existing.publication_state === "archived") throw new Error("knowledge_base_state_conflict:already_archived");
+          const after = await repositories.knowledgeBaseEntries.update(tx, entryId, {
+            publication_state: "archived",
+          }, now);
+          return { before: existing, after };
+        },
+      });
+    },
     publishKnowledgeBaseEntry(context, payload) {
       return auditedMutation({
         actor: context.actor,
@@ -1089,7 +1234,8 @@ export function createPlatformServices(database) {
         targetType: "knowledge_base_entry",
         requestId: context.requestId,
         mutation: async (tx, now) => {
-          const slug = requireString(payload.slug, "invalid_knowledge_base_slug");
+          const slug = requireKnowledgeSlug(payload.slug);
+          if (payload.publicationState !== "internal") throw new Error("invalid_knowledge_base_state");
           const existing = (await repositories.knowledgeBaseEntries.list(tx)).find((entry) => entry.slug === slug) ?? null;
           if (existing) {
             const after = await repositories.knowledgeBaseEntries.update(tx, existing.id, {

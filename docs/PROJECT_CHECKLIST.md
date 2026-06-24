@@ -160,7 +160,7 @@ These are website display states, not final Play Console approvals.
 - [ ] Uptime and certificate monitoring.
 - [ ] Dependency and secret-scanning integration.
 - [x] Encrypted backup automation and non-destructive restore verification.
-- [ ] Internal knowledge base editing workflow.
+- [x] Internal knowledge base editing workflow.
 - [ ] Product Readiness Score calculation and evidence gates in the dashboard.
 - [ ] Full beta enrollment workflow and adapters.
 - [x] Repository hardening and release-preparation runbooks.
