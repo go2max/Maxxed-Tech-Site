@@ -103,23 +103,25 @@ function routeTable() {
 async function runnerTokenMatches(authorization, config, runnerId) {
   if (!authorization?.startsWith("Bearer ")) return false;
   const configuredRunnerIds = Object.keys(config.runnerApiTokens);
-  const expectedToken = configuredRunnerIds.length > 0
+  const expectedTokens = configuredRunnerIds.length > 0
     ? config.runnerApiTokens[runnerId]
-    : config.runnerApiToken;
-  if (!expectedToken) return false;
+    : config.runnerApiToken ? [config.runnerApiToken] : null;
+  if (!expectedTokens?.length) return false;
   const presented = authorization.slice("Bearer ".length);
   const encoder = new TextEncoder();
-  const [expectedHash, presentedHash] = await Promise.all([
-    crypto.subtle.digest("SHA-256", encoder.encode(expectedToken)),
-    crypto.subtle.digest("SHA-256", encoder.encode(presented)),
-  ]);
-  const expected = new Uint8Array(expectedHash);
-  const received = new Uint8Array(presentedHash);
-  let difference = expected.length ^ received.length;
-  for (let index = 0; index < Math.max(expected.length, received.length); index += 1) {
-    difference |= (expected[index] || 0) ^ (received[index] || 0);
+  const presentedHash = new Uint8Array(await crypto.subtle.digest("SHA-256", encoder.encode(presented)));
+  const expectedHashes = await Promise.all(expectedTokens.map(async (token) =>
+    new Uint8Array(await crypto.subtle.digest("SHA-256", encoder.encode(token)))
+  ));
+  let anyMatch = 0;
+  for (const expected of expectedHashes) {
+    let difference = expected.length ^ presentedHash.length;
+    for (let index = 0; index < Math.max(expected.length, presentedHash.length); index += 1) {
+      difference |= (expected[index] || 0) ^ (presentedHash[index] || 0);
+    }
+    anyMatch |= Number(difference === 0);
   }
-  return difference === 0;
+  return anyMatch !== 0;
 }
 
 function runnerActor(runnerId) {
