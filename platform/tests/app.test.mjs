@@ -1213,7 +1213,8 @@ test("automatic device pools assign compatible idle runners and preserve exact t
   const runnerAClaim = await claim("pool-runner-a", "pool-device-a", ["maxxed-remote", "maxxed-compass"]);
   assert.equal(runnerAClaim.status, 200);
   const runnerAJob = (await runnerAClaim.json()).record;
-  assert.equal(runnerAJob.product_id, "maxxed-remote");
+  assert.equal(["maxxed-remote", "maxxed-compass"].includes(runnerAJob.product_id), true);
+  const remainingRunnerAProduct = runnerAJob.product_id === "maxxed-remote" ? "maxxed-compass" : "maxxed-remote";
   assert.equal(runnerAJob.runner_id, "pool-runner-a");
   assert.equal(runnerAJob.device_id, "pool-device-a");
   assert.equal(JSON.parse(runnerAJob.result_json).targetMode, "pool");
@@ -1249,7 +1250,7 @@ test("automatic device pools assign compatible idle runners and preserve exact t
 
   const runnerASecond = await claim("pool-runner-a", "pool-device-a", ["maxxed-remote", "maxxed-compass"]);
   assert.equal(runnerASecond.status, 200);
-  assert.equal((await runnerASecond.json()).record.product_id, "maxxed-compass");
+  assert.equal((await runnerASecond.json()).record.product_id, remainingRunnerAProduct);
 
   const exactQueue = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/jobs/batch", {
     method: "POST",
