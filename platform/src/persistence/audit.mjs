@@ -18,10 +18,14 @@ export class AuditEventRepository {
   async append(tx, event) {
     const previous = (await this.list(tx)).at(-1) ?? null;
     const previousHash = previous?.event_hash ?? "root";
-    const payload = { ...event, previousHash };
-    const record = {
+    const sequence = Number(previous?.sequence ?? 0) + 1;
+    const payload = {
       ...event,
+      sequence,
       previous_hash: previousHash,
+    };
+    const record = {
+      ...payload,
       event_hash: hashEvent(previousHash, payload),
     };
     await tx.insert("audit_events", record);
@@ -30,19 +34,20 @@ export class AuditEventRepository {
 
   verifyIntegrity(events) {
     let previousHash = "root";
+    let expectedSequence = 1;
     for (const event of events) {
-      const payload = {
-        ...event,
-        previous_hash: undefined,
-        event_hash: undefined,
-      };
-      delete payload.previous_hash;
+      const payload = { ...event };
       delete payload.event_hash;
-      const expected = hashEvent(previousHash, { ...payload, previousHash });
-      if (event.previous_hash !== previousHash || event.event_hash !== expected) {
+      const expected = hashEvent(previousHash, payload);
+      if (
+        Number(event.sequence) !== expectedSequence ||
+        event.previous_hash !== previousHash ||
+        event.event_hash !== expected
+      ) {
         return false;
       }
       previousHash = event.event_hash;
+      expectedSequence += 1;
     }
     return true;
   }
