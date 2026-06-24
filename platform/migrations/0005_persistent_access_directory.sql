@@ -6,10 +6,14 @@ CREATE TABLE IF NOT EXISTS access_role_events (
   user_id TEXT NOT NULL,
   role_name TEXT NOT NULL,
   action TEXT NOT NULL,
+  event_sequence INTEGER NOT NULL,
   assigned_by TEXT NOT NULL,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS access_role_events_sequence
+  ON access_role_events (event_sequence);
 
 CREATE INDEX IF NOT EXISTS access_role_events_user
   ON access_role_events (user_id, created_at);
