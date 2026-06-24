@@ -181,3 +181,56 @@ test("read-only security roles cannot mutate monitoring state", async () => {
   });
   assert.equal(mutation.status, 403);
 });
+
+
+test("readiness UI records evidence, calculates snapshots, and keeps viewers read-only", async () => {
+  const state = await createSeededPlatformState();
+  const app = createPlatformApp({ env: identityEnv, state });
+  const admin = await session(app, "admin@techmaxxed.com", "/readiness");
+  assert.equal(admin.response.status, 200);
+  assert.match(admin.body, /readiness-evidence-form/);
+  assert.match(admin.body, /readiness-calculate-form/);
+
+  const script = await app.fetch(new Request("https://admin.techmaxxed.com/readiness.js", {
+    headers: authHeaders("admin@techmaxxed.com"),
+  }));
+  assert.equal(script.status, 200);
+  const scriptBody = await script.text();
+  assert.doesNotThrow(() => new Function(scriptBody));
+  assert.match(scriptBody, /readiness\/evidence/);
+  assert.match(scriptBody, /readiness\/calculate/);
+
+  const product = (await state.database.transaction((tx) => tx.list("products")))[0];
+  const evidence = await post(app, "admin@techmaxxed.com", admin, "/readiness/evidence", {
+    productId: product.id,
+    category: "buildIntegrity",
+    resultState: "pass",
+    source: "release pipeline",
+    reference: "build:120",
+    mandatoryGate: true,
+    gateKey: "artifactBuild",
+    expiresAt: "2027-06-24T00:00:00.000Z",
+  });
+  assert.equal(evidence.status, 200);
+  const calculated = await post(app, "admin@techmaxxed.com", admin, "/readiness/calculate", {
+    productId: product.id,
+    stage: "internal_qa",
+  });
+  assert.equal(calculated.status, 200);
+  const snapshot = (await calculated.json()).record;
+  assert.equal(snapshot.score, 15);
+  assert.equal(JSON.parse(snapshot.mandatory_gates_json).releaseState, "blocked");
+
+  const updated = await session(app, "admin@techmaxxed.com", "/readiness");
+  assert.match(updated.body, /Score 15/);
+  assert.match(updated.body, /packageIdentity/);
+
+  const viewer = await session(app, "analytics@techmaxxed.com", "/readiness");
+  assert.equal(viewer.response.status, 200);
+  assert.doesNotMatch(viewer.body, /readiness-evidence-form/);
+  const forbidden = await post(app, "analytics@techmaxxed.com", viewer, "/readiness/calculate", {
+    productId: product.id,
+    stage: "internal_qa",
+  });
+  assert.equal(forbidden.status, 403);
+});
