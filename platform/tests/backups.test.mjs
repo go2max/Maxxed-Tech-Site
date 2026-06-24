@@ -3,6 +3,11 @@ import assert from "node:assert/strict";
 
 import { decryptBackupSnapshot, encryptBackupSnapshot } from "../src/backups/codec.mjs";
 import { MemoryBackupStore, R2BackupStore, UnavailableBackupStore } from "../src/backups/storage.mjs";
+import { createEncryptedBackup, verifyEncryptedBackup } from "../src/backups/service.mjs";
+import { D1PlatformDatabase, MemoryD1Binding } from "../src/persistence/database.mjs";
+import { applyAllMigrations } from "../src/persistence/migrations.mjs";
+import { createPlatformServices } from "../src/persistence/services.mjs";
+import { ROLES, permissionsForRoles } from "../src/auth/roles.mjs";
 
 const key = Buffer.alloc(32, 7).toString("base64url");
 
@@ -56,4 +61,41 @@ test("backup storage adapters copy bytes and fail closed when unavailable", asyn
 
   const unavailable = new UnavailableBackupStore();
   await assert.rejects(() => unavailable.get("missing"), /backup_store_unavailable/);
+});
+
+
+test("D1 backup includes migrations and passes non-destructive restore verification", async () => {
+  const database = new D1PlatformDatabase(new MemoryD1Binding());
+  await applyAllMigrations(database);
+  const services = createPlatformServices(database);
+  const state = { database, services };
+  const store = new MemoryBackupStore();
+  const actor = {
+    email: "owner@techmaxxed.com",
+    subject: "sub:owner@techmaxxed.com",
+    roles: [ROLES.OWNER],
+    permissions: permissionsForRoles([ROLES.OWNER]),
+  };
+  const created = await createEncryptedBackup({
+    state,
+    store,
+    encryptionKey: key,
+    actor,
+    requestId: "d1-backup",
+    retentionDays: 30,
+    maximumBytes: 10 * 1024 * 1024,
+    now: new Date("2026-06-24T12:00:00.000Z"),
+  });
+  assert.equal(created.tableCounts.schema_migrations, 6);
+  const verified = await verifyEncryptedBackup({
+    state,
+    store,
+    encryptionKey: key,
+    actor,
+    requestId: "d1-verify",
+    record: created.record,
+    maximumBytes: 10 * 1024 * 1024,
+  });
+  assert.equal(verified.record.storage_state, "verified");
+  assert.equal(verified.details.tables > 10, true);
 });
