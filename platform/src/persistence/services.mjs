@@ -718,10 +718,10 @@ export function createPlatformServices(database) {
         const jobs = [];
         for (const before of due) {
           const cadenceMs = Number(before.cadence_minutes) * 60_000;
-          let nextRunMs = Date.parse(before.next_run_at);
-          do {
-            nextRunMs += cadenceMs;
-          } while (nextRunMs <= Date.parse(dispatchAt));
+          const previousRunMs = Date.parse(before.next_run_at);
+          const overdueMs = Math.max(0, Date.parse(dispatchAt) - previousRunMs);
+          const intervals = Math.floor(overdueMs / cadenceMs) + 1;
+          const nextRunMs = previousRunMs + intervals * cadenceMs;
           const after = await repositories.testSchedules.update(tx, before.id, {
             last_run_at: dispatchAt,
             next_run_at: new Date(nextRunMs).toISOString(),
