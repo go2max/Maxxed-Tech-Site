@@ -10,6 +10,7 @@ for (const [command, args] of [
   ["node", ["--test", "./platform/tests/persistence.test.mjs"]],
   ["node", ["--test", "./platform/tests/dashboard.test.mjs"]],
   ["node", ["--test", "./platform/tests/beta.test.mjs"]],
+  ["node", ["--test", "./platform/tests/readiness.test.mjs"]],
 ]) {
   const result = spawnSync(command, args, {
     cwd: root,
