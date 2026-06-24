@@ -1,59 +1,61 @@
 # Maxxed Sequential APK Runner
 
-The runner is a local Windows-first tool for dry runs and sequential APK test
-jobs. Approved script-pack manifests are bound to public application package
-IDs, executed in isolated child processes, and protected by cross-process lease
-state. Production signing keys and service credentials never belong in Git or
-on runner machines.
+The Windows-first runner executes package-bound Android test packs for all six
+current apps. It claims only products present in its local artifact catalog,
+runs one job at a time, sends lease heartbeats, and returns bounded results and
+evidence. Credentials and production signing keys never belong in Git or child
+process environments.
 
-## Claim One Admin Job
+## Configure
 
-Set the runner token through local secret management, then run one claim cycle:
+Copy these examples to their ignored local equivalents:
 
-```powershell
+- `runner/config/products.example.json` to `products.local.json`
+- `runner/config/artifacts.example.json` to `artifacts.local.json`
+- `runner/config/agent.example.json` to `agent.local.json`
 
-node runner/remote-cli.mjs `
-  --platform=https://admin.techmaxxed.com `
-  --apk=C:\builds\maxxed-remote.apk `
-  --products=C:\maxxed-runner\products.json `
-  --manifest=runner\config\script-packs\maxxed-remote\manifest.json `
-  --stateDir=C:\maxxed-runner\state `
-  --reportDir=C:\maxxed-runner\reports `
-  --runnerId=local-windows-runner `
-  --deviceId=android-device-1 `
-  --inspectionMode=production `
-  --aaptPath=C:\Android\build-tools\35.0.0\aapt.exe
-```
+Update APK paths, the ADB device serial, Android SDK tool path, and any products
+this machine should support. Supply `MAXXED_RUNNER_API_TOKEN` through Windows
+secret management.
 
-The client claims only a job assigned to the exact runner and device, executes
-its server-approved steps sequentially, and returns a bounded result and
-evidence index. A 404 claim response means the runner is idle.
-
-## Persistent Agent
-
-Create `runner/config/agent.local.json` from `agent.example.json`, configure
-the APK, Android SDK, runner, and device paths, and provide
-`MAXXED_RUNNER_API_TOKEN` through Windows secret management. Validate every
-required local file before starting:
+## Preflight and Start
 
 ```powershell
 node runner/agent.mjs --config=runner/config/agent.local.json --check
-```
-
-Then start:
-
-```powershell
 node runner/agent.mjs --config=runner/config/agent.local.json
 ```
 
-The agent awaits each child process before polling again, so one runner never
-executes two jobs concurrently. Successful or idle cycles use `pollSeconds`;
-failed cycles use `errorBackoffSeconds`. `Ctrl+C` or a service stop signal
-terminates the active child and exits cleanly.
+Preflight verifies the product map, artifact catalog, every configured APK and
+manifest, and the configured Android SDK tool. The agent advertises only those
+products to the claim API.
 
-The local config, product mapping, APKs, state, reports, and credentials are
-intentionally excluded from source control. A production service or Scheduled
-Task should run under a dedicated non-administrator Windows account.
+The agent waits for each child before polling again. Successful and idle cycles
+use `pollSeconds`; failed cycles use `errorBackoffSeconds`. Active jobs send
+heartbeats at `heartbeatSeconds`. A server cancellation kills the isolated
+active step and records `cancelled`; repeated heartbeat failure stops work to
+avoid split-brain execution.
 
-See `docs/MAXXED_REMOTE_OPERATIONS.md` for deployment, job-state, recovery,
-and credential-rotation procedures.
+`Ctrl+C` or a service stop signal terminates the active child and exits
+cleanly. Run the process as a dedicated non-administrator Windows account.
+
+## One Manual Cycle
+
+```powershell
+node runner/remote-cli.mjs `
+  --platform=https://admin.techmaxxed.com `
+  --products=C:\maxxed-runner\products.local.json `
+  --artifacts=C:\maxxed-runner\artifacts.local.json `
+  --stateDir=C:\maxxed-runner\state `
+  --reportDir=C:\maxxed-runner\reports `
+  --runnerId=local-windows-runner `
+  --deviceId=R3CT... `
+  --inspectionMode=production `
+  --aaptPath=C:\Android\build-tools\35.0.0\aapt.exe `
+  --heartbeatSeconds=15
+```
+
+Legacy `--apk` and `--manifest` arguments remain available for a dedicated
+Maxxed Remote runner. The artifact catalog is required for portfolio operation.
+
+See `docs/PORTFOLIO_TESTING_CONTROL_PLANE.md` for the full package inventory,
+lease protocol, evidence contract, and recovery procedures.
