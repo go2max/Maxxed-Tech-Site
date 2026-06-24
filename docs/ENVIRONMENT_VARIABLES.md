@@ -8,8 +8,8 @@ The following values are required by the private platform or runner and should b
 - `TRUSTED_IDENTITY_JWT_HEADER`: identity assertion header, default `cf-access-jwt-assertion`
 - `TRUSTED_IDENTITY_AUDIENCE`: expected Access JWT audience
 - `TRUSTED_IDENTITY_ISSUER`: expected Access JWT issuer
-- `TRUSTED_IDENTITY_JWT_ALGORITHM`: JWT signature algorithm, currently `HS256` for tests and `RS256` or `HS256` for configured environments
-- `TRUSTED_IDENTITY_JWT_KEY`: verification key or test secret for the Access JWT
+- `TRUSTED_IDENTITY_JWT_ALGORITHM`: JWT signature algorithm; `HS256` is test-only and production requires `RS256`
+- `TRUSTED_IDENTITY_JWT_KEY`: RS256 public verification key in production or an HS256 secret in tests
 - `TRUSTED_IDENTITY_EMAIL_HEADER`: trusted proxy header name
 - `TRUSTED_IDENTITY_SUBJECT_HEADER`: trusted proxy header name
 - `TRUSTED_IDENTITY_NAME_HEADER`: trusted proxy header name
