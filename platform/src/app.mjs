@@ -113,7 +113,8 @@ function runnerActor(runnerId) {
     email: `${runnerId}@runner.internal`,
     displayName: runnerId,
     subject: `runner:${runnerId}`,
-    roles: ["qa_lead"],
+    roles: ["Runner"],
+    permissions: new Set([PERMISSIONS.QA_EXECUTE]),
     isDevelopmentOverride: false,
   };
 }
