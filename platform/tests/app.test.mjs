@@ -283,6 +283,15 @@ test("production config fails closed for missing or weak secrets", async () => {
     APP_ENV: "production",
     SESSION_SECRET: "x".repeat(32),
   }), /missing_identity_audience/);
+
+  assert.throws(() => loadPlatformConfig({
+    APP_ENV: "production",
+    SESSION_SECRET: "x".repeat(32),
+    TRUSTED_IDENTITY_AUDIENCE: "aud",
+    TRUSTED_IDENTITY_ISSUER: "https://issuer.example",
+    TRUSTED_IDENTITY_JWT_KEY: "identity-jwt-test-secret-value-at-least-thirty-two",
+    TRUSTED_IDENTITY_JWT_ALGORITHM: "HS256",
+  }), /production_identity_algorithm_must_be_rs256/);
 });
 
 test("authentication and mutation rate limits are enforced", async () => {
