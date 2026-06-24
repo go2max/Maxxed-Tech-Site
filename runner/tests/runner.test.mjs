@@ -101,7 +101,12 @@ test("timed out steps are hard-killed and reported as failures", async () => {
       { id: "artifact-verify", timeoutSeconds: 1, continueOnFailure: false, commandRef: "runner/scripts/common/timeout-step.mjs" },
     ],
   }, null, 2));
-  const report = await runSequentialJob({ ...baseOptions(dir), scriptPackManifestPath: manifestPath, allowTestManifest: true });
+  const report = await runSequentialJob({
+    ...baseOptions(dir),
+    scriptPackManifestPath: manifestPath,
+    allowTestManifest: true,
+    stepIds: ["artifact-verify"],
+  });
   assert.equal(report.finalStatus, "fail");
   assert.match(report.steps.at(-1).stderr, /step_timeout/);
   await rm(dir, { recursive: true, force: true });
@@ -122,6 +127,9 @@ test("lease contention and stale interrupted-job recovery are enforced", async (
   await waitForActiveLease(dir);
   const second = await runSequentialJob({ ...baseOptions(dir), scriptPackManifestPath: slowManifestPath, allowTestManifest: true });
   assert.equal(second.finalStatus, "blocked");
+  const activeAfterContention = JSON.parse(await readFile(resolve(dir, "runner-state.json"), "utf8"));
+  assert.ok(activeAfterContention.activeJob);
+  assert.notEqual(activeAfterContention.activeJob, second.jobId);
   await first;
 
   await writeFile(resolve(dir, "runner-state.json"), JSON.stringify({
