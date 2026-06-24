@@ -61,3 +61,6 @@ and lease protocol are documented in
 
 Runner fleet identity, health monitoring, credential rotation, and result
 exports are documented in `docs/RUNNER_FLEET_OPERATIONS.md`.
+
+Private R2-backed test evidence, integrity checks, retention, and incident
+handling are documented in `docs/PRIVATE_TEST_EVIDENCE.md`.

@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { loadArtifactCatalog, selectArtifact } from "./src/artifacts.mjs";
 import { runHeartbeatLoop } from "./src/control-loop.mjs";
+import { uploadEvidenceFiles } from "./src/evidence-uploader.mjs";
 import { runSequentialJob } from "./src/runner.mjs";
 
 const cliPath = fileURLToPath(import.meta.url);
@@ -36,10 +37,15 @@ function validateConnection(args, token) {
   if (!Number.isFinite(localLeaseSeconds) || localLeaseSeconds < 300 || localLeaseSeconds > 14400) {
     throw new Error("invalid_local_lease_seconds");
   }
+  const evidenceMaxBytes = Number(args.evidenceMaxBytes || 25 * 1024 * 1024);
+  if (!Number.isSafeInteger(evidenceMaxBytes) || evidenceMaxBytes < 1 || evidenceMaxBytes > 100 * 1024 * 1024) {
+    throw new Error("invalid_evidence_max_bytes");
+  }
   return {
     platformUrl,
     heartbeatMs: heartbeatSeconds * 1000,
     localLeaseMs: localLeaseSeconds * 1000,
+    evidenceMaxBytes,
   };
 }
 
@@ -61,8 +67,9 @@ export async function runRemoteCycle({
   fetchImpl = fetch,
   runJob = runSequentialJob,
   heartbeatLoop = runHeartbeatLoop,
+  uploadEvidence = uploadEvidenceFiles,
 }) {
-  const { platformUrl, heartbeatMs, localLeaseMs } = validateConnection(args, token);
+  const { platformUrl, heartbeatMs, localLeaseMs, evidenceMaxBytes } = validateConnection(args, token);
   const artifacts = await resolveArtifacts(args);
   const productIds = Object.keys(artifacts.products);
 
@@ -186,13 +193,30 @@ export async function runRemoteCycle({
       exitCode: step.exitCode ?? null,
     })),
   };
-  const evidence = report.steps.flatMap((step) =>
-    (step.evidence || []).map((item) => ({
-      stepId: step.stepId,
-      type: String(item.type || "unknown").slice(0, 40),
-      ref: String(item.ref || "").slice(0, 240),
-    }))
-  ).slice(0, 100);
+  let evidence;
+  try {
+    evidence = await uploadEvidence({
+      report,
+      reportDir: resolve(args.reportDir),
+      platformUrl,
+      platformJobId: claimed.id,
+      runnerId: args.runnerId,
+      token,
+      fetchImpl,
+      maxBytes: evidenceMaxBytes,
+    });
+  } catch (error) {
+    await post(`/runner/jobs/${encodeURIComponent(claimed.id)}/complete`, {
+      runnerId: args.runnerId,
+      deviceId: args.deviceId,
+      productIds,
+      agentVersion: RUNNER_AGENT_VERSION,
+      status: "interrupted",
+      result: { ...result, error: "evidence_upload_failed" },
+      evidence: [],
+    });
+    throw new Error("evidence_upload_failed");
+  }
 
   const completed = await post(`/runner/jobs/${encodeURIComponent(claimed.id)}/complete`, {
     runnerId: args.runnerId,

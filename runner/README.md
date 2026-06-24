@@ -65,3 +65,9 @@ lease protocol, evidence contract, and recovery procedures.
 
 Use a unique local token per runner. Hosted mapping, staged rotation, fleet
 health, and incident procedures are in `docs/RUNNER_FLEET_OPERATIONS.md`.
+
+Before job completion, the runner uploads evidence found beneath `reportDir` to
+the private platform store. Paths outside that directory are ignored; oversized
+files stop completion. Keep `evidenceMaxBytes` aligned with the hosted
+`EVIDENCE_MAX_BYTES` value. Storage and retention operations are documented in
+`docs/PRIVATE_TEST_EVIDENCE.md`.

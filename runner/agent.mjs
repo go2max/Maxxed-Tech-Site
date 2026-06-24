@@ -34,6 +34,10 @@ export function validateAgentConfig(input, configDir = runnerRoot) {
   const errorBackoffSeconds = boundedNumber(input.errorBackoffSeconds, 30, 1, 3600, "invalid_agent_backoff_seconds");
   const heartbeatSeconds = boundedNumber(input.heartbeatSeconds, 15, 5, 120, "invalid_agent_heartbeat_seconds");
   const localLeaseSeconds = boundedNumber(input.localLeaseSeconds, 3600, 300, 14400, "invalid_agent_local_lease_seconds");
+  const evidenceMaxBytes = Number(input.evidenceMaxBytes ?? 25 * 1024 * 1024);
+  if (!Number.isSafeInteger(evidenceMaxBytes) || evidenceMaxBytes < 1 || evidenceMaxBytes > 100 * 1024 * 1024) {
+    throw new Error("invalid_agent_evidence_max_bytes");
+  }
   return {
     platform: platform.toString(),
     apk: usesArtifactCatalog ? null : resolve(configDir, input.apk),
@@ -50,6 +54,7 @@ export function validateAgentConfig(input, configDir = runnerRoot) {
     errorBackoffSeconds,
     heartbeatSeconds,
     localLeaseSeconds,
+    evidenceMaxBytes,
   };
 }
 
@@ -110,6 +115,7 @@ export function buildRemoteCliArgs(config) {
     inspectionMode: config.inspectionMode,
     heartbeatSeconds: config.heartbeatSeconds,
     localLeaseSeconds: config.localLeaseSeconds,
+    evidenceMaxBytes: config.evidenceMaxBytes,
     ...(config.aaptPath ? { aaptPath: config.aaptPath } : {}),
   };
   return Object.entries(values).map(([key, value]) => `--${key}=${value}`);

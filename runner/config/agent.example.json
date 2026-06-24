@@ -11,5 +11,6 @@
   "pollSeconds": 10,
   "errorBackoffSeconds": 30,
   "heartbeatSeconds": 15,
-  "localLeaseSeconds": 3600
+  "localLeaseSeconds": 3600,
+  "evidenceMaxBytes": 26214400
 }

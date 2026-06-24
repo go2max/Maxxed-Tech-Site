@@ -5,6 +5,7 @@ import { createHmac } from "node:crypto";
 import { createPlatformApp } from "../src/app.mjs";
 import { loadPlatformConfig } from "../src/config.mjs";
 import { createSeededPlatformState } from "../src/dashboard/state.mjs";
+import { MemoryEvidenceStore } from "../src/evidence/storage.mjs";
 
 const identityEnv = {
   APP_ENV: "test",
@@ -906,4 +907,147 @@ test("runner token maps and fleet thresholds fail closed when malformed", () => 
     }),
     /invalid_runner_fleet_thresholds/
   );
+});
+
+
+test("runner evidence is private, integrity checked, bounded, and purged with audit", async () => {
+  const state = await createSeededPlatformState();
+  const evidenceStore = new MemoryEvidenceStore();
+  const env = { ...identityEnv, EVIDENCE_MAX_BYTES: "32", EVIDENCE_RETENTION_DAYS: "1" };
+  const app = createPlatformApp({ env, state, evidenceStore });
+  const email = "qa-lead@techmaxxed.com";
+  const { cookie, csrfToken } = await bootstrap(email, "/testing-functions", app, state);
+  const queue = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/jobs/batch", {
+    method: "POST",
+    headers: {
+      ...authHeaders(email), cookie, origin: "https://admin.techmaxxed.com",
+      "content-type": "application/json", "x-csrf-token": csrfToken,
+    },
+    body: JSON.stringify({
+      productIds: ["maxxed-remote"],
+      runnerId: "evidence-runner",
+      deviceId: "evidence-device",
+    }),
+  }));
+  const job = (await queue.json()).records[0];
+  const runnerHeaders = {
+    authorization: `Bearer ${identityEnv.RUNNER_API_TOKEN}`,
+    "content-type": "application/json",
+  };
+  const claim = await app.fetch(new Request("https://admin.techmaxxed.com/runner/jobs/claim", {
+    method: "POST",
+    headers: runnerHeaders,
+    body: JSON.stringify({
+      runnerId: "evidence-runner",
+      deviceId: "evidence-device",
+      productIds: ["maxxed-remote"],
+    }),
+  }));
+  assert.equal(claim.status, 200);
+
+  const bytes = new TextEncoder().encode("bounded evidence");
+  const upload = await app.fetch(new Request(
+    `https://admin.techmaxxed.com/runner/jobs/${job.id}/evidence/smoke.txt`,
+    {
+      method: "PUT",
+      headers: {
+        authorization: `Bearer ${identityEnv.RUNNER_API_TOKEN}`,
+        "x-maxxed-runner-id": "evidence-runner",
+        "x-maxxed-step-id": "launch-smoke",
+        "content-type": "text/plain",
+      },
+      body: bytes,
+    },
+  ));
+  assert.equal(upload.status, 200);
+  const uploaded = (await upload.json()).record;
+  assert.match(uploaded.sha256, /^[a-f0-9]{64}$/);
+  assert.equal(uploaded.byteSize, bytes.byteLength);
+  assert.equal("objectKey" in uploaded, false);
+
+  const oversized = await app.fetch(new Request(
+    `https://admin.techmaxxed.com/runner/jobs/${job.id}/evidence/large.txt`,
+    {
+      method: "PUT",
+      headers: {
+        authorization: `Bearer ${identityEnv.RUNNER_API_TOKEN}`,
+        "x-maxxed-runner-id": "evidence-runner",
+        "x-maxxed-step-id": "launch-smoke",
+        "content-type": "text/plain",
+      },
+      body: "x".repeat(33),
+    },
+  ));
+  assert.equal(oversized.status, 413);
+
+  const wrongRunner = await app.fetch(new Request(
+    `https://admin.techmaxxed.com/runner/jobs/${job.id}/evidence/wrong.txt`,
+    {
+      method: "PUT",
+      headers: {
+        authorization: `Bearer ${identityEnv.RUNNER_API_TOKEN}`,
+        "x-maxxed-runner-id": "another-runner",
+        "x-maxxed-step-id": "launch-smoke",
+        "content-type": "text/plain",
+      },
+      body: "wrong",
+    },
+  ));
+  assert.equal(wrongRunner.status, 403);
+
+  const anonymous = await app.fetch(new Request(
+    `https://admin.techmaxxed.com/testing-functions/jobs/${job.id}/evidence/${uploaded.id}`
+  ));
+  assert.equal(anonymous.status, 401);
+  const download = await app.fetch(new Request(
+    `https://admin.techmaxxed.com/testing-functions/jobs/${job.id}/evidence/${uploaded.id}`,
+    { headers: authHeaders(email) },
+  ));
+  assert.equal(download.status, 200);
+  assert.deepEqual(new Uint8Array(await download.arrayBuffer()), bytes);
+  assert.equal(download.headers.get("x-content-sha256"), uploaded.sha256);
+  assert.match(download.headers.get("cache-control"), /no-store/);
+
+  const detail = await app.fetch(new Request(
+    `https://admin.techmaxxed.com/testing-functions/jobs/${job.id}`,
+    { headers: authHeaders(email) },
+  ));
+  const detailHtml = await detail.text();
+  assert.match(detailHtml, /Hosted evidence/);
+  assert.match(detailHtml, /smoke\.txt/);
+  assert.match(detailHtml, new RegExp(uploaded.sha256));
+
+  const metadata = (await state.database.transaction((tx) => tx.list("test_evidence_objects")))[0];
+  await evidenceStore.put(metadata.object_key, new TextEncoder().encode("tampered"), { contentType: "text/plain" });
+  const tampered = await app.fetch(new Request(
+    `https://admin.techmaxxed.com/testing-functions/jobs/${job.id}/evidence/${uploaded.id}`,
+    { headers: authHeaders(email) },
+  ));
+  assert.equal(tampered.status, 409);
+  assert.equal((await tampered.json()).error, "evidence_integrity_failed");
+
+  await state.database.transaction((tx) => tx.update("test_evidence_objects", uploaded.id, (record) => ({
+    ...record,
+    retention_until: new Date(0).toISOString(),
+  })));
+  const owner = await bootstrap("owner@techmaxxed.com", "/testing-functions", app, state);
+  const purge = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/evidence/purge", {
+    method: "POST",
+    headers: {
+      ...authHeaders("owner@techmaxxed.com"),
+      cookie: owner.cookie,
+      origin: "https://admin.techmaxxed.com",
+      "content-type": "application/json",
+      "x-csrf-token": owner.csrfToken,
+    },
+    body: "{}",
+  }));
+  assert.equal(purge.status, 200);
+  assert.equal((await purge.json()).purged, 1);
+  assert.equal(await evidenceStore.get(metadata.object_key), null);
+  const rows = await state.database.transaction((tx) => tx.list("test_evidence_objects"));
+  assert.equal(rows[0].storage_state, "deleted");
+  const audit = await state.database.transaction((tx) => tx.list("audit_events"));
+  assert.equal(audit.some((event) => event.action_name === "test_evidence.create"), true);
+  assert.equal(audit.some((event) => event.action_name === "test_evidence.delete"), true);
 });
