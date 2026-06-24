@@ -6,6 +6,7 @@ import { runHeartbeatLoop } from "./src/control-loop.mjs";
 import { runSequentialJob } from "./src/runner.mjs";
 
 const cliPath = fileURLToPath(import.meta.url);
+export const RUNNER_AGENT_VERSION = "2.1.0";
 
 export function parseArgs(entries) {
   return Object.fromEntries(entries.map((entry) => {
@@ -84,6 +85,7 @@ export async function runRemoteCycle({
     runnerId: args.runnerId,
     deviceId: args.deviceId,
     productIds,
+    agentVersion: RUNNER_AGENT_VERSION,
   }, { allowNotFound: true });
   if (!claimed) return { status: "idle", message: "No matching queued job." };
 
@@ -112,6 +114,9 @@ export async function runRemoteCycle({
     stopSignal: heartbeatStop.signal,
     heartbeat: () => post(`/runner/jobs/${encodeURIComponent(claimed.id)}/heartbeat`, {
       runnerId: args.runnerId,
+      deviceId: args.deviceId,
+      productIds,
+      agentVersion: RUNNER_AGENT_VERSION,
       progress,
     }),
     cancel: (reason) => {
