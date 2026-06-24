@@ -18,6 +18,27 @@ function requirePositiveNumber(value, fallback, code) {
   return parsed;
 }
 
+function parseRunnerTokens(value) {
+  if (value == null || value === "") return Object.freeze({});
+  let parsed;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    throw new Error("invalid_runner_api_tokens");
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("invalid_runner_api_tokens");
+  }
+  const entries = Object.entries(parsed);
+  if (entries.length === 0 || entries.length > 100) throw new Error("invalid_runner_api_tokens");
+  for (const [runnerId, token] of entries) {
+    if (!/^[A-Za-z0-9._:-]{1,80}$/.test(runnerId) || typeof token !== "string" || token.length < 32) {
+      throw new Error("invalid_runner_api_tokens");
+    }
+  }
+  return Object.freeze(Object.fromEntries(entries));
+}
+
 function isStrongSessionSecret(secret) {
   if (typeof secret !== "string") return false;
   if (secret.length < MIN_SESSION_SECRET_LENGTH) return false;
@@ -46,7 +67,10 @@ export function loadPlatformConfig(env = {}) {
     trustedIdentityJwtKey: env.TRUSTED_IDENTITY_JWT_KEY || env.CF_ACCESS_JWT_PUBLIC_KEY || env.CF_ACCESS_JWT_SECRET || null,
     sessionSecret,
     runnerApiToken: typeof env.RUNNER_API_TOKEN === "string" && env.RUNNER_API_TOKEN.length >= 32 ? env.RUNNER_API_TOKEN : null,
+    runnerApiTokens: parseRunnerTokens(env.RUNNER_API_TOKENS_JSON),
     runnerLeaseTtlMs: requirePositiveNumber(env.RUNNER_LEASE_TTL_MS, 5 * 60 * 1000, "invalid_runner_lease_ttl"),
+    runnerFleetStaleMs: requirePositiveNumber(env.RUNNER_FLEET_STALE_MS, 2 * 60 * 1000, "invalid_runner_fleet_stale"),
+    runnerFleetOfflineMs: requirePositiveNumber(env.RUNNER_FLEET_OFFLINE_MS, 10 * 60 * 1000, "invalid_runner_fleet_offline"),
     sessionAbsoluteTtlMs: requirePositiveNumber(env.SESSION_ABSOLUTE_TTL_MS, DEFAULT_SESSION_ABSOLUTE_TTL_MS, "invalid_session_absolute_ttl"),
     sessionIdleTtlMs: requirePositiveNumber(env.SESSION_IDLE_TTL_MS, DEFAULT_SESSION_IDLE_TTL_MS, "invalid_session_idle_ttl"),
     maxRequestBytes: requirePositiveNumber(env.MAX_REQUEST_BYTES, DEFAULT_MAX_REQUEST_BYTES, "invalid_max_request_bytes"),
@@ -58,6 +82,9 @@ export function loadPlatformConfig(env = {}) {
 
   if (config.sessionIdleTtlMs > config.sessionAbsoluteTtlMs) {
     throw new Error("invalid_session_ttls");
+  }
+  if (config.runnerFleetOfflineMs <= config.runnerFleetStaleMs) {
+    throw new Error("invalid_runner_fleet_thresholds");
   }
 
   if (!isStrongSessionSecret(config.sessionSecret)) {
