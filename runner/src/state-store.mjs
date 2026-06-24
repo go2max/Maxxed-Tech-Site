@@ -62,6 +62,7 @@ export class RunnerStateStore {
     }
     await writeFile(tempPath, JSON.stringify(nextState, null, 2));
     await rename(tempPath, this.path);
+    await copyFile(this.path, this.backupPath);
   }
 
   async transact(updater) {
