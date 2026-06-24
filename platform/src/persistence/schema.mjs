@@ -20,6 +20,8 @@ export const TABLES = Object.freeze([
   "integration_states",
   "knowledge_base_entries",
   "knowledge_base_revisions",
+  "readiness_evidence",
+  "security_findings",
   "readiness_snapshots",
   "audit_events",
 ]);
@@ -46,6 +48,8 @@ export const TABLE_KEYS = Object.freeze({
   integration_states: "id",
   knowledge_base_entries: "id",
   knowledge_base_revisions: "id",
+  readiness_evidence: "id",
+  security_findings: "id",
   readiness_snapshots: "id",
   audit_events: "id",
 });
