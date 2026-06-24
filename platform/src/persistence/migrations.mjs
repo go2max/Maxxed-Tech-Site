@@ -6,6 +6,7 @@ export const MIGRATIONS = Object.freeze([
   { id: "0003_test_evidence_objects", file: "0003_test_evidence_objects.sql", requiredMarker: "CREATE TABLE IF NOT EXISTS test_evidence_objects" },
   { id: "0004_test_schedules", file: "0004_test_schedules.sql", requiredMarker: "CREATE TABLE IF NOT EXISTS test_schedules" },
   { id: "0005_persistent_access_directory", file: "0005_persistent_access_directory.sql", requiredMarker: "CREATE TABLE IF NOT EXISTS access_role_events" },
+  { id: "0006_backup_snapshots", file: "0006_backup_snapshots.sql", requiredMarker: "CREATE TABLE IF NOT EXISTS backup_snapshots" },
 ]);
 
 export async function applyAllMigrations(database) {
