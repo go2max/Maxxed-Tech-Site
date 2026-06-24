@@ -30,6 +30,10 @@ export function renderShell({ title, identity, content, csrfToken }) {
     code { background:#e6eef4; padding:2px 6px; border-radius:6px; }
     nav { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
     nav a { color:var(--accent); font-weight:600; }
+    label { display:block; margin:10px 0; }
+    input, select, textarea { box-sizing:border-box; max-width:100%; padding:8px; }
+    textarea { width:100%; resize:vertical; }
+    pre { white-space:pre-wrap; overflow-wrap:anywhere; }
   </style>
 </head>
 <body>
@@ -40,7 +44,7 @@ export function renderShell({ title, identity, content, csrfToken }) {
       <h1>${escapeHtml(title)}</h1>
       <p>Signed in as <strong>${escapeHtml(identity.displayName)}</strong> with trusted identity <code>${escapeHtml(identity.email)}</code>.</p>
       <ul>${roles}</ul>
-      <nav aria-label="Admin sections"><a href="/portfolio">Portfolio</a><a href="/testing-functions">Testing Functions</a><a href="/automation">Automation jobs</a></nav>
+      <nav aria-label="Admin sections"><a href="/portfolio">Portfolio</a><a href="/testing-functions">Testing Functions</a><a href="/automation">Automation jobs</a><a href="/knowledge-base">Knowledge Base</a></nav>
       <p>CSRF token issued for protected actions: <code data-csrf-token>${escapeHtml(csrfToken)}</code></p>
     </div>
   </header>
