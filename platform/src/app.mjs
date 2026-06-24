@@ -1272,6 +1272,8 @@ export function createPlatformApp(options = {}) {
                 error.message.startsWith("backup_table_") ||
                 error.message.startsWith("backup_audit_") ||
                 error.message === "backup_decryption_failed" ||
+                error.message === "invalid_backup_envelope" ||
+                error.message === "invalid_backup_snapshot" ||
                 error.message === "missing_backup_object" ||
                 error.message === "evidence_integrity_failed" ? 409
               : error.message === "evidence_store_unavailable" ||
