@@ -159,6 +159,8 @@ test("repositories and services cover required record families with append-only 
   assert.ok(product.id && build.id && plan.id && execution.id && bug.id && beta.id && feedback.id && job.id && supportCase.id && incident.id && integration.id && kb.id && readiness.id && approvedRelease.id && promotedRelease.id);
   const events = await listTable(database, "audit_events");
   assert.equal(events.length, 16);
+  assert.deepEqual(events.map((event) => event.sequence), Array.from({ length: 16 }, (_, index) => index + 1));
+  assert.equal(new Set(events.map((event) => event.previous_hash)).size, 16);
   assert.equal(services.auditRepository.verifyIntegrity(events), true);
 });
 
@@ -199,13 +201,15 @@ test("authorization failures, release gates, and append-only audit protections a
   );
 });
 
-test("D1-backed transactions preserve audit integrity under concurrent writes", async () => {
-  const database = new D1PlatformDatabase(new MemoryD1Binding());
-  await applyAllMigrations(database);
-  const services = createPlatformServices(database);
+test("D1-backed transactions preserve audit integrity under concurrent writers", async () => {
+  const binding = new MemoryD1Binding();
+  const databases = [new D1PlatformDatabase(binding), new D1PlatformDatabase(binding)];
+  await applyAllMigrations(databases[0]);
+  await applyAllMigrations(databases[1]);
+  const services = databases.map((database) => createPlatformServices(database));
   const owner = actor("owner@techmaxxed.com", [ROLES.OWNER]);
 
-  await Promise.all(Array.from({ length: 10 }, (_, index) => services.createProduct({
+  await Promise.all(Array.from({ length: 10 }, (_, index) => services[index % services.length].createProduct({
     actor: owner,
     requestId: `req-${index}`,
   }, {
@@ -215,7 +219,24 @@ test("D1-backed transactions preserve audit integrity under concurrent writes", 
     lifecycleStatus: "development",
   })));
 
-  const events = await listTable(database, "audit_events");
+  const events = await listTable(databases[0], "audit_events");
   assert.equal(events.length, 10);
-  assert.equal(services.auditRepository.verifyIntegrity(events), true);
+  assert.deepEqual(events.map((event) => event.sequence), Array.from({ length: 10 }, (_, index) => index + 1));
+  assert.equal(services[0].auditRepository.verifyIntegrity(events), true);
+});
+
+test("D1 batch emulation rolls back every statement after an audit-head conflict", async () => {
+  const binding = new MemoryD1Binding();
+  const database = new D1PlatformDatabase(binding);
+  await applyAllMigrations(database);
+
+  const product = binding.prepare('INSERT INTO "products" ("id", "created_at") VALUES (?, ?)').bind("product-rollback", "2026-06-23T00:00:00.000Z");
+  const firstAudit = binding.prepare('INSERT INTO "audit_events" ("id", "sequence", "previous_hash", "event_hash", "created_at") VALUES (?, ?, ?, ?, ?)').bind("audit-1", 1, "root", "hash-1", "2026-06-23T00:00:00.000Z");
+  const conflictingAudit = binding.prepare('INSERT INTO "audit_events" ("id", "sequence", "previous_hash", "event_hash", "created_at") VALUES (?, ?, ?, ?, ?)').bind("audit-2", 1, "root", "hash-2", "2026-06-23T00:00:00.000Z");
+
+  await assert.rejects(() => binding.batch([product, firstAudit, conflictingAudit]), /audit_head_conflict/);
+  const products = await binding.prepare('SELECT * FROM "products" ORDER BY created_at ASC, id ASC').all();
+  const events = await binding.prepare('SELECT * FROM "audit_events" ORDER BY sequence ASC').all();
+  assert.equal(products.results.length, 0);
+  assert.equal(events.results.length, 0);
 });
