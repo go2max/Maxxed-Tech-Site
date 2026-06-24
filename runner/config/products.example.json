@@ -1,0 +1,40 @@
+{
+  "products": [
+    {
+      "slug": "maxxed-remote",
+      "displayName": "Maxxed Remote",
+      "packageId": null,
+      "packageIdConfigRequired": true
+    },
+    {
+      "slug": "maxxed-compass",
+      "displayName": "Maxxed Compass",
+      "packageId": null,
+      "packageIdConfigRequired": true
+    },
+    {
+      "slug": "maxxed-measure",
+      "displayName": "Maxxed Measure",
+      "packageId": null,
+      "packageIdConfigRequired": true
+    },
+    {
+      "slug": "maxxed-gold-estimator",
+      "displayName": "Maxxed Gold Estimator",
+      "packageId": null,
+      "packageIdConfigRequired": true
+    },
+    {
+      "slug": "fishing-maxxed",
+      "displayName": "Fishing Maxxed",
+      "packageId": null,
+      "packageIdConfigRequired": true
+    },
+    {
+      "slug": "rival-rush",
+      "displayName": "Rival Rush",
+      "packageId": null,
+      "packageIdConfigRequired": true
+    }
+  ]
+}

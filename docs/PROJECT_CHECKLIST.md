@@ -117,42 +117,70 @@ These are website display states, not final Play Console approvals.
 - [x] Backup, retention, secret-management, and incident requirements.
 - [x] Sequential APK automation architecture.
 
+### Foundation Complete
+
+- [x] Separate private Worker boundary and independent hosting configuration for the private platform.
+- [x] Trusted server-side identity extraction with an explicit development-only override gate.
+- [x] Deny-by-default representative route authorization with canonical role and permission mappings.
+- [x] Signed session-cookie model with expiry, origin checks, CSRF enforcement, and strict security headers.
+- [x] Focused regression tests for unauthenticated rejection, role allow/deny behavior, role-header distrust, CSRF/origin rejection, stored-XSS escape paths, and secret redaction.
+
+### Persistence Complete
+
+- [x] Initial D1-oriented SQL migration catalog for users, roles, products, builds, releases, QA, bugs, beta records, automation jobs, incidents, integrations, knowledge-base entries, readiness snapshots, and audit events.
+- [x] Deterministic transactional persistence harness for repository and service tests, including a D1-shaped adapter.
+- [x] Append-only audit hash chaining with integrity verification.
+- [x] Authorization-tested services covering the required record families.
+- [x] Rollback strategy documentation for schema and data recovery.
+
+### Dashboard Complete
+
+- [x] Private portfolio overview route backed by persisted records.
+- [x] Role-scoped routes for releases, QA, bugs, beta applications, automation, incidents, audit inspection, knowledge base, and readiness.
+- [x] Dashboard route tests proving representative allow and deny flows.
+
+### Runner Foundation Complete
+
+- [x] Windows-first local runner command path using Node and PowerShell-friendly arguments.
+- [x] APK dry-run inspection using streamed local bytes plus test-only sidecar metadata without installation or execution.
+- [x] Product matching fails closed when real package IDs are not configured locally.
+- [x] Allowlisted script-pack manifests bound to the detected application package ID.
+- [x] Sequential step execution with durable runner and device lease state.
+- [x] Deterministic JSON and HTML report generation.
+- [x] Runner tests for dry run, mismatch rejection, allowlist enforcement, failure redaction, and lease contention.
+
 ### Not Yet Implemented
 
 - [ ] Private identity provider integration.
 - [ ] Owner MFA enrollment and recovery process.
-- [ ] Server-enforced RBAC permission checks.
-- [ ] User and role administration.
-- [ ] Append-only audit event store and integrity verification.
-- [ ] Product and release database.
-- [ ] QA assignment and test-result database.
-- [ ] Bug and feature-request tracking.
-- [ ] Security and product-health dashboards.
+- [ ] User and role administration mutations.
 - [ ] Google Play Developer Reporting API synchronization.
 - [ ] Uptime and certificate monitoring.
 - [ ] Dependency and secret-scanning integration.
 - [ ] Backup automation and restore testing.
-- [ ] Internal knowledge base.
-- [ ] Product Readiness Score calculation and evidence gates.
+- [ ] Internal knowledge base editing workflow.
+- [ ] Product Readiness Score calculation and evidence gates in the dashboard.
+- [ ] Full beta enrollment workflow and adapters.
+- [ ] Final hardening and release-preparation runbooks.
 
 ## Sequential APK Test Environment
 
 ### Phase 1: Next Engineering Milestone
 
-- [ ] Create a Windows-friendly local runner and operator interface.
-- [ ] Select an APK from local disk without executing it during inspection.
-- [ ] Calculate and record SHA-256.
-- [ ] Detect package name, version, and signing metadata.
-- [ ] Reject package and application mismatches.
-- [ ] Load only approved scripts for the detected application.
-- [ ] Allow the operator to order scripts before execution.
-- [ ] Execute exactly one job and one script step at a time.
-- [ ] Lock the selected emulator or physical device for the job.
+- [x] Create a Windows-friendly local runner and operator interface.
+- [x] Select an APK from local disk without executing it during inspection.
+- [x] Calculate and record SHA-256.
+- [x] Detect package name, version, and signing metadata using sidecar-backed dry-run metadata.
+- [x] Reject package and application mismatches.
+- [x] Load only approved scripts for the detected application.
+- [x] Allow the operator to order scripts before execution.
+- [x] Execute exactly one job and one script step at a time.
+- [x] Lock the selected emulator or physical device for the job.
 - [ ] Capture logcat, screenshots, video where enabled, performance, and failures.
-- [ ] Apply per-step timeouts and guaranteed cleanup.
-- [ ] Produce local HTML and JSON reports.
-- [ ] Recover safely after runner or device interruption.
-- [ ] Keep production signing keys and production secrets off the runner.
+- [x] Apply per-step timeouts and hard child-process termination.
+- [x] Produce local HTML and JSON reports.
+- [x] Recover safely after stale runner or device interruption.
+- [x] Keep production signing keys and production secrets off the runner.
 
 ### Later Phases
 
@@ -167,7 +195,7 @@ These are website display states, not final Play Console approvals.
 2. Deploy the validated public site and connect DNS.
 3. Activate the three public email addresses.
 4. Run live desktop, mobile, security-header, SEO, and accessibility checks.
-5. Begin Phase 1 of the local sequential APK runner.
+5. Complete the remaining beta, monitoring, and hardening phases.
 6. Keep beta enrollment manual until authenticated approval and audit logging exist.
 
 ## Reference Documents
@@ -176,3 +204,4 @@ These are website display states, not final Play Console approvals.
 - `docs/MAXXED_PLATFORM_V1_SPECIFICATION.md`: canonical platform requirements.
 - `docs/PRIVATE_OPERATIONS_PLATFORM.md`: private dashboard and APK runner design.
 - `docs/ADMIN_AND_BETA_AUTOMATION.md`: admin identity and beta automation plan.
+- `docs/PLATFORM_ROLLBACK_STRATEGY.md`: migration and recovery posture.

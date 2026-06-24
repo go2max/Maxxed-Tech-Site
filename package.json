@@ -3,8 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "node ./scripts/build.mjs",
+    "check:public": "node ./scripts/build.mjs && node ./scripts/validate-site.mjs && node ./scripts/validate-artifact.mjs",
+    "check:windows": "powershell -ExecutionPolicy Bypass -File ./scripts/check.ps1",
+    "check": "node ./scripts/check.mjs",
     "validate": "node scripts/validate-site.mjs && node scripts/validate-artifact.mjs",
-    "check": "npm run build && npm run validate"
+    "platform:check": "node ./scripts/check-platform.mjs",
+    "runner:check": "node ./scripts/check-runner.mjs"
   }
 }

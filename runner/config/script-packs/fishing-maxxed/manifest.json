@@ -1,0 +1,7 @@
+{
+  "app": "fishing-maxxed",
+  "steps": [
+    { "id": "artifact-verify", "timeoutSeconds": 2, "continueOnFailure": false, "commandRef": "runner/scripts/common/pass-step.mjs" },
+    { "id": "measurement-smoke", "timeoutSeconds": 2, "continueOnFailure": false, "commandRef": "runner/scripts/common/pass-step.mjs" }
+  ]
+}

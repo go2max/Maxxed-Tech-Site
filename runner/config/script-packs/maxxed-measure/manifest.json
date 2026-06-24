@@ -1,0 +1,7 @@
+{
+  "app": "maxxed-measure",
+  "steps": [
+    { "id": "artifact-verify", "timeoutSeconds": 2, "continueOnFailure": false, "commandRef": "runner/scripts/common/pass-step.mjs" },
+    { "id": "fixture-math", "timeoutSeconds": 2, "continueOnFailure": false, "commandRef": "runner/scripts/common/pass-step.mjs" }
+  ]
+}

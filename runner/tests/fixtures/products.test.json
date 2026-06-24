@@ -1,0 +1,10 @@
+{
+  "products": [
+    {
+      "slug": "maxxed-remote",
+      "displayName": "Maxxed Remote",
+      "packageId": "com.example.maxxed.remote",
+      "packageIdConfigRequired": false
+    }
+  ]
+}

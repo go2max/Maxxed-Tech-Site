@@ -1,0 +1,8 @@
+{
+  "packageName": "com.example.maxxed.remote",
+  "versionName": "1.0.0",
+  "versionCode": 100,
+  "minSdk": 26,
+  "targetSdk": 35,
+  "signer": "debug-signer"
+}
