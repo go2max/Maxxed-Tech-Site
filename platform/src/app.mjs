@@ -13,8 +13,10 @@ import { createPlatformDatabase } from "./persistence/database.mjs";
 import { createPlatformServices } from "./persistence/services.mjs";
 import { renderShell } from "./ui/layout.mjs";
 import { getTestingProduct, requireTestingProducts, TESTING_PRODUCTS } from "./testing/catalog.mjs";
+import { MemoryEvidenceStore, R2EvidenceStore, UnavailableEvidenceStore } from "./evidence/storage.mjs";
 
 const stateCache = new WeakMap();
+const evidenceStoreCache = new WeakMap();
 
 function denied(requestId, status, code, details) {
   return json({ error: code, requestId, ...(details ? { details } : {}) }, { status });
@@ -51,6 +53,49 @@ async function readBody(request, config) {
   }
 }
 
+async function readBinaryBody(request, maximumBytes) {
+  const declared = Number(request.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > maximumBytes) throw new Error("evidence_too_large");
+  const reader = request.body?.getReader?.();
+  if (!reader) {
+    const bytes = new Uint8Array(await request.arrayBuffer());
+    if (bytes.byteLength > maximumBytes) throw new Error("evidence_too_large");
+    return bytes;
+  }
+  const chunks = [];
+  let total = 0;
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maximumBytes) throw new Error("evidence_too_large");
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return bytes;
+}
+
+async function sha256Hex(bytes) {
+  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+  return [...digest].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function resolveEvidenceStore(options, env, config) {
+  if (options.evidenceStore) return options.evidenceStore;
+  const binding = env.PLATFORM_EVIDENCE || options.env?.PLATFORM_EVIDENCE;
+  if (binding) return new R2EvidenceStore(binding);
+  if (config.isTest || config.appEnv === "development") {
+    if (!evidenceStoreCache.has(options)) evidenceStoreCache.set(options, new MemoryEvidenceStore());
+    return evidenceStoreCache.get(options);
+  }
+  return new UnavailableEvidenceStore();
+}
+
 function requireOrigin(request) {
   const origin = request.headers.get("origin");
   if (!origin) return false;
@@ -64,6 +109,7 @@ function routeTable() {
     ["POST", /^\/runner\/jobs\/claim$/, { runner: true, handler: claimRunnerJob }],
     ["POST", /^\/runner\/jobs\/[^/]+\/heartbeat$/, { runner: true, handler: heartbeatRunnerJob }],
     ["POST", /^\/runner\/jobs\/[^/]+\/complete$/, { runner: true, handler: completeRunnerJob }],
+    ["PUT", /^\/runner\/jobs\/[^/]+\/evidence\/[^/]+$/, { runnerBinary: true, handler: uploadRunnerEvidence }],
     ["GET", /^\/$/, { permission: PERMISSIONS.PRODUCTS_READ, handler: handlePortfolio }],
     ["GET", /^\/portfolio$/, { permission: PERMISSIONS.PRODUCTS_READ, handler: handlePortfolio }],
     ["GET", /^\/users$/, { permission: PERMISSIONS.USERS_READ, handler: handleUsers }],
@@ -76,8 +122,10 @@ function routeTable() {
     ["GET", /^\/testing-functions$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctions }],
     ["GET", /^\/testing-functions\.js$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctionsScript }],
     ["GET", /^\/testing-functions\/jobs\/[^/]+\/result\.json$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingJobResult }],
+    ["GET", /^\/testing-functions\/jobs\/[^/]+\/evidence\/[^/]+$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingEvidenceDownload }],
     ["GET", /^\/testing-functions\/jobs\/[^/]+$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingJobDetail }],
     ["POST", /^\/testing-functions\/jobs\/batch$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: mutateTestingBatch }],
+    ["POST", /^\/testing-functions\/evidence\/purge$/, { permission: PERMISSIONS.SECURITY_MANAGE, csrf: true, handler: purgeExpiredEvidence }],
     ["POST", /^\/testing-functions\/jobs\/[^/]+\/cancel$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: cancelTestingJob }],
     ["POST", /^\/testing-functions\/jobs\/[^/]+\/retry$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: retryTestingJob }],
     ["POST", /^\/testing-functions\/maxxed-remote\/run$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: mutateRemoteTestJob }],
