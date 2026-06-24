@@ -31,7 +31,15 @@ function validateConnection(args, token) {
   if (!Number.isFinite(heartbeatSeconds) || heartbeatSeconds < 5 || heartbeatSeconds > 120) {
     throw new Error("invalid_heartbeat_seconds");
   }
-  return { platformUrl, heartbeatMs: heartbeatSeconds * 1000 };
+  const localLeaseSeconds = Number(args.localLeaseSeconds || 3600);
+  if (!Number.isFinite(localLeaseSeconds) || localLeaseSeconds < 300 || localLeaseSeconds > 14400) {
+    throw new Error("invalid_local_lease_seconds");
+  }
+  return {
+    platformUrl,
+    heartbeatMs: heartbeatSeconds * 1000,
+    localLeaseMs: localLeaseSeconds * 1000,
+  };
 }
 
 async function resolveArtifacts(args) {
@@ -53,7 +61,7 @@ export async function runRemoteCycle({
   runJob = runSequentialJob,
   heartbeatLoop = runHeartbeatLoop,
 }) {
-  const { platformUrl, heartbeatMs } = validateConnection(args, token);
+  const { platformUrl, heartbeatMs, localLeaseMs } = validateConnection(args, token);
   const artifacts = await resolveArtifacts(args);
   const productIds = Object.keys(artifacts.products);
 
@@ -114,6 +122,7 @@ export async function runRemoteCycle({
       stepIds: orderedSteps,
       inspectionMode: args.inspectionMode || "production",
       aaptPath: args.aaptPath,
+      leaseDurationMs: localLeaseMs,
       signal: jobController.signal,
       onStepStart: (next) => {
         progress = next;
