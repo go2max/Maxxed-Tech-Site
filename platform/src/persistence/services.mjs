@@ -555,6 +555,91 @@ export function createPlatformServices(database) {
         },
       });
     },
+    prepareEvidenceUpload(context, payload) {
+      requirePermission(context.actor, PERMISSIONS.QA_EXECUTE);
+      const jobId = requireString(payload.jobId, "invalid_job_id");
+      const runnerId = requireString(payload.runnerId, "invalid_runner_id");
+      const stepId = requireString(payload.stepId, "invalid_evidence_step_id");
+      const artifactName = requireString(payload.artifactName, "invalid_evidence_name");
+      if (!/^[A-Za-z0-9._:-]{1,80}$/.test(stepId) ||
+          !/^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$/.test(artifactName)) {
+        throw new Error("invalid_evidence_identity");
+      }
+      return database.transaction(async (tx) => {
+        const job = await repositories.automationJobs.get(tx, jobId);
+        if (!job) throw new Error("missing_row:automation_job");
+        if (job.runner_id !== runnerId || !["running", "cancelling"].includes(job.lease_state)) {
+          throw new Error("forbidden:automation_job_lease");
+        }
+        const id = `evidence-${crypto.randomUUID()}`;
+        return {
+          id,
+          jobId,
+          stepId,
+          artifactName,
+          objectKey: `jobs/${jobId}/${id}/${artifactName}`,
+        };
+      });
+    },
+    recordEvidenceObject(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.QA_EXECUTE,
+        action: "test_evidence.create",
+        targetType: "test_evidence_object",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const jobId = requireString(payload.jobId, "invalid_job_id");
+          const runnerId = requireString(payload.runnerId, "invalid_runner_id");
+          const job = await repositories.automationJobs.get(tx, jobId);
+          if (!job) throw new Error("missing_row:automation_job");
+          if (job.runner_id !== runnerId || !["running", "cancelling"].includes(job.lease_state)) {
+            throw new Error("forbidden:automation_job_lease");
+          }
+          const byteSize = Number(payload.byteSize);
+          if (!Number.isSafeInteger(byteSize) || byteSize < 0) throw new Error("invalid_evidence_size");
+          const sha256 = requireString(payload.sha256, "invalid_evidence_sha256").toLowerCase();
+          if (!/^[a-f0-9]{64}$/.test(sha256)) throw new Error("invalid_evidence_sha256");
+          const retentionUntil = requireString(payload.retentionUntil, "invalid_evidence_retention");
+          if (!Number.isFinite(Date.parse(retentionUntil))) throw new Error("invalid_evidence_retention");
+          return {
+            after: await repositories.testEvidenceObjects.insert(tx, {
+              id: requireString(payload.id, "invalid_evidence_id"),
+              job_id: jobId,
+              step_id: requireString(payload.stepId, "invalid_evidence_step_id"),
+              artifact_name: requireString(payload.artifactName, "invalid_evidence_name"),
+              object_key: requireString(payload.objectKey, "invalid_evidence_object_key"),
+              content_type: requireString(payload.contentType, "invalid_evidence_content_type"),
+              byte_size: byteSize,
+              sha256,
+              storage_state: "available",
+              retention_until: retentionUntil,
+            }, now),
+          };
+        },
+      });
+    },
+    deleteEvidenceObject(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.SECURITY_MANAGE,
+        action: "test_evidence.delete",
+        targetType: "test_evidence_object",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const evidenceId = requireString(payload.evidenceId, "invalid_evidence_id");
+          const before = await repositories.testEvidenceObjects.get(tx, evidenceId);
+          if (!before) throw new Error("missing_row:test_evidence_object");
+          if (before.storage_state !== "available") throw new Error("evidence_state_conflict:not_available");
+          return {
+            before,
+            after: await repositories.testEvidenceObjects.update(tx, evidenceId, {
+              storage_state: "deleted",
+            }, now),
+          };
+        },
+      });
+    },
     createSupportCase(context, payload) {
       return auditedMutation({
         actor: context.actor,
