@@ -142,6 +142,7 @@ test("roles are denied representative actions they should not perform", async ()
     ["qa-lead@techmaxxed.com", "GET", "/users"],
     ["beta-manager@techmaxxed.com", "POST", "/products"],
     ["support@techmaxxed.com", "POST", "/docs/publish", "/"],
+    ["qa-tester@techmaxxed.com", "POST", "/testing-functions/maxxed-remote/jobs/job-example/cancel", "/qa"],
   ];
 
   for (const [email, method, path, bootstrapPath = "/"] of cases) {
