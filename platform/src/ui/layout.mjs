@@ -39,7 +39,8 @@ export function renderShell({ title, identity, content, csrfToken }) {
       <p>Private Maxxed Operations Platform</p>
       <h1>${escapeHtml(title)}</h1>
       <p>Signed in as <strong>${escapeHtml(identity.displayName)}</strong> with trusted identity <code>${escapeHtml(identity.email)}</code>.</p>
-      <ul>${roles}</ul>\n      <nav aria-label="Admin sections"><a href="/portfolio">Portfolio</a><a href="/testing-functions">Testing Functions</a><a href="/automation">Automation jobs</a></nav>
+      <ul>${roles}</ul>
+      <nav aria-label="Admin sections"><a href="/portfolio">Portfolio</a><a href="/testing-functions">Testing Functions</a><a href="/automation">Automation jobs</a></nav>
       <p>CSRF token issued for protected actions: <code data-csrf-token>${escapeHtml(csrfToken)}</code></p>
     </div>
   </header>
