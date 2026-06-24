@@ -34,7 +34,13 @@ evidence index. A 404 claim response means the runner is idle.
 
 Create `runner/config/agent.local.json` from `agent.example.json`, configure
 the APK, Android SDK, runner, and device paths, and provide
-`MAXXED_RUNNER_API_TOKEN` through Windows secret management. Then start:
+`MAXXED_RUNNER_API_TOKEN` through Windows secret management. Validate every required local file before starting:
+
+```powershell
+node runner/agent.mjs --config=runner/config/agent.local.json --check
+```
+
+Then start:
 
 ```powershell
 node runner/agent.mjs --config=runner/config/agent.local.json
@@ -48,3 +54,7 @@ terminates the active child and exits cleanly.
 The local config, product mapping, APKs, state, reports, and credentials are
 intentionally excluded from source control. A production service or Scheduled
 Task should run under a dedicated non-administrator Windows account.
+
+
+See `docs/MAXXED_REMOTE_OPERATIONS.md` for deployment, job-state, recovery,
+and credential-rotation procedures.
