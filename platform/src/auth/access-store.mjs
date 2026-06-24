@@ -15,7 +15,9 @@ export function resolveEffectiveRoles(userId, legacyAssignments, events) {
   for (const assignment of legacyAssignments) {
     if (assignment.user_id === userId) roles.set(assignment.role_name, "grant");
   }
-  for (const event of events) {
+  for (const event of [...events].sort((left, right) =>
+    Number(left.event_sequence || 0) - Number(right.event_sequence || 0)
+  )) {
     if (event.user_id === userId) roles.set(event.role_name, event.action);
   }
   return [...roles.entries()]
