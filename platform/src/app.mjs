@@ -1,5 +1,5 @@
 import { createSeededPlatformState } from "./dashboard/state.mjs";
-import { renderAuditPage, renderBackupPage, renderKnowledgeBasePage, renderPortfolioPage, renderRecordPage, renderTestingFunctionsPage, renderTestingJobPage, renderUserAdminPage } from "./dashboard/renderers.mjs";
+import { renderAuditPage, renderBackupPage, renderKnowledgeBasePage, renderPortfolioPage, renderReadinessPage, renderRecordPage, renderSecurityMonitoringPage, renderTestingFunctionsPage, renderTestingJobPage, renderUserAdminPage } from "./dashboard/renderers.mjs";
 import { defaultAccessStore, PersistentAccessStore } from "./auth/access-store.mjs";
 import { extractTrustedIdentity } from "./auth/identity.mjs";
 import { createCsrfToken, createSession, readSession, sessionMatchesIdentity } from "./auth/session.mjs";
@@ -17,6 +17,7 @@ import { buildRegressionComparison } from "./testing/regression.mjs";
 import { MemoryEvidenceStore, R2EvidenceStore, UnavailableEvidenceStore } from "./evidence/storage.mjs";
 import { MemoryBackupStore, R2BackupStore, UnavailableBackupStore } from "./backups/storage.mjs";
 import { createEncryptedBackup, purgeExpiredBackups, verifyEncryptedBackup } from "./backups/service.mjs";
+import { summarizeSecurityPosture } from "./monitoring/security.mjs";
 
 const stateCache = new WeakMap();
 const evidenceStoreCache = new WeakMap();
@@ -157,6 +158,11 @@ function routeTable() {
     ["POST", /^\/testing-functions\/maxxed-remote\/jobs\/[^/]+\/retry$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: retryTestingJob }],
     ["GET", /^\/incidents$/, { permission: PERMISSIONS.INCIDENTS_READ, handler: handleIncidents }],
     ["GET", /^\/security\/audit$/, { permission: PERMISSIONS.AUDIT_READ, handler: handleSecurityAudit }],
+    ["GET", /^\/security\/monitoring$/, { permission: PERMISSIONS.AUDIT_READ, handler: handleSecurityMonitoring }],
+    ["GET", /^\/security\/monitoring\.js$/, { permission: PERMISSIONS.INTEGRATIONS_WRITE, handler: handleSecurityMonitoringScript }],
+    ["POST", /^\/security\/monitoring\/checks$/, { permission: PERMISSIONS.INTEGRATIONS_WRITE, csrf: true, handler: recordMonitoringCheck }],
+    ["POST", /^\/security\/monitoring\/findings$/, { permission: PERMISSIONS.INTEGRATIONS_WRITE, csrf: true, handler: recordSecurityFinding }],
+    ["POST", /^\/security\/monitoring\/findings\/[^/]+\/resolve$/, { permission: PERMISSIONS.INTEGRATIONS_WRITE, csrf: true, handler: resolveSecurityFinding }],
     ["GET", /^\/security\/backups$/, { permission: PERMISSIONS.SECURITY_MANAGE, handler: handleBackups }],
     ["GET", /^\/security\/backups\.js$/, { permission: PERMISSIONS.SECURITY_MANAGE, handler: handleBackupsScript }],
     ["POST", /^\/security\/backups$/, { permission: PERMISSIONS.SECURITY_MANAGE, csrf: true, handler: createBackup }],
@@ -169,6 +175,9 @@ function routeTable() {
     ["POST", /^\/knowledge-base\/revisions\/[^/]+\/publish$/, { permission: PERMISSIONS.DOCS_PUBLISH, csrf: true, handler: publishKnowledgeBaseRevision }],
     ["POST", /^\/knowledge-base\/entries\/[^/]+\/archive$/, { permission: PERMISSIONS.DOCS_PUBLISH, csrf: true, handler: archiveKnowledgeBaseEntry }],
     ["GET", /^\/readiness$/, { permission: PERMISSIONS.READINESS_READ, handler: handleReadiness }],
+    ["GET", /^\/readiness\.js$/, { permission: PERMISSIONS.READINESS_WRITE, handler: handleReadinessScript }],
+    ["POST", /^\/readiness\/evidence$/, { permission: PERMISSIONS.READINESS_WRITE, csrf: true, handler: recordReadinessEvidence }],
+    ["POST", /^\/readiness\/calculate$/, { permission: PERMISSIONS.READINESS_WRITE, csrf: true, handler: calculateReadiness }],
     ["GET", /^\/beta\/portal$/, { permission: PERMISSIONS.BETA_PORTAL, handler: handleBetaPortal }],
     ["GET", /^\/docs\/editor$/, { permission: PERMISSIONS.DOCS_READ, handler: handleDocsEditor }],
     ["POST", /^\/products$/, { permission: PERMISSIONS.PRODUCTS_WRITE, csrf: true, handler: mutateProduct }],
@@ -883,6 +892,101 @@ async function handleSecurityAudit({ identity, csrfToken, state }) {
   });
 }
 
+async function handleSecurityMonitoring({ identity, csrfToken, state }) {
+  const [findings, integrations, backups, auditEvents, accessEvents] = await Promise.all([
+    snapshot(state, "security_findings"),
+    snapshot(state, "integration_states"),
+    snapshot(state, "backup_snapshots"),
+    snapshot(state, "audit_events"),
+    snapshot(state, "access_role_events"),
+  ]);
+  const posture = summarizeSecurityPosture({
+    findings,
+    integrations,
+    backups,
+    auditValid: state.services.auditRepository.verifyIntegrity(auditEvents),
+  });
+  return renderDashboardPage({
+    title: "Security and Monitoring",
+    identity,
+    csrfToken,
+    content: renderSecurityMonitoringPage({
+      posture,
+      findings,
+      integrations,
+      backups,
+      accessEvents,
+      canWrite: hasPermission(identity, PERMISSIONS.INTEGRATIONS_WRITE),
+    }),
+  });
+}
+
+async function handleSecurityMonitoringScript() {
+  return new Response(`const status = document.querySelector("#security-monitoring-status");
+const csrfToken = () => document.querySelector("[data-csrf-token]")?.textContent || "";
+async function post(path, body) {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-csrf-token": csrfToken() },
+    body: JSON.stringify(body),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || "request_failed");
+  return result;
+}
+async function mutate(button, path, body) {
+  button.disabled = true;
+  if (status) status.textContent = "Updating security monitoring...";
+  try {
+    await post(path, body);
+    location.reload();
+  } catch (error) {
+    if (status) status.textContent = "Monitoring update failed: " + error.message;
+    button.disabled = false;
+  }
+}
+document.querySelector("#monitoring-check-form")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  mutate(form.querySelector("[type=submit]"), "/security/monitoring/checks", {
+    monitorName: form.elements.monitorName.value,
+    freshnessState: form.elements.freshnessState.value,
+    productId: form.elements.productId.value,
+    details: { summary: form.elements.summary.value },
+  });
+});
+document.querySelector("#security-finding-form")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  mutate(form.querySelector("[type=submit]"), "/security/monitoring/findings", {
+    fingerprint: form.elements.fingerprint.value,
+    source: form.elements.source.value,
+    category: form.elements.category.value,
+    severity: form.elements.severity.value,
+    title: form.elements.title.value,
+    status: "open",
+    details: {},
+  });
+});
+document.querySelectorAll("[data-finding-resolve]").forEach((button) => button.addEventListener("click", () => {
+  const resolution = window.prompt("Resolution summary");
+  if (resolution) mutate(button, "/security/monitoring/findings/" + encodeURIComponent(button.dataset.findingId) + "/resolve", { resolution });
+}));`, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-store" } });
+}
+
+async function recordMonitoringCheck({ requestId, identity, payload, state }) {
+  return ok(await state.services.recordMonitoringCheck({ actor: identity, requestId }, payload));
+}
+
+async function recordSecurityFinding({ requestId, identity, payload, state }) {
+  return ok(await state.services.upsertSecurityFinding({ actor: identity, requestId }, payload));
+}
+
+async function resolveSecurityFinding({ requestId, request, identity, payload, state }) {
+  const findingId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  return ok(await state.services.resolveSecurityFinding({ actor: identity, requestId }, { findingId, resolution: payload.resolution }));
+}
+
 async function handleKnowledgeBase({ identity, csrfToken, state }) {
   return renderDashboardPage({
     title: "Knowledge Base",
@@ -973,11 +1077,73 @@ async function archiveKnowledgeBaseEntry({ requestId, request, identity, state }
 
 async function handleReadiness({ identity, csrfToken, state }) {
   return renderDashboardPage({
-    title: "Readiness Score",
+    title: "Product Readiness",
     identity,
     csrfToken,
-    content: renderRecordPage("Snapshots", "Mandatory gates", await snapshot(state, "readiness_snapshots"), (row) => `Score ${row.score}`),
+    content: renderReadinessPage({
+      products: await snapshot(state, "products"),
+      evidence: await snapshot(state, "readiness_evidence"),
+      snapshots: await snapshot(state, "readiness_snapshots"),
+      canWrite: hasPermission(identity, PERMISSIONS.READINESS_WRITE),
+    }),
   });
+}
+
+async function handleReadinessScript() {
+  return new Response(`const status = document.querySelector("#readiness-status");
+const csrfToken = () => document.querySelector("[data-csrf-token]")?.textContent || "";
+async function post(path, body) {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-csrf-token": csrfToken() },
+    body: JSON.stringify(body),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || "request_failed");
+  return result;
+}
+async function mutate(button, path, body) {
+  button.disabled = true;
+  if (status) status.textContent = "Updating readiness...";
+  try {
+    await post(path, body);
+    location.reload();
+  } catch (error) {
+    if (status) status.textContent = "Readiness update failed: " + error.message;
+    button.disabled = false;
+  }
+}
+document.querySelector("#readiness-evidence-form")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const expiresAt = form.elements.expiresAt.value;
+  mutate(form.querySelector("[type=submit]"), "/readiness/evidence", {
+    productId: form.elements.productId.value,
+    category: form.elements.category.value,
+    resultState: form.elements.resultState.value,
+    source: form.elements.source.value,
+    reference: form.elements.reference.value,
+    mandatoryGate: form.elements.mandatoryGate.checked,
+    gateKey: form.elements.gateKey.value,
+    expiresAt: expiresAt ? new Date(expiresAt).toISOString() : "",
+  });
+});
+document.querySelector("#readiness-calculate-form")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  mutate(form.querySelector("[type=submit]"), "/readiness/calculate", {
+    productId: form.elements.productId.value,
+    stage: form.elements.stage.value,
+  });
+});`, { headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-store" } });
+}
+
+async function recordReadinessEvidence({ requestId, identity, payload, state }) {
+  return ok(await state.services.recordReadinessEvidence({ actor: identity, requestId }, payload));
+}
+
+async function calculateReadiness({ requestId, identity, payload, state }) {
+  return ok(await state.services.calculateReadinessSnapshot({ actor: identity, requestId }, payload));
 }
 
 async function handleBetaPortal({ identity, csrfToken }) {
@@ -1349,6 +1515,7 @@ export function createPlatformApp(options = {}) {
                 error.message.startsWith("backup_state_conflict:") ||
                 error.message.startsWith("knowledge_base_state_conflict:") ||
                 error.message.startsWith("knowledge_base_approval_conflict:") ||
+                error.message.startsWith("security_finding_state_conflict:") ||
                 error.message.startsWith("backup_integrity_") ||
                 error.message.startsWith("backup_table_") ||
                 error.message.startsWith("backup_audit_") ||
