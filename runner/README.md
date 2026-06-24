@@ -11,7 +11,6 @@ on runner machines.
 Set the runner token through local secret management, then run one claim cycle:
 
 ```powershell
-$env:MAXXED_RUNNER_API_TOKEN = "<runner token from secret management>"
 
 node runner/remote-cli.mjs `
   --platform=https://admin.techmaxxed.com `
