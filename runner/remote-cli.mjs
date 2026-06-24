@@ -98,6 +98,9 @@ export async function runRemoteCycle({
   } catch (error) {
     await post(`/runner/jobs/${encodeURIComponent(claimed.id)}/complete`, {
       runnerId: args.runnerId,
+      deviceId: args.deviceId,
+      productIds,
+      agentVersion: RUNNER_AGENT_VERSION,
       status: "interrupted",
       result: { error: error.message },
       evidence: [],
@@ -150,6 +153,9 @@ export async function runRemoteCycle({
     await heartbeatPromise;
     await post(`/runner/jobs/${encodeURIComponent(claimed.id)}/complete`, {
       runnerId: args.runnerId,
+      deviceId: args.deviceId,
+      productIds,
+      agentVersion: RUNNER_AGENT_VERSION,
       status: "interrupted",
       result: { error: error.message },
       evidence: [],
@@ -190,6 +196,9 @@ export async function runRemoteCycle({
 
   const completed = await post(`/runner/jobs/${encodeURIComponent(claimed.id)}/complete`, {
     runnerId: args.runnerId,
+    deviceId: args.deviceId,
+    productIds,
+    agentVersion: RUNNER_AGENT_VERSION,
     status,
     result,
     evidence,
