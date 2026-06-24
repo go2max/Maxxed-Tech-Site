@@ -81,7 +81,7 @@ export class MemoryPlatformDatabase {
 }
 
 function quoteIdentifier(identifier) {
-  if (!/^[a-z_]+$/i.test(identifier)) {
+  if (!/^[a-z_][a-z0-9_]*$/i.test(identifier)) {
     throw new Error(`invalid_identifier:${identifier}`);
   }
   return `"${identifier}"`;
