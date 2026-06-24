@@ -68,13 +68,13 @@ function validateJwtClaims(payload, config, nowSeconds) {
   if (payload.nbf && payload.nbf > nowSeconds) throw new Error("identity_jwt_not_yet_valid");
 }
 
-function deriveIdentityFromJwt(parsed, config, accessStore, nowSeconds) {
+async function deriveIdentityFromJwt(parsed, config, accessStore, nowSeconds) {
   validateJwtClaims(parsed.payload, config, nowSeconds);
 
   const email = parsed.payload.email.toLowerCase();
   const subject = parsed.payload.sub;
   const displayName = parsed.payload.name || parsed.payload.email;
-  const roles = accessStore.getRolesForEmail(email);
+  const roles = await accessStore.getRolesForEmail(email);
   const permissions = permissionsForRoles(roles);
 
   return {
@@ -104,7 +104,7 @@ function validateMirroredHeaders(request, config, identity) {
   }
 }
 
-export function extractTrustedIdentity(request, config, accessStore, now = Date.now()) {
+export async function extractTrustedIdentity(request, config, accessStore, now = Date.now()) {
   const jwtAssertion = request.headers.get(config.trustedIdentityJwtHeader);
 
   if (jwtAssertion) {
@@ -113,7 +113,7 @@ export function extractTrustedIdentity(request, config, accessStore, now = Date.
     if (!verifyJwtSignature(parsed, config.trustedIdentityJwtKey, config.trustedIdentityJwtAlgorithm)) {
       throw new Error("invalid_identity_jwt_signature");
     }
-    const identity = deriveIdentityFromJwt(parsed, config, accessStore, Math.floor(now / 1000));
+    const identity = await deriveIdentityFromJwt(parsed, config, accessStore, Math.floor(now / 1000));
     validateMirroredHeaders(request, config, identity);
     return identity;
   }
@@ -121,7 +121,7 @@ export function extractTrustedIdentity(request, config, accessStore, now = Date.
   if (config.allowDevelopmentIdentityOverride) {
     const rawIdentity = parseDevIdentity(request.headers.get("x-maxxed-dev-identity") || "");
     if (!rawIdentity) return null;
-    const roles = accessStore.getRolesForEmail(rawIdentity.email);
+    const roles = await accessStore.getRolesForEmail(rawIdentity.email);
     return {
       ...rawIdentity,
       roles,
