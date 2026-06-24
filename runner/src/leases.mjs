@@ -47,6 +47,13 @@ export async function acquireLeases(store, runnerId, deviceId, jobId, leaseDurat
 
 export async function releaseLeases(store, jobId, finalStatus, now = Date.now()) {
   return store.transact((state) => {
+    const ownsActiveLease =
+      state.activeJob === jobId &&
+      state.deviceLease?.jobId === jobId &&
+      state.runnerLease?.jobId === jobId;
+    if (!ownsActiveLease) {
+      throw new Error("lease_ownership_mismatch");
+    }
     state.activeJob = null;
     state.deviceLease = null;
     state.runnerLease = null;
