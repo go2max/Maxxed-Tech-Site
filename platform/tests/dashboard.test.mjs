@@ -43,10 +43,12 @@ const cases = [
   ["owner@techmaxxed.com", "/security/audit", 200],
   ["qa-lead@techmaxxed.com", "/qa", 200],
   ["qa-lead@techmaxxed.com", "/bugs", 200],
+  ["qa-lead@techmaxxed.com", "/testing-functions", 200],
   ["beta-manager@techmaxxed.com", "/beta/applications", 200],
   ["docs@techmaxxed.com", "/knowledge-base", 200],
   ["analytics@techmaxxed.com", "/readiness", 200],
   ["support@techmaxxed.com", "/security/audit", 403],
+  ["support@techmaxxed.com", "/testing-functions", 403],
   ["beta-tester@techmaxxed.com", "/portfolio", 403],
 ];
 

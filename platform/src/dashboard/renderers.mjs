@@ -32,3 +32,14 @@ export function renderRecordPage(title, eyebrow, records, renderRecord) {
 export function renderAuditPage(events) {
   return renderRecordPage("Audit log", "Security events", events, (event) => `${escapeHtml(event.action_name)} on ${escapeHtml(event.target_type)} by ${escapeHtml(event.actor_email)}`);
 }
+
+export function renderTestingFunctionsPage() {
+  return `<section class="grid">
+    ${card("Maxxed Remote", `<p><strong>Full UX, discovery, and TV connection test</strong></p>
+      <p>Approved runner step: <code>full-ux-connection</code></p>
+      <p>Automates application controls and evidence collection. Real television pairing, power, reconnect, and response require operator observation.</p>
+      <p><a href="/automation">View sequential automation jobs</a></p>`)}
+    ${card("Runner boundary", `<p>Commands and executable paths are fixed by the package-bound manifest. The browser cannot submit shell commands.</p>
+      <p>Run the approved step through the isolated Windows runner with an Android device or emulator attached.</p>`)}
+  </section>`;
+}
