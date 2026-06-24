@@ -52,6 +52,7 @@ test("fresh migration and repeat migration succeed for memory and D1 adapters", 
   assert.equal(d1Binding.indexes.has("test_evidence_retention"), true);
   assert.equal(d1Binding.indexes.has("test_schedules_due"), true);
   assert.equal(d1Binding.indexes.has("test_schedules_runner"), true);
+  assert.equal(d1Binding.indexes.has("access_role_events_sequence"), true);
   assert.equal(d1Binding.indexes.has("access_role_events_user"), true);
   assert.equal(d1Binding.indexes.has("access_role_events_role"), true);
   assert.equal(d1Binding.indexes.has("users_status"), true);
