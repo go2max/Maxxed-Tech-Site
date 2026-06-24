@@ -64,6 +64,9 @@ test("fresh migration and repeat migration succeed for memory and D1 adapters", 
   assert.equal(d1Binding.indexes.has("users_status"), true);
   assert.equal(d1Binding.indexes.has("backup_snapshots_retention"), true);
   assert.equal(d1Binding.indexes.has("backup_snapshots_created"), true);
+  assert.equal(d1Binding.indexes.has("knowledge_base_revisions_number"), true);
+  assert.equal(d1Binding.indexes.has("knowledge_base_revisions_state"), true);
+  assert.equal(d1Binding.indexes.has("knowledge_base_revisions_entry"), true);
   for (const migration of MIGRATIONS) {
     assert.equal(await d1.hasMigration(migration.id), true);
   }
