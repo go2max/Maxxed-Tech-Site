@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 
 import { inspectApk } from "../src/inspector.mjs";
 import { runSequentialJob } from "../src/runner.mjs";
-import { buildRemoteCliArgs, runAgent, validateAgentConfig } from "../agent.mjs";
+import { buildRemoteCliArgs, checkAgentReadiness, runAgent, validateAgentConfig } from "../agent.mjs";
 
 async function tempDir() {
   return mkdtemp(resolve(tmpdir(), "maxxed-runner-"));
@@ -217,4 +217,32 @@ test("agent executes one cycle at a time and applies bounded backoff", async () 
   assert.equal(result.cycles, 3);
   assert.equal(maximumActive, 1);
   assert.deepEqual(sleeps, [1000, 5000]);
+});
+
+
+test("agent readiness checks local dependencies without exposing credentials", async () => {
+  const config = validateAgentConfig({
+    platform: "https://admin.techmaxxed.com",
+    apk: "app.apk",
+    products: "products.json",
+    manifest: "manifest.json",
+    stateDir: "state",
+    reportDir: "reports",
+    runnerId: "runner-1",
+    deviceId: "device-1",
+    aaptPath: "aapt.exe",
+  }, resolve("."));
+
+  const checked = [];
+  const readiness = await checkAgentReadiness(config, async (path) => checked.push(path));
+  assert.deepEqual(readiness.checkedFiles, ["apk", "products", "manifest", "aaptPath"]);
+  assert.equal(checked.length, 4);
+  assert.doesNotMatch(JSON.stringify(readiness), /token|secret|authorization/i);
+
+  await assert.rejects(
+    () => checkAgentReadiness(config, async (path) => {
+      if (path === config.manifest) throw new Error("missing");
+    }),
+    /agent_missing_file:manifest/
+  );
 });
