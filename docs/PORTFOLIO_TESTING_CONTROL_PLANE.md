@@ -119,3 +119,7 @@ node scripts/security-scan.mjs
 The check suite validates the public site, private platform, runner, all six
 package-bound manifests, lifecycle transitions, capability matching,
 heartbeats, cooperative cancellation, stale recovery, and secret scanning.
+
+
+Runner identity, fleet health, staged credential rotation, and result export
+operations are documented in `docs/RUNNER_FLEET_OPERATIONS.md`.
