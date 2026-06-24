@@ -141,7 +141,7 @@ class D1TransactionContext {
 }
 
 function isAuditHeadConflict(error) {
-  return /audit_head_conflict|UNIQUE constraint failed: audit_events\.(?:sequence|previous_hash)/i.test(error?.message || "");
+  return /audit_head_conflict|UNIQUE constraint failed: (?:audit_events\.(?:sequence|previous_hash)|access_role_events\.event_sequence)/i.test(error?.message || "");
 }
 
 export class D1PlatformDatabase {
