@@ -3,18 +3,31 @@ import { resolve } from "node:path";
 import { DEFAULT_MAX_APK_BYTES, STATE_FILE } from "./constants.mjs";
 import { loadProductConfig, loadScriptPackManifest, matchProduct } from "./catalog.mjs";
 import { executeStep } from "./executor.mjs";
-import { inspectApk } from "./inspector.mjs";
-import { acquireLeases, releaseLeases } from "./leases.mjs";
+import { createAndroidSdkInspectionAdapter, inspectApk } from "./inspector.mjs";
+import { acquireLeases, recoverInterruptedJobs, releaseLeases } from "./leases.mjs";
 import { redactStepResult } from "./redaction.mjs";
 import { writeReports } from "./reports.mjs";
 import { RunnerStateStore } from "./state-store.mjs";
 
 export async function runSequentialJob(options) {
   const store = new RunnerStateStore(options.stateDir, STATE_FILE);
-  const inspection = await inspectApk(options.apkPath, options.maxApkBytes || DEFAULT_MAX_APK_BYTES);
+  const inspectionAdapter =
+    options.inspectionMode === "production"
+      ? (options.inspectionAdapter || createAndroidSdkInspectionAdapter({ aaptPath: options.aaptPath }))
+      : null;
+  const inspection = await inspectApk(options.apkPath, {
+    maxBytes: options.maxApkBytes || DEFAULT_MAX_APK_BYTES,
+    mode: options.inspectionMode || "test",
+    adapter: inspectionAdapter,
+  });
   const productConfig = await loadProductConfig(options.productsConfigPath);
   const product = matchProduct(productConfig, inspection.metadata.packageName);
-  const manifest = await loadScriptPackManifest(options.scriptPackManifestPath);
+  const { manifest, manifestPath } = await loadScriptPackManifest({
+    rootDir: options.rootDir,
+    product,
+    requestedManifestPath: options.scriptPackManifestPath,
+    allowTestManifest: Boolean(options.allowTestManifest),
+  });
 
   const selectedSteps = options.stepIds.map((stepId) => {
     const match = manifest.steps.find((step) => step.id === stepId);
@@ -23,7 +36,8 @@ export async function runSequentialJob(options) {
   });
 
   const jobId = `job-${crypto.randomUUID()}`;
-  await acquireLeases(store, options.runnerId, options.deviceId, jobId);
+  await recoverInterruptedJobs(store);
+  await acquireLeases(store, options.runnerId, options.deviceId, jobId, options.leaseDurationMs || 15 * 60 * 1000);
   const steps = [];
   let finalStatus = "pass";
 
@@ -48,13 +62,14 @@ export async function runSequentialJob(options) {
     finalStatus = error.message === "lease_contention" ? "blocked" : error.message === "step_timeout" ? "fail" : "interrupted";
     steps.push({ stepId: "runtime", status: finalStatus, stdout: "", stderr: error.message, evidence: [] });
   } finally {
-    await releaseLeases(store);
+    await releaseLeases(store, jobId, finalStatus);
   }
 
   const report = {
     jobId,
     product: product.slug,
     packageName: inspection.metadata.packageName,
+    manifestPath,
     sha256: inspection.sha256,
     finalStatus,
     steps,

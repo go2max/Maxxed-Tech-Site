@@ -8,7 +8,7 @@ const args = Object.fromEntries(process.argv.slice(2).map((entry) => {
 }));
 
 if (!args.apk || !args.steps || !args.products || !args.manifest || !args.stateDir || !args.reportDir) {
-  console.error("Usage: node runner/cli.mjs --apk=PATH --steps=step1,step2 --products=PATH --manifest=PATH --stateDir=PATH --reportDir=PATH [--runnerId=runner-1] [--deviceId=device-1]");
+  console.error("Usage: node runner/cli.mjs --apk=PATH --steps=step1,step2 --products=PATH --manifest=PATH --stateDir=PATH --reportDir=PATH [--runnerId=runner-1] [--deviceId=device-1] [--inspectionMode=test|production] [--aaptPath=PATH]");
   process.exit(1);
 }
 
@@ -22,6 +22,8 @@ const report = await runSequentialJob({
   runnerId: args.runnerId || "runner-1",
   deviceId: args.deviceId || "device-1",
   stepIds: args.steps.split(","),
+  inspectionMode: args.inspectionMode || "test",
+  aaptPath: args.aaptPath,
 });
 
 console.log(JSON.stringify(report, null, 2));

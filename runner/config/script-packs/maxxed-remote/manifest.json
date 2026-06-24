@@ -1,5 +1,6 @@
 {
   "app": "maxxed-remote",
+  "packageIds": ["com.example.maxxed.remote"],
   "steps": [
     { "id": "artifact-verify", "timeoutSeconds": 2, "continueOnFailure": false, "commandRef": "runner/scripts/common/pass-step.mjs" },
     { "id": "launch-smoke", "timeoutSeconds": 2, "continueOnFailure": false, "commandRef": "runner/scripts/maxxed-remote/launch-smoke.mjs" }
