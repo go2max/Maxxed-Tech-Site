@@ -38,6 +38,16 @@ test("persistent access roles replace bootstrap fallback after an active Owner e
 
   assert.deepEqual(await store.getRolesForEmail(bootstrap.email), [ROLES.OWNER]);
   assert.deepEqual(await store.getRolesForEmail("admin@techmaxxed.com"), []);
+
+  await services.assignRole({ actor: bootstrap, requestId: "grant-developer" }, {
+    userId: user.id,
+    roleName: ROLES.DEVELOPER,
+  });
+  await services.revokeRole({ actor: bootstrap, requestId: "revoke-developer" }, {
+    userId: user.id,
+    roleName: ROLES.DEVELOPER,
+  });
+  assert.deepEqual(await store.getRolesForEmail(bootstrap.email), [ROLES.OWNER]);
 });
 
 test("access services validate roles and protect the last active Owner", async () => {
