@@ -57,7 +57,7 @@ test("package mismatch, manifest traversal, absolute paths, and cross-product ma
   const traversalManifestPath = resolve(dir, "manifest.json");
   await writeFile(traversalManifestPath, JSON.stringify({
     app: "maxxed-remote",
-    packageIds: ["com.maxxed.remote"],
+    packageIds: ["com.example.maxxed.remote"],
     steps: [{ id: "artifact-verify", timeoutSeconds: 2, continueOnFailure: false, commandRef: "../evil.mjs" }],
   }, null, 2));
   await assert.rejects(() => runSequentialJob({ ...baseOptions(dir), scriptPackManifestPath: traversalManifestPath, allowTestManifest: true }), /invalid_command_ref/);
@@ -65,7 +65,7 @@ test("package mismatch, manifest traversal, absolute paths, and cross-product ma
   const crossProductManifestPath = resolve(dir, "cross.json");
   await writeFile(crossProductManifestPath, JSON.stringify({
     app: "rival-rush",
-    packageIds: ["com.maxxed.remote"],
+    packageIds: ["com.example.maxxed.remote"],
     steps: [{ id: "artifact-verify", timeoutSeconds: 2, continueOnFailure: false, commandRef: "runner/scripts/common/pass-step.mjs" }],
   }, null, 2));
   await assert.rejects(() => runSequentialJob({ ...baseOptions(dir), scriptPackManifestPath: crossProductManifestPath, allowTestManifest: true }), /cross_product_manifest_rejected/);
@@ -78,7 +78,7 @@ test("required-step failure stops the job and redacts secrets", async () => {
   const manifestPath = resolve(dir, "manifest.json");
   await writeFile(manifestPath, JSON.stringify({
     app: "maxxed-remote",
-    packageIds: ["com.maxxed.remote"],
+    packageIds: ["com.example.maxxed.remote"],
     steps: [
       { id: "artifact-verify", timeoutSeconds: 2, continueOnFailure: false, commandRef: "runner/scripts/common/fail-step.mjs" },
       { id: "launch-smoke", timeoutSeconds: 2, continueOnFailure: false, commandRef: "runner/scripts/maxxed-remote/launch-smoke.mjs" },
@@ -96,7 +96,7 @@ test("timed out steps are hard-killed and reported as failures", async () => {
   const manifestPath = resolve(dir, "timeout.json");
   await writeFile(manifestPath, JSON.stringify({
     app: "maxxed-remote",
-    packageIds: ["com.maxxed.remote"],
+    packageIds: ["com.example.maxxed.remote"],
     steps: [
       { id: "artifact-verify", timeoutSeconds: 1, continueOnFailure: false, commandRef: "runner/scripts/common/timeout-step.mjs" },
     ],
@@ -112,7 +112,7 @@ test("lease contention and stale interrupted-job recovery are enforced", async (
   const slowManifestPath = resolve(dir, "slow-manifest.json");
   await writeFile(slowManifestPath, JSON.stringify({
     app: "maxxed-remote",
-    packageIds: ["com.maxxed.remote"],
+    packageIds: ["com.example.maxxed.remote"],
     steps: [
       { id: "artifact-verify", timeoutSeconds: 2, continueOnFailure: false, commandRef: "runner/scripts/common/slow-step.mjs" },
       { id: "launch-smoke", timeoutSeconds: 2, continueOnFailure: false, commandRef: "runner/scripts/maxxed-remote/launch-smoke.mjs" },
