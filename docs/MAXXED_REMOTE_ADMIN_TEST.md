@@ -36,7 +36,6 @@ connection and respond. Exit code `0` means passed, `1` means failed, and
 The browser never supplies commands or executable paths. The local runner loads
 only the version-controlled command reference from the approved manifest.
 
-
 ## Admin Job Lifecycle
 
 The Testing Functions page shows the ten most recently updated Remote jobs and
