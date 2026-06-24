@@ -447,6 +447,8 @@ function parseStoredJson(value, fallback) {
 async function handleTestingJobDetail({ identity, csrfToken, request, state }) {
   const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-1));
   const job = await resolveApprovedTestingJob(state, jobId);
+  const evidenceObjects = (await snapshot(state, "test_evidence_objects"))
+    .filter((record) => record.job_id === jobId && record.storage_state === "available");
   return renderDashboardPage({
     title: "Test Job Detail",
     identity,
@@ -454,8 +456,51 @@ async function handleTestingJobDetail({ identity, csrfToken, request, state }) {
     content: renderTestingJobPage({
       product: getTestingProduct(job.product_id),
       job: testingJobExport(job),
+      evidenceObjects,
     }),
   });
+}
+
+async function handleTestingEvidenceDownload({ request, state, evidenceStore }) {
+  const parts = new URL(request.url).pathname.split("/");
+  const jobId = decodeURIComponent(parts.at(-3));
+  const evidenceId = decodeURIComponent(parts.at(-1));
+  await resolveApprovedTestingJob(state, jobId);
+  const metadata = (await snapshot(state, "test_evidence_objects"))
+    .find((record) => record.id === evidenceId && record.job_id === jobId && record.storage_state === "available");
+  if (!metadata) throw new Error("missing_row:test_evidence_object");
+  const object = await evidenceStore.get(metadata.object_key);
+  if (!object) throw new Error("missing_row:test_evidence_object");
+  const digest = await sha256Hex(object.body);
+  if (object.body.byteLength !== metadata.byte_size || digest !== metadata.sha256) {
+    throw new Error("evidence_integrity_failed");
+  }
+  const filename = metadata.artifact_name.replace(/[^A-Za-z0-9._-]/g, "_");
+  return new Response(object.body, {
+    headers: {
+      "content-type": metadata.content_type,
+      "content-length": String(metadata.byte_size),
+      "content-disposition": `attachment; filename="${filename}"`,
+      "cache-control": "private, no-store",
+      "x-content-sha256": metadata.sha256,
+    },
+  });
+}
+
+async function purgeExpiredEvidence({ requestId, identity, state, evidenceStore }) {
+  const now = new Date().toISOString();
+  const expired = (await snapshot(state, "test_evidence_objects"))
+    .filter((record) => record.storage_state === "available" && record.retention_until <= now)
+    .sort((left, right) => left.retention_until.localeCompare(right.retention_until))
+    .slice(0, 100);
+  const records = [];
+  for (const record of expired) {
+    await evidenceStore.delete(record.object_key);
+    records.push(await state.services.deleteEvidenceObject({ actor: identity, requestId }, {
+      evidenceId: record.id,
+    }));
+  }
+  return json({ ok: true, purged: records.length, records });
 }
 
 async function handleTestingJobResult({ request, state }) {
@@ -577,6 +622,55 @@ async function heartbeatRunnerJob({ requestId, request, identity, payload, state
   return ok(job);
 }
 
+async function uploadRunnerEvidence({ requestId, request, identity, state, config, evidenceStore, runnerId }) {
+  const parts = new URL(request.url).pathname.split("/");
+  const jobId = decodeURIComponent(parts.at(-3));
+  const artifactName = decodeURIComponent(parts.at(-1));
+  const stepId = String(request.headers.get("x-maxxed-step-id") || "");
+  const contentType = String(request.headers.get("content-type") || "application/octet-stream")
+    .split(";", 1)[0].trim().toLowerCase();
+  const allowedTypes = new Set([
+    "image/png", "image/jpeg", "text/plain", "application/json",
+    "application/xml", "text/xml", "video/mp4", "application/octet-stream",
+  ]);
+  if (!allowedTypes.has(contentType)) throw new Error("invalid_evidence_content_type");
+  const prepared = await state.services.prepareEvidenceUpload({ actor: identity, requestId }, {
+    jobId, runnerId, stepId, artifactName,
+  });
+  const bytes = await readBinaryBody(request, config.evidenceMaxBytes);
+  if (bytes.byteLength === 0) throw new Error("invalid_evidence_body");
+  const sha256 = await sha256Hex(bytes);
+  const retentionUntil = new Date(Date.now() + config.evidenceRetentionDays * 86_400_000).toISOString();
+  await evidenceStore.put(prepared.objectKey, bytes, {
+    contentType,
+    customMetadata: { jobId, stepId, sha256 },
+  });
+  try {
+    const record = await state.services.recordEvidenceObject({ actor: identity, requestId }, {
+      ...prepared,
+      runnerId,
+      contentType,
+      byteSize: bytes.byteLength,
+      sha256,
+      retentionUntil,
+    });
+    return ok({
+      id: record.id,
+      jobId: record.job_id,
+      stepId: record.step_id,
+      artifactName: record.artifact_name,
+      contentType: record.content_type,
+      byteSize: record.byte_size,
+      sha256: record.sha256,
+      retentionUntil: record.retention_until,
+      ref: `evidence:${record.id}`,
+    });
+  } catch (error) {
+    await evidenceStore.delete(prepared.objectKey);
+    throw error;
+  }
+}
+
 async function completeRunnerJob({ requestId, request, identity, payload, state }) {
   const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
   const job = await state.services.completeAutomationJob({ actor: identity, requestId }, {
@@ -681,6 +775,33 @@ export function createPlatformApp(options = {}) {
       if (meta.public) {
         const response = await meta.handler({ requestId, request });
         return appendSecurityHeaders(response, requestId, url.protocol === "https:");
+      }
+
+      if (meta.runnerBinary) {
+        const runnerId = String(request.headers.get("x-maxxed-runner-id") || "").trim();
+        if (!/^[A-Za-z0-9._:-]{1,80}$/.test(runnerId) ||
+            !(await runnerTokenMatches(request.headers.get("authorization"), config, runnerId))) {
+          logger.log({ requestId, route: url.pathname, outcome: "runner_authentication_failed" });
+          return appendSecurityHeaders(denied(requestId, 401, "runner_authentication_required"), requestId, url.protocol === "https:");
+        }
+        try {
+          const resolvedEnv = { ...env, ...(options.env || {}) };
+          const state = await resolveState(options, resolvedEnv);
+          const evidenceStore = resolveEvidenceStore(options, resolvedEnv, config);
+          const response = await meta.handler({
+            requestId, request, identity: runnerActor(runnerId), state, config, evidenceStore, runnerId,
+          });
+          return appendSecurityHeaders(response, requestId, url.protocol === "https:");
+        } catch (error) {
+          logger.log({ requestId, route: url.pathname, actor: runnerId, outcome: "runner_evidence_failed", error: error.message });
+          const status = error.message === "evidence_too_large" ? 413
+            : error.message === "evidence_store_unavailable" ? 503
+              : error.message.startsWith("forbidden:") ? 403
+                : error.message.startsWith("missing_row:") ? 404
+                  : error.message.startsWith("invalid_") ? 400
+                    : 500;
+          return appendSecurityHeaders(denied(requestId, status, error.message), requestId, url.protocol === "https:");
+        }
       }
 
       if (meta.runner) {
@@ -796,16 +917,21 @@ export function createPlatformApp(options = {}) {
       }
 
       try {
-        const response = await meta.handler({ requestId, request, identity, csrfToken, payload, state, config });
+        const evidenceStore = resolveEvidenceStore(options, { ...env, ...(options.env || {}) }, config);
+        const response = await meta.handler({ requestId, request, identity, csrfToken, payload, state, config, evidenceStore });
         response.headers.set("set-cookie", `__Host-maxxed-session=${nextSessionToken}; Path=/; HttpOnly; SameSite=Strict; Secure`);
         return appendSecurityHeaders(response, requestId, url.protocol === "https:");
       } catch (error) {
         logger.log({ requestId, route: url.pathname, actor: identity.email, outcome: "mutation_failed", error: error.message });
         const status = error.message.startsWith("forbidden:") ? 403
           : error.message.startsWith("missing_row:") ? 404
-            : error.message.startsWith("release_gate_failed:") || error.message.startsWith("job_state_conflict:") ? 409
-              : error.message.startsWith("invalid_") ? 400
-                : 500;
+            : error.message.startsWith("release_gate_failed:") ||
+                error.message.startsWith("job_state_conflict:") ||
+                error.message.startsWith("evidence_state_conflict:") ||
+                error.message === "evidence_integrity_failed" ? 409
+              : error.message === "evidence_store_unavailable" ? 503
+                : error.message.startsWith("invalid_") ? 400
+                  : 500;
         return appendSecurityHeaders(denied(requestId, status, error.message), requestId, url.protocol === "https:");
       }
     },
