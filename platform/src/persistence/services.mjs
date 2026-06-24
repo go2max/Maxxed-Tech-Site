@@ -473,11 +473,18 @@ export function createPlatformServices(database) {
         mutation: async (tx, now) => {
           const runnerId = requireString(payload.runnerId, "invalid_runner_id");
           const deviceId = requireString(payload.deviceId, "invalid_device_id");
+          const productIds = requireArray(payload.productIds ?? ["maxxed-remote"], "invalid_runner_products");
+          if (productIds.length === 0 || productIds.length > 20 ||
+              productIds.some((productId) => typeof productId !== "string" || !/^[A-Za-z0-9._:-]{1,80}$/.test(productId))) {
+            throw new Error("invalid_runner_products");
+          }
+          const supportedProducts = new Set(productIds);
           const jobs = await repositories.automationJobs.list(tx);
           const before = jobs.find((job) =>
             job.lease_state === "queued" &&
             job.runner_id === runnerId &&
-            job.device_id === deviceId
+            job.device_id === deviceId &&
+            supportedProducts.has(job.product_id)
           );
           if (!before) throw new Error("missing_row:automation_job");
           return {
