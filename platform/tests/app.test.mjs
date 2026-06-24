@@ -538,7 +538,7 @@ test("Remote job cancellation and retry preserve history and enforce state trans
     `/testing-functions/maxxed-remote/jobs/${encodeURIComponent(queuedJob.id)}/cancel`
   );
   assert.equal(duplicateCancel.status, 409);
-  assert.equal((await duplicateCancel.json()).error, "job_state_conflict:cancel_requires_queued");
+  assert.equal((await duplicateCancel.json()).error, "job_state_conflict:cancel_requires_active");
 
   const retryResponse = await post(
     `/testing-functions/maxxed-remote/jobs/${encodeURIComponent(queuedJob.id)}/retry`
@@ -583,4 +583,174 @@ test("Testing Functions client script parses and exposes lifecycle actions", asy
   assert.doesNotThrow(() => new Function(source));
   assert.match(source, /data-job-action/);
   assert.match(source, /encodeURIComponent\(jobId\)/);
+});
+
+
+test("portfolio batch queueing, capability claims, heartbeats, and cooperative cancellation", async () => {
+  const email = "qa-lead@techmaxxed.com";
+  const state = await createSeededPlatformState();
+  const app = createPlatformApp({ env: identityEnv, state });
+  const { cookie, csrfToken } = await bootstrap(email, "/testing-functions", app, state);
+  const browserHeaders = {
+    ...authHeaders(email),
+    cookie,
+    origin: "https://admin.techmaxxed.com",
+    "content-type": "application/json",
+    "x-csrf-token": csrfToken,
+  };
+  const batch = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/jobs/batch", {
+    method: "POST",
+    headers: browserHeaders,
+    body: JSON.stringify({
+      productIds: ["maxxed-compass", "rival-rush"],
+      runnerId: "portfolio-runner",
+      deviceId: "android-device-1",
+      orderedSteps: ["arbitrary-command"],
+    }),
+  }));
+  assert.equal(batch.status, 200);
+  const queued = (await batch.json()).records;
+  assert.equal(queued.length, 2);
+  assert.deepEqual(JSON.parse(queued[0].ordered_steps_json), ["artifact-verify", "launch-smoke", "ux-inventory"]);
+  assert.deepEqual(JSON.parse(queued[1].ordered_steps_json), ["artifact-verify", "launch-smoke", "ux-inventory"]);
+  assert.equal(JSON.parse(queued[0].result_json).packageId, "com.maxxed.compass");
+  assert.equal(JSON.parse(queued[1].result_json).packageId, "com.maxxed_technical_systems.rivalrushlaunch");
+
+  const invalidBatch = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/jobs/batch", {
+    method: "POST",
+    headers: browserHeaders,
+    body: JSON.stringify({
+      productIds: ["maxxed-compass", "maxxed-compass"],
+      runnerId: "portfolio-runner",
+      deviceId: "android-device-1",
+    }),
+  }));
+  assert.equal(invalidBatch.status, 400);
+
+  const runnerHeaders = {
+    authorization: `Bearer ${identityEnv.RUNNER_API_TOKEN}`,
+    "content-type": "application/json",
+  };
+  const claim = await app.fetch(new Request("https://admin.techmaxxed.com/runner/jobs/claim", {
+    method: "POST",
+    headers: runnerHeaders,
+    body: JSON.stringify({
+      runnerId: "portfolio-runner",
+      deviceId: "android-device-1",
+      productIds: ["rival-rush"],
+    }),
+  }));
+  assert.equal(claim.status, 200);
+  const running = (await claim.json()).record;
+  assert.equal(running.product_id, "rival-rush");
+
+  const heartbeat = await app.fetch(new Request(`https://admin.techmaxxed.com/runner/jobs/${running.id}/heartbeat`, {
+    method: "POST",
+    headers: runnerHeaders,
+    body: JSON.stringify({
+      runnerId: "portfolio-runner",
+      progress: { stepId: "launch-smoke", completedSteps: 1 },
+    }),
+  }));
+  assert.equal(heartbeat.status, 200);
+  const heartbeatRecord = (await heartbeat.json()).record;
+  assert.equal(JSON.parse(heartbeatRecord.result_json).progress.stepId, "launch-smoke");
+
+  const cancel = await app.fetch(new Request(`https://admin.techmaxxed.com/testing-functions/jobs/${running.id}/cancel`, {
+    method: "POST",
+    headers: browserHeaders,
+    body: JSON.stringify({ reason: "Operator stop" }),
+  }));
+  assert.equal(cancel.status, 200);
+  assert.equal((await cancel.json()).record.lease_state, "cancelling");
+
+  const cancellationHeartbeat = await app.fetch(new Request(`https://admin.techmaxxed.com/runner/jobs/${running.id}/heartbeat`, {
+    method: "POST",
+    headers: runnerHeaders,
+    body: JSON.stringify({ runnerId: "portfolio-runner", progress: { stepId: "launch-smoke", completedSteps: 1 } }),
+  }));
+  assert.equal(cancellationHeartbeat.status, 200);
+  assert.equal((await cancellationHeartbeat.json()).record.lease_state, "cancelling");
+
+  const completed = await app.fetch(new Request(`https://admin.techmaxxed.com/runner/jobs/${running.id}/complete`, {
+    method: "POST",
+    headers: runnerHeaders,
+    body: JSON.stringify({
+      runnerId: "portfolio-runner",
+      status: "cancelled",
+      result: { finalStatus: "cancelled", steps: [] },
+      evidence: [],
+    }),
+  }));
+  assert.equal(completed.status, 200);
+  assert.equal((await completed.json()).record.lease_state, "cancelled");
+
+  const page = await bootstrap(email, "/testing-functions", app, state);
+  const html = await page.response.text();
+  assert.match(html, /Maxxed Compass/);
+  assert.match(html, /Rival Rush/);
+  assert.match(html, /com\.maxxed\.compass/);
+  assert.match(html, /Queue selected tests/);
+  assert.match(html, /Runner heartbeats maintain active leases/);
+});
+
+test("stale runner leases are interrupted and audited before the next claim", async () => {
+  const email = "qa-lead@techmaxxed.com";
+  const state = await createSeededPlatformState();
+  const app = createPlatformApp({
+    env: { ...identityEnv, RUNNER_LEASE_TTL_MS: "1000" },
+    state,
+  });
+  const { cookie, csrfToken } = await bootstrap(email, "/testing-functions", app, state);
+  const browserHeaders = {
+    ...authHeaders(email),
+    cookie,
+    origin: "https://admin.techmaxxed.com",
+    "content-type": "application/json",
+    "x-csrf-token": csrfToken,
+  };
+  const queue = async () => {
+    const response = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/jobs/batch", {
+      method: "POST",
+      headers: browserHeaders,
+      body: JSON.stringify({
+        productIds: ["maxxed-compass"],
+        runnerId: "lease-runner",
+        deviceId: "lease-device",
+      }),
+    }));
+    return (await response.json()).records[0];
+  };
+  await queue();
+  const runnerHeaders = {
+    authorization: `Bearer ${identityEnv.RUNNER_API_TOKEN}`,
+    "content-type": "application/json",
+  };
+  const claimRequest = () => app.fetch(new Request("https://admin.techmaxxed.com/runner/jobs/claim", {
+    method: "POST",
+    headers: runnerHeaders,
+    body: JSON.stringify({
+      runnerId: "lease-runner",
+      deviceId: "lease-device",
+      productIds: ["maxxed-compass"],
+    }),
+  }));
+  const firstClaim = await claimRequest();
+  const staleJob = (await firstClaim.json()).record;
+  await state.database.transaction((tx) => tx.update("automation_jobs", staleJob.id, (job) => ({
+    ...job,
+    updated_at: new Date(0).toISOString(),
+  })));
+  const nextQueued = await queue();
+
+  const secondClaim = await claimRequest();
+  assert.equal(secondClaim.status, 200);
+  assert.equal((await secondClaim.json()).record.id, nextQueued.id);
+
+  const jobs = await state.database.transaction((tx) => tx.list("automation_jobs"));
+  const expired = jobs.find((job) => job.id === staleJob.id);
+  assert.equal(expired.lease_state, "interrupted");
+  assert.equal(JSON.parse(expired.result_json).error, "runner_lease_expired");
+  const audit = await state.database.transaction((tx) => tx.list("audit_events"));
+  assert.equal(audit.some((event) => event.action_name === "automation_job.expire" && event.target_id === staleJob.id), true);
 });
