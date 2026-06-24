@@ -125,22 +125,26 @@ These are website display states, not final Play Console approvals.
 - [x] Signed session-cookie model with expiry, origin checks, CSRF enforcement, and strict security headers.
 - [x] Focused tests proving unauthenticated rejection, role allow/deny behavior, role-header distrust, CSRF/origin rejection, and secret redaction.
 
+### Persistence Complete
+
+- [x] Initial D1-oriented SQL migration catalog for users, roles, products, builds, releases, QA, bugs, beta records, automation jobs, incidents, integrations, knowledge-base entries, readiness snapshots, and audit events.
+- [x] Deterministic transactional persistence harness for repository and service tests.
+- [x] Append-only audit hash chaining with integrity verification.
+- [x] Authorization-tested services covering the required record families.
+- [x] Rollback strategy documentation for schema and data recovery.
+
 ### Not Yet Implemented
 
 - [ ] Private identity provider integration.
 - [ ] Owner MFA enrollment and recovery process.
 - [ ] User and role administration.
-- [ ] Append-only audit event store and integrity verification.
-- [ ] Product and release database.
-- [ ] QA assignment and test-result database.
-- [ ] Bug and feature-request tracking.
 - [ ] Security and product-health dashboards.
 - [ ] Google Play Developer Reporting API synchronization.
 - [ ] Uptime and certificate monitoring.
 - [ ] Dependency and secret-scanning integration.
 - [ ] Backup automation and restore testing.
-- [ ] Internal knowledge base.
-- [ ] Product Readiness Score calculation and evidence gates.
+- [ ] Internal knowledge base UI.
+- [ ] Product Readiness Score calculation and evidence gates in the dashboard.
 
 ## Sequential APK Test Environment
 
@@ -174,7 +178,7 @@ These are website display states, not final Play Console approvals.
 2. Deploy the validated public site and connect DNS.
 3. Activate the three public email addresses.
 4. Run live desktop, mobile, security-header, SEO, and accessibility checks.
-5. Begin Phase 2 of the private platform data and audit implementation.
+5. Begin Phase 3 of the private platform dashboard implementation.
 6. Keep beta enrollment manual until authenticated approval and audit logging exist.
 
 ## Reference Documents
@@ -183,3 +187,4 @@ These are website display states, not final Play Console approvals.
 - `docs/MAXXED_PLATFORM_V1_SPECIFICATION.md`: canonical platform requirements.
 - `docs/PRIVATE_OPERATIONS_PLATFORM.md`: private dashboard and APK runner design.
 - `docs/ADMIN_AND_BETA_AUTOMATION.md`: admin identity and beta automation plan.
+- `docs/PLATFORM_ROLLBACK_STRATEGY.md`: migration and recovery posture.

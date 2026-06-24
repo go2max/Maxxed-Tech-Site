@@ -7,6 +7,7 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 for (const [command, args] of [
   ["node", ["./platform/tests/validate-platform.mjs"]],
   ["node", ["--test", "./platform/tests/app.test.mjs"]],
+  ["node", ["--test", "./platform/tests/persistence.test.mjs"]],
 ]) {
   const result = spawnSync(command, args, {
     cwd: root,
