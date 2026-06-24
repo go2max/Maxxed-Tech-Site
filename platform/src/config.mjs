@@ -77,6 +77,8 @@ export function loadPlatformConfig(env = {}) {
     runnerLeaseTtlMs: requirePositiveNumber(env.RUNNER_LEASE_TTL_MS, 5 * 60 * 1000, "invalid_runner_lease_ttl"),
     runnerFleetStaleMs: requirePositiveNumber(env.RUNNER_FLEET_STALE_MS, 2 * 60 * 1000, "invalid_runner_fleet_stale"),
     runnerFleetOfflineMs: requirePositiveNumber(env.RUNNER_FLEET_OFFLINE_MS, 10 * 60 * 1000, "invalid_runner_fleet_offline"),
+    evidenceMaxBytes: requirePositiveNumber(env.EVIDENCE_MAX_BYTES, 25 * 1024 * 1024, "invalid_evidence_max_bytes"),
+    evidenceRetentionDays: requirePositiveNumber(env.EVIDENCE_RETENTION_DAYS, 30, "invalid_evidence_retention_days"),
     sessionAbsoluteTtlMs: requirePositiveNumber(env.SESSION_ABSOLUTE_TTL_MS, DEFAULT_SESSION_ABSOLUTE_TTL_MS, "invalid_session_absolute_ttl"),
     sessionIdleTtlMs: requirePositiveNumber(env.SESSION_IDLE_TTL_MS, DEFAULT_SESSION_IDLE_TTL_MS, "invalid_session_idle_ttl"),
     maxRequestBytes: requirePositiveNumber(env.MAX_REQUEST_BYTES, DEFAULT_MAX_REQUEST_BYTES, "invalid_max_request_bytes"),
@@ -91,6 +93,9 @@ export function loadPlatformConfig(env = {}) {
   }
   if (config.runnerFleetOfflineMs <= config.runnerFleetStaleMs) {
     throw new Error("invalid_runner_fleet_thresholds");
+  }
+  if (config.evidenceMaxBytes > 100 * 1024 * 1024 || config.evidenceRetentionDays > 3650) {
+    throw new Error("invalid_evidence_limits");
   }
 
   if (!isStrongSessionSecret(config.sessionSecret)) {
