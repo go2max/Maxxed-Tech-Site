@@ -1,5 +1,5 @@
 import { createSeededPlatformState } from "./dashboard/state.mjs";
-import { renderAuditPage, renderPortfolioPage, renderRecordPage, renderTestingFunctionsPage } from "./dashboard/renderers.mjs";
+import { renderAuditPage, renderPortfolioPage, renderRecordPage, renderTestingFunctionsPage, renderTestingJobPage } from "./dashboard/renderers.mjs";
 import { defaultAccessStore } from "./auth/access-store.mjs";
 import { extractTrustedIdentity } from "./auth/identity.mjs";
 import { createCsrfToken, createSession, readSession, sessionMatchesIdentity } from "./auth/session.mjs";
@@ -75,6 +75,8 @@ function routeTable() {
     ["GET", /^\/automation$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleAutomation }],
     ["GET", /^\/testing-functions$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctions }],
     ["GET", /^\/testing-functions\.js$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctionsScript }],
+    ["GET", /^\/testing-functions\/jobs\/[^/]+\/result\.json$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingJobResult }],
+    ["GET", /^\/testing-functions\/jobs\/[^/]+$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingJobDetail }],
     ["POST", /^\/testing-functions\/jobs\/batch$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: mutateTestingBatch }],
     ["POST", /^\/testing-functions\/jobs\/[^/]+\/cancel$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: cancelTestingJob }],
     ["POST", /^\/testing-functions\/jobs\/[^/]+\/retry$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: retryTestingJob }],
@@ -98,8 +100,13 @@ function routeTable() {
   ];
 }
 
-async function runnerTokenMatches(authorization, expectedToken) {
-  if (!expectedToken || !authorization?.startsWith("Bearer ")) return false;
+async function runnerTokenMatches(authorization, config, runnerId) {
+  if (!authorization?.startsWith("Bearer ")) return false;
+  const configuredRunnerIds = Object.keys(config.runnerApiTokens);
+  const expectedToken = configuredRunnerIds.length > 0
+    ? config.runnerApiTokens[runnerId]
+    : config.runnerApiToken;
+  if (!expectedToken) return false;
   const presented = authorization.slice("Bearer ".length);
   const encoder = new TextEncoder();
   const [expectedHash, presentedHash] = await Promise.all([
@@ -203,15 +210,22 @@ async function handleAutomation({ identity, csrfToken, state }) {
 }
 
 
-async function handleTestingFunctions({ identity, csrfToken, state }) {
+async function handleTestingFunctions({ identity, csrfToken, state, config }) {
   const approvedProductIds = new Set(TESTING_PRODUCTS.map((product) => product.id));
   const jobs = (await snapshot(state, "automation_jobs"))
     .filter((job) => approvedProductIds.has(job.product_id));
+  const runners = await snapshot(state, "runner_nodes");
   return renderDashboardPage({
     title: "Testing Functions",
     identity,
     csrfToken,
-    content: renderTestingFunctionsPage({ products: TESTING_PRODUCTS, jobs }),
+    content: renderTestingFunctionsPage({
+      products: TESTING_PRODUCTS,
+      jobs,
+      runners,
+      fleetStaleMs: config.runnerFleetStaleMs,
+      fleetOfflineMs: config.runnerFleetOfflineMs,
+    }),
   });
 }
 
@@ -354,6 +368,54 @@ async function resolveApprovedTestingJob(state, jobId) {
   return job;
 }
 
+function testingJobExport(job) {
+  return {
+    id: job.id,
+    productId: job.product_id,
+    runnerId: job.runner_id,
+    deviceId: job.device_id,
+    state: job.lease_state,
+    orderedSteps: parseStoredJson(job.ordered_steps_json, []),
+    result: parseStoredJson(job.result_json, {}),
+    evidence: parseStoredJson(job.evidence_json, []),
+    createdAt: job.created_at,
+    updatedAt: job.updated_at,
+  };
+}
+
+function parseStoredJson(value, fallback) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+}
+
+async function handleTestingJobDetail({ identity, csrfToken, request, state }) {
+  const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-1));
+  const job = await resolveApprovedTestingJob(state, jobId);
+  return renderDashboardPage({
+    title: "Test Job Detail",
+    identity,
+    csrfToken,
+    content: renderTestingJobPage({
+      product: getTestingProduct(job.product_id),
+      job: testingJobExport(job),
+    }),
+  });
+}
+
+async function handleTestingJobResult({ request, state }) {
+  const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  const job = await resolveApprovedTestingJob(state, jobId);
+  return json(testingJobExport(job), {
+    headers: {
+      "cache-control": "no-store",
+      "content-disposition": `attachment; filename="${job.id}-result.json"`,
+    },
+  });
+}
+
 async function cancelTestingJob({ requestId, request, identity, payload, state }) {
   const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
   const job = await resolveApprovedTestingJob(state, jobId);
@@ -438,6 +500,7 @@ function ok(data) {
 }
 
 async function claimRunnerJob({ requestId, identity, payload, state, config }) {
+  await state.services.recordRunnerHeartbeat({ actor: identity, requestId }, payload);
   await state.services.expireAutomationLeases({ actor: identity, requestId }, {
     runnerId: payload.runnerId,
     deviceId: payload.deviceId,
@@ -448,10 +511,17 @@ async function claimRunnerJob({ requestId, identity, payload, state, config }) {
 
 async function heartbeatRunnerJob({ requestId, request, identity, payload, state }) {
   const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
-  return ok(await state.services.heartbeatAutomationJob({ actor: identity, requestId }, {
+  const job = await state.services.heartbeatAutomationJob({ actor: identity, requestId }, {
     ...payload,
     jobId,
-  }));
+  });
+  await state.services.recordRunnerHeartbeat({ actor: identity, requestId }, {
+    runnerId: payload.runnerId,
+    deviceId: job.device_id,
+    productIds: payload.productIds ?? [job.product_id],
+    agentVersion: payload.agentVersion,
+  });
+  return ok(job);
 }
 
 async function completeRunnerJob({ requestId, request, identity, payload, state }) {
@@ -563,7 +633,7 @@ export function createPlatformApp(options = {}) {
         }
         const runnerId = typeof payload.runnerId === "string" ? payload.runnerId.trim() : "";
         if (!/^[A-Za-z0-9._:-]{1,80}$/.test(runnerId) ||
-            !(await runnerTokenMatches(request.headers.get("authorization"), config.runnerApiToken))) {
+            !(await runnerTokenMatches(request.headers.get("authorization"), config, runnerId))) {
           logger.log({ requestId, route: url.pathname, outcome: "runner_authentication_failed" });
           return appendSecurityHeaders(denied(requestId, 401, "runner_authentication_required"), requestId, url.protocol === "https:");
         }
@@ -666,7 +736,7 @@ export function createPlatformApp(options = {}) {
       }
 
       try {
-        const response = await meta.handler({ requestId, request, identity, csrfToken, payload, state });
+        const response = await meta.handler({ requestId, request, identity, csrfToken, payload, state, config });
         response.headers.set("set-cookie", `__Host-maxxed-session=${nextSessionToken}; Path=/; HttpOnly; SameSite=Strict; Secure`);
         return appendSecurityHeaders(response, requestId, url.protocol === "https:");
       } catch (error) {
