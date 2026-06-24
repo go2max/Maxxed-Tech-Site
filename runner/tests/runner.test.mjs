@@ -10,6 +10,7 @@ import { loadArtifactCatalog, selectArtifact } from "../src/artifacts.mjs";
 import { loadScriptPackManifest } from "../src/catalog.mjs";
 import { runHeartbeatLoop } from "../src/control-loop.mjs";
 import { buildRemoteCliArgs, checkAgentReadiness, runAgent, validateAgentConfig } from "../agent.mjs";
+import { RUNNER_AGENT_VERSION, runRemoteCycle } from "../remote-cli.mjs";
 
 async function tempDir() {
   return mkdtemp(resolve(tmpdir(), "maxxed-runner-"));
@@ -387,4 +388,35 @@ test("agent readiness validates every configured portfolio artifact", async () =
   assert.equal(buildRemoteCliArgs(config).some((value) => value.startsWith("--artifacts=")), true);
   assert.equal(buildRemoteCliArgs(config).some((value) => value.startsWith("--heartbeatSeconds=20")), true);
   assert.equal(buildRemoteCliArgs(config).some((value) => value.startsWith("--localLeaseSeconds=3600")), true);
+});
+
+
+test("idle runner claims publish fleet version and exact product capabilities", async () => {
+  const requests = [];
+  const result = await runRemoteCycle({
+    args: {
+      platform: "https://admin.techmaxxed.com",
+      products: "products.json",
+      apk: "maxxed-remote.apk",
+      manifest: "runner/config/script-packs/maxxed-remote/manifest.json",
+      stateDir: "state",
+      reportDir: "reports",
+      runnerId: "runner-1",
+      deviceId: "device-1",
+    },
+    token: `runner-token-${"x".repeat(32)}`,
+    fetchImpl: async (url, init) => {
+      requests.push({ url: String(url), body: JSON.parse(init.body) });
+      return new Response(JSON.stringify({ error: "missing_row:automation_job" }), {
+        status: 404,
+        headers: { "content-type": "application/json" },
+      });
+    },
+  });
+  assert.equal(result.status, "idle");
+  assert.equal(requests.length, 1);
+  assert.match(requests[0].url, /runner\/jobs\/claim$/);
+  assert.deepEqual(requests[0].body.productIds, ["maxxed-remote"]);
+  assert.equal(requests[0].body.agentVersion, RUNNER_AGENT_VERSION);
+  assert.equal("token" in requests[0].body, false);
 });

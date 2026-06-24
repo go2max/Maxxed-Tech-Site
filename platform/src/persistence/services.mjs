@@ -1,7 +1,7 @@
 import { hasPermission, PERMISSIONS } from "../auth/roles.mjs";
 import { AuditEventRepository } from "./audit.mjs";
 import { createRepositories } from "./repositories.mjs";
-import { TERMINAL_JOB_STATES } from "../testing/catalog.mjs";
+import { getTestingProduct, TERMINAL_JOB_STATES } from "../testing/catalog.mjs";
 
 function requirePermission(identity, permission) {
   if (!hasPermission(identity, permission)) {
@@ -389,6 +389,35 @@ export function createPlatformServices(database) {
             }), now),
           };
         },
+      });
+    },
+    recordRunnerHeartbeat(context, payload) {
+      requirePermission(context.actor, PERMISSIONS.QA_EXECUTE);
+      const runnerId = requireString(payload.runnerId, "invalid_runner_id");
+      const deviceId = requireString(payload.deviceId, "invalid_device_id");
+      const productIds = requireArray(payload.productIds ?? ["maxxed-remote"], "invalid_runner_products");
+      const uniqueProductIds = [...new Set(productIds)];
+      if (uniqueProductIds.length === 0 || uniqueProductIds.length > 20 ||
+          uniqueProductIds.length !== productIds.length ||
+          uniqueProductIds.some((productId) => typeof productId !== "string" || !getTestingProduct(productId))) {
+        throw new Error("invalid_runner_products");
+      }
+      const agentVersion = optionalString(payload.agentVersion || "legacy", 40, "invalid_agent_version");
+      if (!/^[A-Za-z0-9._+-]{1,40}$/.test(agentVersion)) throw new Error("invalid_agent_version");
+      return database.transaction(async (tx) => {
+        const now = new Date().toISOString();
+        const id = `runner-node:${runnerId}:${deviceId}`;
+        const existing = await repositories.runnerNodes.get(tx, id);
+        const attributes = {
+          runner_id: runnerId,
+          device_id: deviceId,
+          product_ids_json: JSON.stringify(uniqueProductIds),
+          agent_version: agentVersion,
+          last_seen_at: now,
+        };
+        return existing
+          ? repositories.runnerNodes.update(tx, id, attributes, now)
+          : repositories.runnerNodes.insert(tx, { id, ...attributes }, now);
       });
     },
     heartbeatAutomationJob(context, payload) {

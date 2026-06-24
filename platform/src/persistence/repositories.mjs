@@ -43,6 +43,7 @@ export function createRepositories() {
     betaApplications: new GenericRepository("beta_applications"),
     betaFeedback: new GenericRepository("beta_feedback"),
     automationJobs: new GenericRepository("automation_jobs"),
+    runnerNodes: new GenericRepository("runner_nodes"),
     supportCases: new GenericRepository("support_cases"),
     incidents: new GenericRepository("incidents"),
     integrationStates: new GenericRepository("integration_states"),

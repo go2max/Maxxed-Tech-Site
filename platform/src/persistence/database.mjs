@@ -216,6 +216,7 @@ class MemoryPreparedStatement {
 export class MemoryD1Binding {
   constructor() {
     this.tables = Object.fromEntries(["schema_migrations", ...TABLES].map((table) => [table, new Map()]));
+    this.indexes = new Set();
     this.batchQueue = Promise.resolve();
   }
 
@@ -234,6 +235,12 @@ export class MemoryD1Binding {
         if (match && !this.tables[match[1]]) {
           this.tables[match[1]] = new Map();
         }
+        continue;
+      }
+      const indexMatch = /^CREATE (?:UNIQUE )?INDEX IF NOT EXISTS ([a-z_]+)\s+ON\s+([a-z_]+)/i.exec(rawStatement);
+      if (indexMatch) {
+        if (!this.tables[indexMatch[2]]) throw new Error(`missing_index_table:${indexMatch[2]}`);
+        this.indexes.add(indexMatch[1]);
         continue;
       }
       if (/^(BEGIN|COMMIT|ROLLBACK)$/i.test(rawStatement)) {

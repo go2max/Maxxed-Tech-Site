@@ -23,6 +23,9 @@ test("fresh migration and repeat migration succeed for memory and D1 adapters", 
   const sql = await loadMigrationSql("0001_initial.sql");
   assert.match(sql, /CREATE TABLE IF NOT EXISTS users/);
   assert.match(sql, /CREATE TABLE IF NOT EXISTS audit_events/);
+  const runnerSql = await loadMigrationSql("0002_runner_nodes.sql");
+  assert.match(runnerSql, /CREATE TABLE IF NOT EXISTS runner_nodes/);
+  assert.match(runnerSql, /runner_nodes_identity/);
 
   const memory = new MemoryPlatformDatabase();
   await applyAllMigrations(memory);
@@ -31,8 +34,11 @@ test("fresh migration and repeat migration succeed for memory and D1 adapters", 
   }
   await applyAllMigrations(memory);
 
-  const d1 = new D1PlatformDatabase(new MemoryD1Binding());
+  const d1Binding = new MemoryD1Binding();
+  const d1 = new D1PlatformDatabase(d1Binding);
   await applyAllMigrations(d1);
+  assert.equal(d1Binding.indexes.has("runner_nodes_identity"), true);
+  assert.equal(d1Binding.indexes.has("runner_nodes_last_seen"), true);
   for (const migration of MIGRATIONS) {
     assert.equal(await d1.hasMigration(migration.id), true);
   }
@@ -116,6 +122,15 @@ test("repositories and services cover required record families with append-only 
     result: { state: "pass" },
     evidence: [{ type: "report", ref: "r1" }],
   });
+  const runnerNode = await services.recordRunnerHeartbeat({ actor: qaLead, requestId: "req-runner" }, {
+    runnerId: "runner-1",
+    deviceId: "device-1",
+    productIds: ["maxxed-remote"],
+    agentVersion: "2.1.0",
+  });
+  assert.equal(runnerNode.runner_id, "runner-1");
+  assert.equal((await listTable(database, "runner_nodes")).length, 1);
+
   const supportCase = await services.createSupportCase({ actor: support, requestId: "req-10" }, {
     email: "customer@example.com",
     subject: "Need help",

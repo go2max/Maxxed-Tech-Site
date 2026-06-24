@@ -19,8 +19,11 @@ The following values are required by the private platform or runner and should b
 - `MUTATION_RATE_LIMIT_MAX`: maximum mutations per rate-limit window
 - `MUTATION_RATE_LIMIT_WINDOW_MS`: mutation rate-limit window in milliseconds
 - `PLATFORM_DB`: Cloudflare D1 binding name for the private platform
-- `RUNNER_API_TOKEN`: separate random 32+ character bearer token shared only with approved runner machines
+- `RUNNER_API_TOKEN`: legacy shared 32+ character runner token; ignored when the per-runner mapping is configured
+- `RUNNER_API_TOKENS_JSON`: secret runner-ID-to-token mapping; values may contain current and next tokens for rotation
 - `RUNNER_LEASE_TTL_MS`: maximum server time without a runner heartbeat before interruption; default 300000
+- `RUNNER_FLEET_STALE_MS`: runner fleet stale threshold; default 120000
+- `RUNNER_FLEET_OFFLINE_MS`: runner fleet offline threshold; default 600000
 - `MAXXED_RUNNER_API_TOKEN`: local runner copy of `RUNNER_API_TOKEN`; never pass it on the command line
 - `ANDROID_AAPT_PATH`: local Android SDK `aapt` path when using production APK inspection mode
 

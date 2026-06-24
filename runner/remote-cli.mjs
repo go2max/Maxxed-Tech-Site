@@ -6,6 +6,7 @@ import { runHeartbeatLoop } from "./src/control-loop.mjs";
 import { runSequentialJob } from "./src/runner.mjs";
 
 const cliPath = fileURLToPath(import.meta.url);
+export const RUNNER_AGENT_VERSION = "2.1.0";
 
 export function parseArgs(entries) {
   return Object.fromEntries(entries.map((entry) => {
@@ -84,6 +85,7 @@ export async function runRemoteCycle({
     runnerId: args.runnerId,
     deviceId: args.deviceId,
     productIds,
+    agentVersion: RUNNER_AGENT_VERSION,
   }, { allowNotFound: true });
   if (!claimed) return { status: "idle", message: "No matching queued job." };
 
@@ -96,6 +98,9 @@ export async function runRemoteCycle({
   } catch (error) {
     await post(`/runner/jobs/${encodeURIComponent(claimed.id)}/complete`, {
       runnerId: args.runnerId,
+      deviceId: args.deviceId,
+      productIds,
+      agentVersion: RUNNER_AGENT_VERSION,
       status: "interrupted",
       result: { error: error.message },
       evidence: [],
@@ -112,6 +117,9 @@ export async function runRemoteCycle({
     stopSignal: heartbeatStop.signal,
     heartbeat: () => post(`/runner/jobs/${encodeURIComponent(claimed.id)}/heartbeat`, {
       runnerId: args.runnerId,
+      deviceId: args.deviceId,
+      productIds,
+      agentVersion: RUNNER_AGENT_VERSION,
       progress,
     }),
     cancel: (reason) => {
@@ -145,6 +153,9 @@ export async function runRemoteCycle({
     await heartbeatPromise;
     await post(`/runner/jobs/${encodeURIComponent(claimed.id)}/complete`, {
       runnerId: args.runnerId,
+      deviceId: args.deviceId,
+      productIds,
+      agentVersion: RUNNER_AGENT_VERSION,
       status: "interrupted",
       result: { error: error.message },
       evidence: [],
@@ -185,6 +196,9 @@ export async function runRemoteCycle({
 
   const completed = await post(`/runner/jobs/${encodeURIComponent(claimed.id)}/complete`, {
     runnerId: args.runnerId,
+    deviceId: args.deviceId,
+    productIds,
+    agentVersion: RUNNER_AGENT_VERSION,
     status,
     result,
     evidence,

@@ -27,7 +27,7 @@ node runner/agent.mjs --config=runner/config/agent.local.json
 
 Preflight verifies the product map, artifact catalog, every configured APK and
 manifest, and the configured Android SDK tool. The agent advertises only those
-products to the claim API.
+products to the claim API and publishes its version on idle and active check-ins.
 
 The agent waits for each child before polling again. Successful and idle cycles
 use `pollSeconds`; failed cycles use `errorBackoffSeconds`. Active jobs send
@@ -61,3 +61,7 @@ Maxxed Remote runner. The artifact catalog is required for portfolio operation.
 
 See `docs/PORTFOLIO_TESTING_CONTROL_PLANE.md` for the full package inventory,
 lease protocol, evidence contract, and recovery procedures.
+
+
+Use a unique local token per runner. Hosted mapping, staged rotation, fleet
+health, and incident procedures are in `docs/RUNNER_FLEET_OPERATIONS.md`.
