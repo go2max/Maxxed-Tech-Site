@@ -68,9 +68,20 @@ if ($Mode -eq "Inventory") {
             bounds = $_.bounds
         }
     })
-    $controls | ConvertTo-Json -Depth 4 | Set-Content -Path (Join-Path $OutputDirectory "controls.json") -Encoding utf8
+    $unlabeled = @($controls | Where-Object {
+        [string]::IsNullOrWhiteSpace($_.text) -and [string]::IsNullOrWhiteSpace($_.description)
+    })
+    [ordered]@{
+        totalClickable = $controls.Count
+        enabledClickable = @($controls | Where-Object { $_.enabled }).Count
+        unlabeledClickable = $unlabeled.Count
+        controls = $controls
+    } | ConvertTo-Json -Depth 5 | Set-Content -Path (Join-Path $OutputDirectory "controls.json") -Encoding utf8
     if ($controls.Count -eq 0) {
         throw "no_clickable_controls_found"
+    }
+    if ($unlabeled.Count -gt 0) {
+        throw "unlabeled_clickable_controls"
     }
 }
 
