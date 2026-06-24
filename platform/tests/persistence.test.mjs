@@ -29,6 +29,9 @@ test("fresh migration and repeat migration succeed for memory and D1 adapters", 
   const evidenceSql = await loadMigrationSql("0003_test_evidence_objects.sql");
   assert.match(evidenceSql, /CREATE TABLE IF NOT EXISTS test_evidence_objects/);
   assert.match(evidenceSql, /test_evidence_retention/);
+  const schedulesSql = await loadMigrationSql("0004_test_schedules.sql");
+  assert.match(schedulesSql, /CREATE TABLE IF NOT EXISTS test_schedules/);
+  assert.match(schedulesSql, /test_schedules_due/);
 
   const memory = new MemoryPlatformDatabase();
   await applyAllMigrations(memory);
@@ -44,6 +47,8 @@ test("fresh migration and repeat migration succeed for memory and D1 adapters", 
   assert.equal(d1Binding.indexes.has("runner_nodes_last_seen"), true);
   assert.equal(d1Binding.indexes.has("test_evidence_job"), true);
   assert.equal(d1Binding.indexes.has("test_evidence_retention"), true);
+  assert.equal(d1Binding.indexes.has("test_schedules_due"), true);
+  assert.equal(d1Binding.indexes.has("test_schedules_runner"), true);
   for (const migration of MIGRATIONS) {
     assert.equal(await d1.hasMigration(migration.id), true);
   }
