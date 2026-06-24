@@ -53,7 +53,7 @@ function optionalString(value, maximumLength, code) {
 const KNOWLEDGE_SECTIONS = new Set(["architecture", "security", "release", "qa", "store-submission", "runner", "incident-response", "backup", "marketing", "coding-standards", "app-specific", "general"]);
 const KNOWLEDGE_CLASSIFICATIONS = new Set(["internal", "confidential", "public"]);
 const KNOWLEDGE_AUDIENCES = new Set(["internal", "engineering", "qa", "support", "beta", "public"]);
-const READINESS_CATEGORIES = new Set(Object.keys(READINESS_WEIGHTS));
+const READINESS_CATEGORY_MAP = new Map(Object.keys(READINESS_WEIGHTS).map((category) => [category.toLowerCase(), category]));
 const READINESS_RESULT_STATES = new Set(READINESS_STATES);
 const READINESS_STAGES = new Set(["development", "internal_qa", "internal_beta", "closed_beta", "open_beta", "production"]);
 const MONITOR_NAMES = new Set(["website_uptime", "certificate_expiry", "privacy_url", "play_listing", "dependency_scan", "secret_scan", "backup_restore", "audit_integrity"]);
@@ -1277,7 +1277,8 @@ export function createPlatformServices(database) {
         mutation: async (tx, now) => {
           const productId = requireString(payload.productId, "invalid_product_id");
           if (!(await repositories.products.get(tx, productId))) throw new Error("missing_row:product");
-          const category = requireKnowledgeValue(payload.category, READINESS_CATEGORIES, "invalid_readiness_category");
+          const category = READINESS_CATEGORY_MAP.get(requireString(payload.category, "invalid_readiness_category").toLowerCase());
+          if (!category) throw new Error("invalid_readiness_category");
           const resultState = requireKnowledgeValue(payload.resultState, READINESS_RESULT_STATES, "invalid_readiness_result_state");
           const source = requireKnowledgeText(payload.source, 100, "invalid_readiness_source");
           const reference = requireKnowledgeText(payload.reference, 500, "invalid_readiness_reference");
