@@ -45,6 +45,7 @@ export function createRepositories() {
     automationJobs: new GenericRepository("automation_jobs"),
     runnerNodes: new GenericRepository("runner_nodes"),
     testEvidenceObjects: new GenericRepository("test_evidence_objects"),
+    testSchedules: new GenericRepository("test_schedules"),
     supportCases: new GenericRepository("support_cases"),
     incidents: new GenericRepository("incidents"),
     integrationStates: new GenericRepository("integration_states"),
