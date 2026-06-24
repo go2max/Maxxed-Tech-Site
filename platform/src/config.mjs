@@ -45,6 +45,7 @@ export function loadPlatformConfig(env = {}) {
     trustedIdentityJwtAlgorithm: env.TRUSTED_IDENTITY_JWT_ALGORITHM || "RS256",
     trustedIdentityJwtKey: env.TRUSTED_IDENTITY_JWT_KEY || env.CF_ACCESS_JWT_PUBLIC_KEY || env.CF_ACCESS_JWT_SECRET || null,
     sessionSecret,
+    runnerApiToken: typeof env.RUNNER_API_TOKEN === "string" && env.RUNNER_API_TOKEN.length >= 32 ? env.RUNNER_API_TOKEN : null,
     sessionAbsoluteTtlMs: requirePositiveNumber(env.SESSION_ABSOLUTE_TTL_MS, DEFAULT_SESSION_ABSOLUTE_TTL_MS, "invalid_session_absolute_ttl"),
     sessionIdleTtlMs: requirePositiveNumber(env.SESSION_IDLE_TTL_MS, DEFAULT_SESSION_IDLE_TTL_MS, "invalid_session_idle_ttl"),
     maxRequestBytes: requirePositiveNumber(env.MAX_REQUEST_BYTES, DEFAULT_MAX_REQUEST_BYTES, "invalid_max_request_bytes"),
