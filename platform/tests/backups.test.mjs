@@ -22,7 +22,9 @@ test("backup codec encrypts, authenticates, and restores snapshots", async () =>
   await assert.rejects(() => decryptBackupSnapshot(encrypted.bytes, wrongKey), /backup_decryption_failed/);
 
   const envelope = JSON.parse(Buffer.from(encrypted.bytes).toString("utf8"));
-  envelope.ciphertext = envelope.ciphertext.slice(0, -1) + (envelope.ciphertext.endsWith("A") ? "B" : "A");
+  const tamperedCiphertext = Buffer.from(envelope.ciphertext, "base64url");
+  tamperedCiphertext[0] ^= 1;
+  envelope.ciphertext = tamperedCiphertext.toString("base64url");
   await assert.rejects(
     () => decryptBackupSnapshot(new TextEncoder().encode(JSON.stringify(envelope)), key),
     /backup_decryption_failed/,
