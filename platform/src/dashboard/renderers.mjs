@@ -29,6 +29,55 @@ export function renderRecordPage(title, eyebrow, records, renderRecord) {
   return `<section class="card"><p class="eyebrow">${escapeHtml(eyebrow)}</p><h2>${escapeHtml(title)}</h2>${list(records, renderRecord)}</section>`;
 }
 
+export function renderKnowledgeBasePage({ entries = [], revisions = [], canEdit = false, canPublish = false }) {
+  const entryById = new Map(entries.map((entry) => [entry.id, entry]));
+  const revisionRows = revisions.length
+    ? `<ul>${[...revisions].sort((left, right) => Number(right.revision_number) - Number(left.revision_number)).map((revision) => {
+        const entry = entryById.get(revision.entry_id);
+        const submit = canEdit && revision.workflow_state === "draft"
+          ? `<button type="button" data-kb-submit data-revision-id="${escapeHtml(revision.id)}">Submit for review</button>`
+          : "";
+        const publish = canPublish && revision.workflow_state === "in_review"
+          ? `<button type="button" data-kb-publish data-revision-id="${escapeHtml(revision.id)}">Publish revision</button>`
+          : "";
+        return `<li>
+          <strong>${escapeHtml(entry?.slug || revision.entry_id)} revision ${escapeHtml(revision.revision_number)}</strong>
+          <span> | ${escapeHtml(revision.workflow_state)} | ${escapeHtml(revision.classification)} | ${escapeHtml(revision.section)}</span><br>
+          <span>${escapeHtml(revision.title)} | Author: ${escapeHtml(revision.author_email)} | Reviewer: ${escapeHtml(revision.reviewer_email || "pending")}</span><br>
+          <span>Change: ${escapeHtml(revision.change_summary)}</span>
+          <details><summary>Preview</summary><pre><code>${escapeHtml(revision.body)}</code></pre></details>
+          <p>${submit} ${publish}</p>
+        </li>`;
+      }).join("")}</ul>`
+    : '<p class="empty-state">No revisions exist yet.</p>';
+  const articleRows = entries.length
+    ? `<ul>${entries.map((entry) => `<li>
+        <strong>${escapeHtml(entry.title)}</strong> <code>${escapeHtml(entry.slug)}</code>
+        <span> | ${escapeHtml(entry.publication_state)}</span>
+        ${canPublish && entry.publication_state !== "archived" ? `<button type="button" data-kb-archive data-entry-id="${escapeHtml(entry.id)}">Archive</button>` : ""}
+      </li>`).join("")}</ul>`
+    : '<p class="empty-state">No knowledge-base articles exist yet.</p>';
+  const editor = canEdit
+    ? card("New draft revision", `<form id="knowledge-base-form">
+        <label>Slug <input name="slug" required maxlength="100" pattern="[a-z0-9]+(?:-[a-z0-9]+)*"></label>
+        <label>Title <input name="title" required maxlength="160"></label>
+        <label>Section <select name="section"><option>architecture</option><option>security</option><option>release</option><option>qa</option><option>store-submission</option><option>runner</option><option>incident-response</option><option>backup</option><option>marketing</option><option>coding-standards</option><option>app-specific</option><option>general</option></select></label>
+        <label>Classification <select name="classification"><option>internal</option><option>confidential</option><option>public</option></select></label>
+        <label>Audience <select name="audience"><option>internal</option><option>engineering</option><option>qa</option><option>support</option><option>beta</option><option>public</option></select></label>
+        <label>Related product ID <input name="productId" maxlength="100"></label>
+        <label>Change summary <input name="changeSummary" required maxlength="500"></label>
+        <label>Article body <textarea name="body" required maxlength="60000" rows="18"></textarea></label>
+        <button type="submit">Save draft revision</button>
+      </form><p id="knowledge-base-status" aria-live="polite"></p><script src="/knowledge-base.js" defer></script>`)
+    : "";
+  return `<section class="grid">
+    ${editor}
+    ${card("Articles", articleRows)}
+    ${card("Revision queue", revisionRows)}
+    ${card("Publication controls", "<p>Drafts are immutable revisions. Publication requires review by a different authorized user. Article bodies are always rendered as escaped text in this workspace.</p>")}
+  </section>`;
+}
+
 export function renderUserAdminPage({ users = [], roleAssignments = [], roleEvents = [], roles = [] }) {
   const roleOptions = roles.map((role) => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`).join("");
   const directory = users.length
