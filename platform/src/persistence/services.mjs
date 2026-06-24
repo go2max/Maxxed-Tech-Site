@@ -2,6 +2,8 @@ import { hasPermission, PERMISSIONS, ROLES } from "../auth/roles.mjs";
 import { AuditEventRepository } from "./audit.mjs";
 import { createRepositories } from "./repositories.mjs";
 import { getTestingProduct, TERMINAL_JOB_STATES } from "../testing/catalog.mjs";
+import { buildReadinessAssessment, READINESS_STATES, READINESS_WEIGHTS } from "../monitoring/readiness.mjs";
+import { normalizeFindingFingerprint } from "../monitoring/security.mjs";
 
 function requirePermission(identity, permission) {
   if (!hasPermission(identity, permission)) {
@@ -51,6 +53,15 @@ function optionalString(value, maximumLength, code) {
 const KNOWLEDGE_SECTIONS = new Set(["architecture", "security", "release", "qa", "store-submission", "runner", "incident-response", "backup", "marketing", "coding-standards", "app-specific", "general"]);
 const KNOWLEDGE_CLASSIFICATIONS = new Set(["internal", "confidential", "public"]);
 const KNOWLEDGE_AUDIENCES = new Set(["internal", "engineering", "qa", "support", "beta", "public"]);
+const READINESS_CATEGORIES = new Set(Object.keys(READINESS_WEIGHTS));
+const READINESS_RESULT_STATES = new Set(READINESS_STATES);
+const READINESS_STAGES = new Set(["development", "internal_qa", "internal_beta", "closed_beta", "open_beta", "production"]);
+const MONITOR_NAMES = new Set(["website_uptime", "certificate_expiry", "privacy_url", "play_listing", "dependency_scan", "secret_scan", "backup_restore", "audit_integrity"]);
+const MONITOR_STATES = new Set(["current", "healthy", "pass", "stale", "failing", "unavailable"]);
+const FINDING_SOURCES = new Set(["dependency_scan", "secret_scan", "certificate_monitor", "uptime_monitor", "play_reporting", "manual"]);
+const FINDING_CATEGORIES = new Set(["dependency", "secret", "certificate", "availability", "privacy", "artifact", "access", "other"]);
+const FINDING_SEVERITIES = new Set(["critical", "high", "medium", "low", "info"]);
+const FINDING_STATES = new Set(["open", "acknowledged", "investigating", "resolved", "ignored"]);
 
 function requireKnowledgeValue(value, allowed, code) {
   const normalized = requireString(value, code).toLowerCase();
@@ -1253,6 +1264,166 @@ export function createPlatformServices(database) {
               body: requireString(payload.body, "invalid_knowledge_base_body"),
             }), now),
           };
+        },
+      });
+    },
+    recordReadinessEvidence(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.READINESS_WRITE,
+        action: "readiness_evidence.record",
+        targetType: "readiness_evidence",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const productId = requireString(payload.productId, "invalid_product_id");
+          if (!(await repositories.products.get(tx, productId))) throw new Error("missing_row:product");
+          const category = requireKnowledgeValue(payload.category, READINESS_CATEGORIES, "invalid_readiness_category");
+          const resultState = requireKnowledgeValue(payload.resultState, READINESS_RESULT_STATES, "invalid_readiness_result_state");
+          const source = requireKnowledgeText(payload.source, 100, "invalid_readiness_source");
+          const reference = requireKnowledgeText(payload.reference, 500, "invalid_readiness_reference");
+          const mandatoryGate = payload.mandatoryGate === true;
+          const gateKey = optionalString(payload.gateKey, 100, "invalid_readiness_gate");
+          if (mandatoryGate && !gateKey) throw new Error("invalid_readiness_gate");
+          if (gateKey && !/^[A-Za-z][A-Za-z0-9]{1,99}$/.test(gateKey)) throw new Error("invalid_readiness_gate");
+          const expiresAt = optionalString(payload.expiresAt, 40, "invalid_readiness_expiry");
+          if (expiresAt && !Number.isFinite(Date.parse(expiresAt))) throw new Error("invalid_readiness_expiry");
+          return {
+            after: await repositories.readinessEvidence.insert(tx, makeRecord("evidence", {
+              product_id: productId,
+              category,
+              result_state: resultState,
+              source,
+              reference,
+              mandatory_gate: mandatoryGate ? 1 : 0,
+              gate_key: gateKey,
+              expires_at: expiresAt,
+              recorded_by: context.actor.email,
+            }), now),
+          };
+        },
+      });
+    },
+    calculateReadinessSnapshot(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.READINESS_WRITE,
+        action: "readiness_snapshot.calculate",
+        targetType: "readiness_snapshot",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const productId = requireString(payload.productId, "invalid_product_id");
+          if (!(await repositories.products.get(tx, productId))) throw new Error("missing_row:product");
+          const stage = requireKnowledgeValue(payload.stage, READINESS_STAGES, "invalid_readiness_stage");
+          const evidence = (await repositories.readinessEvidence.list(tx)).filter((item) => item.product_id === productId);
+          const assessment = buildReadinessAssessment(evidence, { stage, now: Date.parse(now) });
+          return {
+            after: await repositories.readinessSnapshots.insert(tx, makeRecord("ready", {
+              product_id: productId,
+              score: assessment.score,
+              mandatory_gates_json: JSON.stringify({
+                stage,
+                gates: assessment.gates,
+                failedGates: assessment.failedGates,
+                blocked: assessment.blocked,
+                threshold: assessment.threshold,
+                thresholdMet: assessment.thresholdMet,
+                releaseState: assessment.releaseState,
+              }),
+              evidence_json: JSON.stringify({
+                categories: assessment.categories,
+                evidenceIds: assessment.evidenceIds,
+              }),
+            }), now),
+          };
+        },
+      });
+    },
+    recordMonitoringCheck(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.INTEGRATIONS_WRITE,
+        action: "monitoring_check.record",
+        targetType: "integration_state",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const monitorName = requireKnowledgeValue(payload.monitorName, MONITOR_NAMES, "invalid_monitor_name");
+          const freshnessState = requireKnowledgeValue(payload.freshnessState, MONITOR_STATES, "invalid_freshness_state");
+          const productId = optionalString(payload.productId, 100, "invalid_product_id") || "portfolio";
+          const details = payload.details ?? {};
+          if (!details || typeof details !== "object" || Array.isArray(details) || JSON.stringify(details).length > 4000) {
+            throw new Error("invalid_monitor_details");
+          }
+          return {
+            after: await repositories.integrationStates.insert(tx, makeRecord("monitor", {
+              product_id: productId,
+              monitor_name: monitorName,
+              freshness_state: freshnessState,
+              details_json: JSON.stringify(details),
+            }), now),
+          };
+        },
+      });
+    },
+    upsertSecurityFinding(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.INTEGRATIONS_WRITE,
+        action: "security_finding.record",
+        targetType: "security_finding",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const fingerprint = normalizeFindingFingerprint(payload.fingerprint);
+          const source = requireKnowledgeValue(payload.source, FINDING_SOURCES, "invalid_security_finding_source");
+          const category = requireKnowledgeValue(payload.category, FINDING_CATEGORIES, "invalid_security_finding_category");
+          const severity = requireKnowledgeValue(payload.severity, FINDING_SEVERITIES, "invalid_security_finding_severity");
+          const status = requireKnowledgeValue(payload.status || "open", FINDING_STATES, "invalid_security_finding_status");
+          const title = requireKnowledgeText(payload.title, 200, "invalid_security_finding_title");
+          const details = payload.details ?? {};
+          if (!details || typeof details !== "object" || Array.isArray(details) || JSON.stringify(details).length > 8000) {
+            throw new Error("invalid_security_finding_details");
+          }
+          const detectedAt = optionalString(payload.detectedAt, 40, "invalid_security_finding_detected_at") || now;
+          if (!Number.isFinite(Date.parse(detectedAt))) throw new Error("invalid_security_finding_detected_at");
+          const existing = (await repositories.securityFindings.list(tx)).find((finding) => finding.fingerprint === fingerprint) ?? null;
+          const patch = {
+            fingerprint,
+            source,
+            category,
+            severity,
+            status,
+            title,
+            details_json: JSON.stringify(details),
+            detected_at: existing?.detected_at || detectedAt,
+            resolved_at: ["resolved", "ignored"].includes(status) ? now : "",
+          };
+          if (existing) {
+            const after = await repositories.securityFindings.update(tx, existing.id, patch, now);
+            return { before: existing, after };
+          }
+          return { after: await repositories.securityFindings.insert(tx, makeRecord("finding", patch), now) };
+        },
+      });
+    },
+    resolveSecurityFinding(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.INTEGRATIONS_WRITE,
+        action: "security_finding.resolve",
+        targetType: "security_finding",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const findingId = requireString(payload.findingId, "invalid_security_finding_id");
+          const existing = await repositories.securityFindings.get(tx, findingId);
+          if (!existing) throw new Error("missing_row:security_finding");
+          if (["resolved", "ignored"].includes(existing.status)) throw new Error("security_finding_state_conflict:closed");
+          const resolution = requireKnowledgeText(payload.resolution, 1000, "invalid_security_finding_resolution");
+          const details = { ...parseObjectJson(existing.details_json), resolution };
+          const after = await repositories.securityFindings.update(tx, findingId, {
+            status: "resolved",
+            details_json: JSON.stringify(details),
+            resolved_at: now,
+          }, now);
+          return { before: existing, after };
         },
       });
     },
