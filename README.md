@@ -52,6 +52,5 @@ separate private application and is not included in the public deployment.
 platform specification. Supporting design documents must follow its RBAC,
 audit, promotion, privacy, and readiness-gate requirements.
 
-
 The production checklist and recovery procedures for the Maxxed Remote
 admin-to-runner test are in `docs/MAXXED_REMOTE_OPERATIONS.md`.
