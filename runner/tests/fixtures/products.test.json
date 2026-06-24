@@ -3,7 +3,7 @@
     {
       "slug": "maxxed-remote",
       "displayName": "Maxxed Remote",
-      "packageId": "com.example.maxxed.remote",
+      "packageId": "com.maxxedtechnicalsystems.maxxedremote",
       "packageIdConfigRequired": false
     }
   ]
