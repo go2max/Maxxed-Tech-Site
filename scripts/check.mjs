@@ -17,6 +17,7 @@ if (existsSync(resolve(root, "platform"))) {
 
 if (existsSync(resolve(root, "runner"))) {
   commands.push(["node", ["./scripts/check-runner.mjs"]]);
+  commands.push(["node", ["./scripts/validate-testing-catalog.mjs"]]);
 }
 
 for (const [command, args] of commands) {
