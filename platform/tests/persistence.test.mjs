@@ -38,6 +38,9 @@ test("fresh migration and repeat migration succeed for memory and D1 adapters", 
   const backupSql = await loadMigrationSql("0006_backup_snapshots.sql");
   assert.match(backupSql, /CREATE TABLE IF NOT EXISTS backup_snapshots/);
   assert.match(backupSql, /backup_snapshots_retention/);
+  const knowledgeSql = await loadMigrationSql("0007_knowledge_base_revisions.sql");
+  assert.match(knowledgeSql, /CREATE TABLE IF NOT EXISTS knowledge_base_revisions/);
+  assert.match(knowledgeSql, /knowledge_base_revisions_number/);
 
   const memory = new MemoryPlatformDatabase();
   await applyAllMigrations(memory);
