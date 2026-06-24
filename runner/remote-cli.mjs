@@ -57,7 +57,7 @@ export async function runRemoteCycle({
   const artifacts = await resolveArtifacts(args);
   const productIds = Object.keys(artifacts.products);
 
-  async function post(path, body) {
+  async function post(path, body, { allowNotFound = false } = {}) {
     const response = await fetchImpl(new URL(path, platformUrl), {
       method: "POST",
       headers: {
@@ -66,7 +66,7 @@ export async function runRemoteCycle({
       },
       body: JSON.stringify(body),
     });
-    if (response.status === 404) return null;
+    if (response.status === 404 && allowNotFound) return null;
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || `runner_api_${response.status}`);
     return payload.record;
@@ -76,7 +76,7 @@ export async function runRemoteCycle({
     runnerId: args.runnerId,
     deviceId: args.deviceId,
     productIds,
-  });
+  }, { allowNotFound: true });
   if (!claimed) return { status: "idle", message: "No matching queued job." };
 
   const artifact = selectArtifact(artifacts, claimed.product_id);
