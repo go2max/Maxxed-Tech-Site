@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 
 import { createPlatformApp } from "../src/app.mjs";
+import { renderTestingFunctionsPage } from "../src/dashboard/renderers.mjs";
 
 const env = {
   APP_ENV: "test",
@@ -66,4 +67,40 @@ test("dashboard routes enforce role-based access and render operational content"
       assert.match(body, /Maxxed/);
     }
   }
+});
+
+
+test("runner fleet renderer distinguishes online and offline nodes and escapes metadata", () => {
+  const now = Date.now();
+  const html = renderTestingFunctionsPage({
+    products: [{
+      id: "maxxed-remote",
+      name: "Maxxed Remote",
+      packageId: "com.maxxedtechnicalsystems.maxxedremote",
+      coverage: "Remote",
+      orderedSteps: ["artifact-verify"],
+    }],
+    runners: [
+      {
+        runner_id: "runner-online",
+        device_id: "device-1",
+        product_ids_json: JSON.stringify(["maxxed-remote"]),
+        agent_version: "2.1.0",
+        last_seen_at: new Date(now).toISOString(),
+      },
+      {
+        runner_id: "runner-offline",
+        device_id: "device-2",
+        product_ids_json: JSON.stringify(["maxxed-remote"]),
+        agent_version: "<script>alert(1)</script>",
+        last_seen_at: new Date(now - 60_000).toISOString(),
+      },
+    ],
+    fleetStaleMs: 1000,
+    fleetOfflineMs: 5000,
+  });
+  assert.match(html, /online/);
+  assert.match(html, /offline/);
+  assert.doesNotMatch(html, /<script>alert\(1\)<\/script>/);
+  assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
 });
