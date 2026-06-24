@@ -759,11 +759,12 @@ test("stale runner leases are interrupted and audited before the next claim", as
 test("per-runner credentials isolate fleet identities and expose authenticated result details", async () => {
   const runnerAToken = `runner-a-${"a".repeat(40)}`;
   const runnerBToken = `runner-b-${"b".repeat(40)}`;
+  const runnerANextToken = `runner-a-next-${"n".repeat(40)}`;
   const state = await createSeededPlatformState();
   const env = {
     ...identityEnv,
     RUNNER_API_TOKENS_JSON: JSON.stringify({
-      "runner-a": runnerAToken,
+      "runner-a": [runnerAToken, runnerANextToken],
       "runner-b": runnerBToken,
     }),
   };
@@ -847,6 +848,16 @@ test("per-runner credentials isolate fleet identities and expose authenticated r
     }),
   }));
   assert.equal(completed.status, 200);
+
+  const rotatedTokenCheck = await app.fetch(new Request("https://admin.techmaxxed.com/runner/jobs/claim", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${runnerANextToken}`,
+      "content-type": "application/json",
+    },
+    body: claimBody,
+  }));
+  assert.equal(rotatedTokenCheck.status, 404);
 
   const fleetPage = await bootstrap(email, "/testing-functions", app, state);
   const fleetHtml = await fleetPage.response.text();
