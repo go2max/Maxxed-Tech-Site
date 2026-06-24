@@ -38,9 +38,10 @@ function baseOptions(dir) {
     deviceId: "device-1",
     apkPath: resolve("runner/tests/fixtures/sample.apk"),
     productsConfigPath: resolve("runner/tests/fixtures/products.test.json"),
-    scriptPackManifestPath: resolve("runner/config/script-packs/maxxed-remote/manifest.json"),
+    scriptPackManifestPath: resolve("runner/tests/fixtures/test-manifest.json"),
     stepIds: ["artifact-verify", "launch-smoke"],
     inspectionMode: "test",
+    allowTestManifest: true,
   };
 }
 
@@ -56,7 +57,14 @@ test("local dry run completes sequentially and writes deterministic reports", as
 
 test("package mismatch, manifest traversal, absolute paths, and cross-product manifests fail closed", async () => {
   const dir = await tempDir();
-  await assert.rejects(() => runSequentialJob({ ...baseOptions(dir), productsConfigPath: resolve("runner/config/products.example.json") }), /package_mismatch_or_unconfigured_product/);
+  const mismatchProductsPath = resolve(dir, "mismatch-products.json");
+  await writeFile(mismatchProductsPath, JSON.stringify({
+    products: [{ slug: "other-app", packageId: "com.example.other" }],
+  }));
+  await assert.rejects(
+    () => runSequentialJob({ ...baseOptions(dir), productsConfigPath: mismatchProductsPath }),
+    /package_mismatch_or_unconfigured_product/
+  );
 
   const traversalManifestPath = resolve(dir, "manifest.json");
   await writeFile(traversalManifestPath, JSON.stringify({
