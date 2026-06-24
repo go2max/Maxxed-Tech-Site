@@ -19,6 +19,8 @@ The following values are required by the private platform or runner and should b
 - `MUTATION_RATE_LIMIT_MAX`: maximum mutations per rate-limit window
 - `MUTATION_RATE_LIMIT_WINDOW_MS`: mutation rate-limit window in milliseconds
 - `PLATFORM_DB`: Cloudflare D1 binding name for the private platform
+- `RUNNER_API_TOKEN`: separate random 32+ character bearer token shared only with approved runner machines
+- `MAXXED_RUNNER_API_TOKEN`: local runner copy of `RUNNER_API_TOKEN`; never pass it on the command line
 - `ANDROID_AAPT_PATH`: local Android SDK `aapt` path when using production APK inspection mode
 
 Example values in this repository are non-secret placeholders only.

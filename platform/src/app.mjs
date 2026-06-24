@@ -60,6 +60,8 @@ function requireOrigin(request) {
 function routeTable() {
   return [
     ["GET", /^\/health$/, { public: true, handler: async ({ requestId }) => json({ ok: true, service: "maxxed-private-platform", requestId }) }],
+    ["POST", /^\/runner\/jobs\/claim$/, { runner: true, handler: claimRunnerJob }],
+    ["POST", /^\/runner\/jobs\/[^/]+\/complete$/, { runner: true, handler: completeRunnerJob }],
     ["GET", /^\/$/, { permission: PERMISSIONS.PRODUCTS_READ, handler: handlePortfolio }],
     ["GET", /^\/portfolio$/, { permission: PERMISSIONS.PRODUCTS_READ, handler: handlePortfolio }],
     ["GET", /^\/users$/, { permission: PERMISSIONS.USERS_READ, handler: handleUsers }],
@@ -87,6 +89,34 @@ function routeTable() {
     ["POST", /^\/support\/cases$/, { permission: PERMISSIONS.SUPPORT_CASES, csrf: true, handler: mutateSupportCase }],
     ["POST", /^\/beta\/portal\/feedback$/, { permission: PERMISSIONS.BETA_PORTAL, csrf: true, handler: mutateBetaFeedback }],
   ];
+}
+
+async function runnerTokenMatches(authorization, expectedToken) {
+  if (!expectedToken || !authorization?.startsWith("Bearer ")) return false;
+  const presented = authorization.slice("Bearer ".length);
+  const encoder = new TextEncoder();
+  const [expectedHash, presentedHash] = await Promise.all([
+    crypto.subtle.digest("SHA-256", encoder.encode(expectedToken)),
+    crypto.subtle.digest("SHA-256", encoder.encode(presented)),
+  ]);
+  const expected = new Uint8Array(expectedHash);
+  const received = new Uint8Array(presentedHash);
+  let difference = expected.length ^ received.length;
+  for (let index = 0; index < Math.max(expected.length, received.length); index += 1) {
+    difference |= (expected[index] || 0) ^ (received[index] || 0);
+  }
+  return difference === 0;
+}
+
+function runnerActor(runnerId) {
+  return {
+    email: `${runnerId}@runner.internal`,
+    displayName: runnerId,
+    subject: `runner:${runnerId}`,
+    roles: ["Runner"],
+    permissions: new Set([PERMISSIONS.QA_EXECUTE]),
+    isDevelopmentOverride: false,
+  };
 }
 
 async function renderDashboardPage({ title, identity, csrfToken, content }) {
@@ -292,6 +322,18 @@ function ok(data) {
   return json({ ok: true, record: data });
 }
 
+async function claimRunnerJob({ requestId, identity, payload, state }) {
+  return ok(await state.services.claimAutomationJob({ actor: identity, requestId }, payload));
+}
+
+async function completeRunnerJob({ requestId, request, identity, payload, state }) {
+  const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  return ok(await state.services.completeAutomationJob({ actor: identity, requestId }, {
+    ...payload,
+    jobId,
+  }));
+}
+
 async function mutateProduct({ requestId, identity, payload, state }) {
   return ok(await state.services.createProduct({ actor: identity, requestId }, payload));
 }
@@ -381,6 +423,41 @@ export function createPlatformApp(options = {}) {
       if (meta.public) {
         const response = await meta.handler({ requestId, request });
         return appendSecurityHeaders(response, requestId, url.protocol === "https:");
+      }
+
+      if (meta.runner) {
+        let payload;
+        try {
+          payload = await readBody(request, config);
+        } catch (error) {
+          const code = error.message === "request_too_large" ? "request_too_large" : "invalid_json";
+          return appendSecurityHeaders(denied(requestId, code === "request_too_large" ? 413 : 400, code), requestId, url.protocol === "https:");
+        }
+        const runnerId = typeof payload.runnerId === "string" ? payload.runnerId.trim() : "";
+        if (!/^[A-Za-z0-9._:-]{1,80}$/.test(runnerId) ||
+            !(await runnerTokenMatches(request.headers.get("authorization"), config.runnerApiToken))) {
+          logger.log({ requestId, route: url.pathname, outcome: "runner_authentication_failed" });
+          return appendSecurityHeaders(denied(requestId, 401, "runner_authentication_required"), requestId, url.protocol === "https:");
+        }
+        let state;
+        try {
+          state = await resolveState(options, { ...env, ...(options.env || {}) });
+          const response = await meta.handler({
+            requestId,
+            request,
+            identity: runnerActor(runnerId),
+            payload,
+            state,
+          });
+          return appendSecurityHeaders(response, requestId, url.protocol === "https:");
+        } catch (error) {
+          logger.log({ requestId, route: url.pathname, actor: runnerId, outcome: "runner_request_failed", error: error.message });
+          const status = error.message.startsWith("forbidden:") ? 403
+            : error.message.startsWith("missing_row:") ? 404
+              : error.message.startsWith("invalid_") ? 400
+                : 500;
+          return appendSecurityHeaders(denied(requestId, status, error.message), requestId, url.protocol === "https:");
+        }
       }
 
       const identityKey = request.headers.get("cf-connecting-ip") || "local";

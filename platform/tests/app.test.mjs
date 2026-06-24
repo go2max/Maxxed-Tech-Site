@@ -13,6 +13,7 @@ const identityEnv = {
   TRUSTED_IDENTITY_ISSUER: "https://maxxed.cloudflareaccess.com",
   TRUSTED_IDENTITY_JWT_KEY: "identity-jwt-test-secret-value-at-least-thirty-two",
   TRUSTED_IDENTITY_JWT_ALGORITHM: "HS256",
+  RUNNER_API_TOKEN: "test-runner-api-token-value-at-least-thirty-two",
 };
 
 function signJwt(payload) {
@@ -411,4 +412,75 @@ test("Remote testing function queues only the server-approved step order", async
 
   const audit = await state.database.transaction((tx) => tx.list("audit_events"));
   assert.equal(audit.some((event) => event.action_name === "automation_job.create" && event.target_id === queuedJob.id), true);
+});
+
+
+test("runner API authenticates, claims one owned job, and records completion", async () => {
+  const { app, cookie, csrfToken, state } = await bootstrap("qa-lead@techmaxxed.com", "/testing-functions");
+  const queued = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/maxxed-remote/run", {
+    method: "POST",
+    headers: {
+      ...authHeaders("qa-lead@techmaxxed.com"),
+      cookie,
+      origin: "https://admin.techmaxxed.com",
+      "content-type": "application/json",
+      "x-csrf-token": csrfToken,
+    },
+    body: JSON.stringify({
+      runnerId: "local-windows-runner",
+      deviceId: "android-device-1",
+    }),
+  }));
+  assert.equal(queued.status, 200);
+
+  const unauthenticated = await app.fetch(new Request("https://admin.techmaxxed.com/runner/jobs/claim", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ runnerId: "local-windows-runner", deviceId: "android-device-1" }),
+  }));
+  assert.equal(unauthenticated.status, 401);
+
+  const runnerHeaders = {
+    authorization: `Bearer ${identityEnv.RUNNER_API_TOKEN}`,
+    "content-type": "application/json",
+  };
+  const claimed = await app.fetch(new Request("https://admin.techmaxxed.com/runner/jobs/claim", {
+    method: "POST",
+    headers: runnerHeaders,
+    body: JSON.stringify({ runnerId: "local-windows-runner", deviceId: "android-device-1" }),
+  }));
+  assert.equal(claimed.status, 200);
+  const claimedJob = (await claimed.json()).record;
+  assert.equal(claimedJob.lease_state, "running");
+
+  const duplicateClaim = await app.fetch(new Request("https://admin.techmaxxed.com/runner/jobs/claim", {
+    method: "POST",
+    headers: runnerHeaders,
+    body: JSON.stringify({ runnerId: "local-windows-runner", deviceId: "android-device-1" }),
+  }));
+  assert.equal(duplicateClaim.status, 404);
+
+  const wrongRunner = await app.fetch(new Request(`https://admin.techmaxxed.com/runner/jobs/${claimedJob.id}/complete`, {
+    method: "POST",
+    headers: runnerHeaders,
+    body: JSON.stringify({ runnerId: "other-runner", status: "completed", result: {}, evidence: [] }),
+  }));
+  assert.equal(wrongRunner.status, 403);
+
+  const completed = await app.fetch(new Request(`https://admin.techmaxxed.com/runner/jobs/${claimedJob.id}/complete`, {
+    method: "POST",
+    headers: runnerHeaders,
+    body: JSON.stringify({
+      runnerId: "local-windows-runner",
+      status: "completed",
+      result: { finalStatus: "pass" },
+      evidence: [{ type: "result-json", ref: "reports/result.json" }],
+    }),
+  }));
+  assert.equal(completed.status, 200);
+  assert.equal((await completed.json()).record.lease_state, "completed");
+
+  const audit = await state.database.transaction((tx) => tx.list("audit_events"));
+  assert.equal(audit.some((event) => event.action_name === "automation_job.claim" && event.target_id === claimedJob.id), true);
+  assert.equal(audit.some((event) => event.action_name === "automation_job.complete" && event.target_id === claimedJob.id), true);
 });
