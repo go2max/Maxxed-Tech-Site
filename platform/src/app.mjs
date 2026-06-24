@@ -1,5 +1,5 @@
 import { createSeededPlatformState } from "./dashboard/state.mjs";
-import { renderAuditPage, renderPortfolioPage, renderRecordPage } from "./dashboard/renderers.mjs";
+import { renderAuditPage, renderPortfolioPage, renderRecordPage, renderTestingFunctionsPage } from "./dashboard/renderers.mjs";
 import { defaultAccessStore } from "./auth/access-store.mjs";
 import { extractTrustedIdentity } from "./auth/identity.mjs";
 import { createCsrfToken, createSession, readSession, sessionMatchesIdentity } from "./auth/session.mjs";
@@ -69,6 +69,7 @@ function routeTable() {
     ["GET", /^\/bugs$/, { permission: PERMISSIONS.QA_READ, handler: handleBugs }],
     ["GET", /^\/beta\/applications$/, { permission: PERMISSIONS.BETA_READ, handler: handleBetaApplications }],
     ["GET", /^\/automation$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleAutomation }],
+    ["GET", /^\/testing-functions$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctions }],
     ["GET", /^\/incidents$/, { permission: PERMISSIONS.INCIDENTS_READ, handler: handleIncidents }],
     ["GET", /^\/security\/audit$/, { permission: PERMISSIONS.AUDIT_READ, handler: handleSecurityAudit }],
     ["GET", /^\/knowledge-base$/, { permission: PERMISSIONS.DOCS_READ, handler: handleKnowledgeBase }],
@@ -162,6 +163,15 @@ async function handleAutomation({ identity, csrfToken, state }) {
   });
 }
 
+
+async function handleTestingFunctions({ identity, csrfToken }) {
+  return renderDashboardPage({
+    title: "Testing Functions",
+    identity,
+    csrfToken,
+    content: renderTestingFunctionsPage(),
+  });
+}
 async function handleIncidents({ identity, csrfToken, state }) {
   const incidentSection = hasPermission(identity, PERMISSIONS.INCIDENTS_READ)
     ? renderRecordPage("Incidents", "Severity", await snapshot(state, "incidents"), (row) => `${row.severity} => ${row.status}`)
