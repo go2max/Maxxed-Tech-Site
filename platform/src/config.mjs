@@ -63,6 +63,7 @@ export function loadPlatformConfig(env = {}) {
     isProduction,
     isTest,
     allowDevelopmentIdentityOverride,
+    bootstrapOwnerEmail: String(env.BOOTSTRAP_OWNER_EMAIL || (isProduction ? "" : "owner@techmaxxed.com")).trim().toLowerCase(),
     trustedIdentityJwtHeader: env.TRUSTED_IDENTITY_JWT_HEADER || "cf-access-jwt-assertion",
     trustedIdentityEmailHeader: env.TRUSTED_IDENTITY_EMAIL_HEADER || "cf-access-authenticated-user-email",
     trustedIdentitySubjectHeader: env.TRUSTED_IDENTITY_SUBJECT_HEADER || "cf-access-authenticated-user-id",
@@ -88,6 +89,9 @@ export function loadPlatformConfig(env = {}) {
     mutationRateLimitWindowMs: requirePositiveNumber(env.MUTATION_RATE_LIMIT_WINDOW_MS, 60_000, "invalid_mutation_rate_limit_window"),
   };
 
+  if (config.bootstrapOwnerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.bootstrapOwnerEmail)) {
+    throw new Error("invalid_bootstrap_owner_email");
+  }
   if (config.sessionIdleTtlMs > config.sessionAbsoluteTtlMs) {
     throw new Error("invalid_session_ttls");
   }

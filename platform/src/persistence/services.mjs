@@ -1,4 +1,4 @@
-import { hasPermission, PERMISSIONS } from "../auth/roles.mjs";
+import { hasPermission, PERMISSIONS, ROLES } from "../auth/roles.mjs";
 import { AuditEventRepository } from "./audit.mjs";
 import { createRepositories } from "./repositories.mjs";
 import { getTestingProduct, TERMINAL_JOB_STATES } from "../testing/catalog.mjs";
@@ -14,6 +14,27 @@ function requireString(value, code) {
     throw new Error(code);
   }
   return value.trim();
+}
+
+function requireEmail(value) {
+  const email = requireString(value, "invalid_user_email").toLowerCase();
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error("invalid_user_email");
+  }
+  return email;
+}
+
+function currentRoles(userId, legacyAssignments, roleEvents) {
+  const states = new Map();
+  for (const assignment of legacyAssignments) {
+    if (assignment.user_id === userId) states.set(assignment.role_name, "grant");
+  }
+  for (const event of [...roleEvents].sort((left, right) =>
+    Number(left.event_sequence || 0) - Number(right.event_sequence || 0)
+  )) {
+    if (event.user_id === userId) states.set(event.role_name, event.action);
+  }
+  return [...states.entries()].filter(([, action]) => action === "grant").map(([role]) => role);
 }
 
 function requireArray(value, code) {
@@ -91,21 +112,138 @@ export function createPlatformServices(database) {
   return {
     repositories,
     auditRepository,
+    createUser(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.USERS_MANAGE,
+        action: "user.create",
+        targetType: "user",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const email = requireEmail(payload.email);
+          const displayName = requireString(payload.displayName, "invalid_user_display_name");
+          if (displayName.length > 100) throw new Error("invalid_user_display_name");
+          const status = payload.status || "active";
+          if (!["active", "inactive"].includes(status)) throw new Error("invalid_user_status");
+          const existing = (await repositories.users.list(tx))
+            .find((user) => user.email.toLowerCase() === email);
+          if (existing) throw new Error("access_state_conflict:user_exists");
+          return {
+            after: await repositories.users.insert(tx, makeRecord("user", {
+              email,
+              display_name: displayName,
+              status,
+            }), now),
+          };
+        },
+      });
+    },
     assignRole(context, payload) {
       return auditedMutation({
         actor: context.actor,
         permission: PERMISSIONS.USERS_MANAGE,
         action: "role.assign",
-        targetType: "role_assignment",
+        targetType: "access_role_event",
         requestId: context.requestId,
-        mutation: async (tx, now) => ({
-          after: await repositories.roleAssignments.insert(tx, makeRecord("role", {
-            user_id: requireString(payload.userId, "invalid_user_id"),
-            role_name: requireString(payload.roleName, "invalid_role_name"),
-            assigned_by: context.actor.email,
-            created_at: now,
-          }), now),
-        }),
+        mutation: async (tx, now) => {
+          const userId = requireString(payload.userId, "invalid_user_id");
+          const roleName = requireString(payload.roleName, "invalid_role_name");
+          if (!Object.values(ROLES).includes(roleName)) throw new Error("invalid_role_name");
+          if (roleName === ROLES.OWNER) requirePermission(context.actor, PERMISSIONS.SECURITY_MANAGE);
+          const user = await repositories.users.get(tx, userId);
+          if (!user) throw new Error("missing_row:user");
+          const roleEvents = await repositories.accessRoleEvents.list(tx);
+          const roles = currentRoles(
+            userId,
+            await repositories.roleAssignments.list(tx),
+            roleEvents,
+          );
+          if (roles.includes(roleName)) throw new Error("access_state_conflict:role_already_granted");
+          const eventSequence = Math.max(0, ...roleEvents.map((event) => Number(event.event_sequence) || 0)) + 1;
+          return {
+            after: await repositories.accessRoleEvents.insert(tx, makeRecord("role-event", {
+              user_id: userId,
+              role_name: roleName,
+              action: "grant",
+              event_sequence: eventSequence,
+              assigned_by: context.actor.email,
+            }), now),
+          };
+        },
+      });
+    },
+    revokeRole(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.USERS_MANAGE,
+        action: "role.revoke",
+        targetType: "access_role_event",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const userId = requireString(payload.userId, "invalid_user_id");
+          const roleName = requireString(payload.roleName, "invalid_role_name");
+          if (!Object.values(ROLES).includes(roleName)) throw new Error("invalid_role_name");
+          if (roleName === ROLES.OWNER) requirePermission(context.actor, PERMISSIONS.SECURITY_MANAGE);
+          const users = await repositories.users.list(tx);
+          const user = users.find((record) => record.id === userId);
+          if (!user) throw new Error("missing_row:user");
+          const legacy = await repositories.roleAssignments.list(tx);
+          const events = await repositories.accessRoleEvents.list(tx);
+          const roles = currentRoles(userId, legacy, events);
+          if (!roles.includes(roleName)) throw new Error("access_state_conflict:role_not_granted");
+          if (roleName === ROLES.OWNER && user.status === "active") {
+            const activeOwners = users.filter((candidate) =>
+              candidate.status === "active" &&
+              currentRoles(candidate.id, legacy, events).includes(ROLES.OWNER)
+            );
+            if (activeOwners.length <= 1) throw new Error("access_safety_conflict:last_active_owner");
+          }
+          const eventSequence = Math.max(0, ...events.map((event) => Number(event.event_sequence) || 0)) + 1;
+          return {
+            after: await repositories.accessRoleEvents.insert(tx, makeRecord("role-event", {
+              user_id: userId,
+              role_name: roleName,
+              action: "revoke",
+              event_sequence: eventSequence,
+              assigned_by: context.actor.email,
+            }), now),
+          };
+        },
+      });
+    },
+    updateUserStatus(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.USERS_MANAGE,
+        action: "user.status_update",
+        targetType: "user",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const userId = requireString(payload.userId, "invalid_user_id");
+          const status = requireString(payload.status, "invalid_user_status");
+          if (!["active", "inactive"].includes(status)) throw new Error("invalid_user_status");
+          const users = await repositories.users.list(tx);
+          const before = users.find((record) => record.id === userId);
+          if (!before) throw new Error("missing_row:user");
+          if (before.status === status) throw new Error("access_state_conflict:status_unchanged");
+          const legacy = await repositories.roleAssignments.list(tx);
+          const events = await repositories.accessRoleEvents.list(tx);
+          const targetIsOwner = currentRoles(userId, legacy, events).includes(ROLES.OWNER);
+          if (targetIsOwner) requirePermission(context.actor, PERMISSIONS.SECURITY_MANAGE);
+          if (status === "inactive") {
+            if (targetIsOwner) {
+              const activeOwners = users.filter((candidate) =>
+                candidate.status === "active" &&
+                currentRoles(candidate.id, legacy, events).includes(ROLES.OWNER)
+              );
+              if (activeOwners.length <= 1) throw new Error("access_safety_conflict:last_active_owner");
+            }
+          }
+          return {
+            before,
+            after: await repositories.users.update(tx, userId, { status }, now),
+          };
+        },
       });
     },
     createProduct(context, payload) {

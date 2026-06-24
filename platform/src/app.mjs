@@ -1,9 +1,9 @@
 import { createSeededPlatformState } from "./dashboard/state.mjs";
-import { renderAuditPage, renderPortfolioPage, renderRecordPage, renderTestingFunctionsPage, renderTestingJobPage } from "./dashboard/renderers.mjs";
-import { defaultAccessStore } from "./auth/access-store.mjs";
+import { renderAuditPage, renderPortfolioPage, renderRecordPage, renderTestingFunctionsPage, renderTestingJobPage, renderUserAdminPage } from "./dashboard/renderers.mjs";
+import { defaultAccessStore, PersistentAccessStore } from "./auth/access-store.mjs";
 import { extractTrustedIdentity } from "./auth/identity.mjs";
 import { createCsrfToken, createSession, readSession, sessionMatchesIdentity } from "./auth/session.mjs";
-import { hasPermission, PERMISSIONS } from "./auth/roles.mjs";
+import { hasPermission, permissionsForRoles, PERMISSIONS, ROLES } from "./auth/roles.mjs";
 import { loadPlatformConfig } from "./config.mjs";
 import { appendSecurityHeaders, html, json, readCookie } from "./http.mjs";
 import { createLogger } from "./logging.mjs";
@@ -114,6 +114,11 @@ function routeTable() {
     ["GET", /^\/$/, { permission: PERMISSIONS.PRODUCTS_READ, handler: handlePortfolio }],
     ["GET", /^\/portfolio$/, { permission: PERMISSIONS.PRODUCTS_READ, handler: handlePortfolio }],
     ["GET", /^\/users$/, { permission: PERMISSIONS.USERS_READ, handler: handleUsers }],
+    ["GET", /^\/users\.js$/, { permission: PERMISSIONS.USERS_READ, handler: handleUsersScript }],
+    ["POST", /^\/users$/, { permission: PERMISSIONS.USERS_MANAGE, csrf: true, handler: createAccessUser }],
+    ["POST", /^\/users\/[^/]+\/status$/, { permission: PERMISSIONS.USERS_MANAGE, csrf: true, handler: updateAccessUserStatus }],
+    ["POST", /^\/users\/[^/]+\/roles$/, { permission: PERMISSIONS.USERS_MANAGE, csrf: true, handler: grantAccessRole }],
+    ["POST", /^\/users\/[^/]+\/roles\/revoke$/, { permission: PERMISSIONS.USERS_MANAGE, csrf: true, handler: revokeAccessRole }],
     ["GET", /^\/analytics$/, { permission: PERMISSIONS.ANALYTICS_READ, handler: async ({ requestId }) => json({ ok: true, area: "analytics", requestId }) }],
     ["GET", /^\/releases$/, { permission: PERMISSIONS.RELEASES_READ, handler: handleReleases }],
     ["GET", /^\/qa$/, { permission: PERMISSIONS.QA_READ, handler: handleQa }],
@@ -226,8 +231,90 @@ async function handleUsers({ identity, csrfToken, state }) {
     title: "User and Role Administration",
     identity,
     csrfToken,
-    content: renderRecordPage("Assigned roles", "Access control", await snapshot(state, "role_assignments"), (row) => `${row.role_name} for ${row.user_id}`),
+    content: renderUserAdminPage({
+      users: await snapshot(state, "users"),
+      roleAssignments: await snapshot(state, "role_assignments"),
+      roleEvents: await snapshot(state, "access_role_events"),
+      roles: Object.values(ROLES),
+    }),
   });
+}
+
+async function handleUsersScript() {
+  return new Response(`const status = document.querySelector("#access-status");
+const csrfToken = () => document.querySelector("[data-csrf-token]")?.textContent || "";
+
+async function post(path, body) {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-csrf-token": csrfToken() },
+    body: JSON.stringify(body),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || "request_failed");
+  return result;
+}
+
+async function mutate(button, path, body) {
+  button.disabled = true;
+  status.textContent = "Updating access directory...";
+  try {
+    await post(path, body);
+    location.reload();
+  } catch (error) {
+    status.textContent = "Access update failed: " + error.message;
+    button.disabled = false;
+  }
+}
+
+document.querySelector("#access-user-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  await mutate(form.querySelector("[type=submit]"), "/users", {
+    email: form.elements.email.value,
+    displayName: form.elements.displayName.value,
+    status: form.elements.status.value,
+  });
+});
+
+document.querySelectorAll("[data-role-grant]").forEach((button) => button.addEventListener("click", () => {
+  const userId = button.dataset.userId;
+  const roleName = document.querySelector("[data-role-select='" + CSS.escape(userId) + "']").value;
+  mutate(button, "/users/" + encodeURIComponent(userId) + "/roles", { roleName });
+}));
+
+document.querySelectorAll("[data-role-revoke]").forEach((button) => button.addEventListener("click", () => {
+  mutate(button, "/users/" + encodeURIComponent(button.dataset.userId) + "/roles/revoke", {
+    roleName: button.dataset.roleName,
+  });
+}));
+
+document.querySelectorAll("[data-user-status]").forEach((button) => button.addEventListener("click", () => {
+  mutate(button, "/users/" + encodeURIComponent(button.dataset.userId) + "/status", {
+    status: button.dataset.nextStatus,
+  });
+}));`, {
+    headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-store" },
+  });
+}
+
+async function createAccessUser({ requestId, identity, payload, state }) {
+  return ok(await state.services.createUser({ actor: identity, requestId }, payload));
+}
+
+async function updateAccessUserStatus({ requestId, request, identity, payload, state }) {
+  const userId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  return ok(await state.services.updateUserStatus({ actor: identity, requestId }, { userId, status: payload.status }));
+}
+
+async function grantAccessRole({ requestId, request, identity, payload, state }) {
+  const userId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  return ok(await state.services.assignRole({ actor: identity, requestId }, { userId, roleName: payload.roleName }));
+}
+
+async function revokeAccessRole({ requestId, request, identity, payload, state }) {
+  const userId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-3));
+  return ok(await state.services.revokeRole({ actor: identity, requestId }, { userId, roleName: payload.roleName }));
 }
 
 async function handleReleases({ identity, csrfToken, state }) {
@@ -843,7 +930,7 @@ async function resolveState(options, env) {
 }
 
 export function createPlatformApp(options = {}) {
-  const accessStore = options.accessStore || defaultAccessStore;
+  const configuredAccessStore = options.accessStore || null;
   const logger = options.logger || createLogger(options.logSink);
   const routes = routeTable();
   let authRateLimiter = options.authRateLimiter || null;
@@ -952,16 +1039,36 @@ export function createPlatformApp(options = {}) {
         return appendSecurityHeaders(denied(requestId, 429, "rate_limit_exceeded"), requestId, url.protocol === "https:");
       }
 
-      let identity;
+      let principal;
       try {
-        identity = extractTrustedIdentity(request, config, accessStore);
+        principal = await extractTrustedIdentity(request, config, { getRolesForEmail: async () => [] });
       } catch (error) {
         logger.log({ requestId, route: url.pathname, outcome: "invalid_identity", error: error.message });
         return appendSecurityHeaders(denied(requestId, 401, "authentication_required"), requestId, url.protocol === "https:");
       }
-      if (!identity) {
+      if (!principal) {
         logger.log({ requestId, route: url.pathname, outcome: "unauthenticated" });
         return appendSecurityHeaders(denied(requestId, 401, "authentication_required"), requestId, url.protocol === "https:");
+      }
+
+      let state;
+      try {
+        state = await resolveState(options, { ...env, ...(options.env || {}) });
+      } catch (error) {
+        logger.log({ requestId, route: url.pathname, outcome: "misconfigured_state", error: error.message });
+        return appendSecurityHeaders(denied(requestId, 500, "misconfigured"), requestId, url.protocol === "https:");
+      }
+      const accessStore = configuredAccessStore || new PersistentAccessStore(state.database, {
+        bootstrapOwnerEmail: config.bootstrapOwnerEmail,
+        fallbackStore: config.isProduction ? null : defaultAccessStore,
+      });
+      let identity;
+      try {
+        const roles = await accessStore.getRolesForEmail(principal.email);
+        identity = { ...principal, roles, permissions: permissionsForRoles(roles) };
+      } catch (error) {
+        logger.log({ requestId, route: url.pathname, outcome: "authorization_directory_failed", error: error.message });
+        return appendSecurityHeaders(denied(requestId, 500, "authorization_unavailable"), requestId, url.protocol === "https:");
       }
 
       const browserRoleHeader = request.headers.get("x-maxxed-role") || request.headers.get("x-maxxed-roles");
@@ -974,13 +1081,6 @@ export function createPlatformApp(options = {}) {
         return appendSecurityHeaders(denied(requestId, 403, "forbidden"), requestId, url.protocol === "https:");
       }
 
-      let state;
-      try {
-        state = await resolveState(options, { ...env, ...(options.env || {}) });
-      } catch (error) {
-        logger.log({ requestId, route: url.pathname, actor: identity.email, outcome: "misconfigured_state", error: error.message });
-        return appendSecurityHeaders(denied(requestId, 500, "misconfigured"), requestId, url.protocol === "https:");
-      }
       const presentedSession = readCookie(request, "__Host-maxxed-session");
       const existingSession = await readSession(presentedSession, config);
       const currentSession = existingSession && sessionMatchesIdentity(existingSession, identity) ? existingSession : null;
@@ -1033,6 +1133,8 @@ export function createPlatformApp(options = {}) {
             : error.message.startsWith("release_gate_failed:") ||
                 error.message.startsWith("job_state_conflict:") ||
                 error.message.startsWith("evidence_state_conflict:") ||
+                error.message.startsWith("access_state_conflict:") ||
+                error.message.startsWith("access_safety_conflict:") ||
                 error.message === "evidence_integrity_failed" ? 409
               : error.message === "evidence_store_unavailable" ? 503
                 : error.message.startsWith("invalid_") ? 400

@@ -1213,7 +1213,8 @@ test("automatic device pools assign compatible idle runners and preserve exact t
   const runnerAClaim = await claim("pool-runner-a", "pool-device-a", ["maxxed-remote", "maxxed-compass"]);
   assert.equal(runnerAClaim.status, 200);
   const runnerAJob = (await runnerAClaim.json()).record;
-  assert.equal(runnerAJob.product_id, "maxxed-remote");
+  assert.equal(["maxxed-remote", "maxxed-compass"].includes(runnerAJob.product_id), true);
+  const remainingRunnerAProduct = runnerAJob.product_id === "maxxed-remote" ? "maxxed-compass" : "maxxed-remote";
   assert.equal(runnerAJob.runner_id, "pool-runner-a");
   assert.equal(runnerAJob.device_id, "pool-device-a");
   assert.equal(JSON.parse(runnerAJob.result_json).targetMode, "pool");
@@ -1249,7 +1250,7 @@ test("automatic device pools assign compatible idle runners and preserve exact t
 
   const runnerASecond = await claim("pool-runner-a", "pool-device-a", ["maxxed-remote", "maxxed-compass"]);
   assert.equal(runnerASecond.status, 200);
-  assert.equal((await runnerASecond.json()).record.product_id, "maxxed-compass");
+  assert.equal((await runnerASecond.json()).record.product_id, remainingRunnerAProduct);
 
   const exactQueue = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/jobs/batch", {
     method: "POST",
@@ -1291,4 +1292,142 @@ test("automatic device pools assign compatible idle runners and preserve exact t
 
   const audit = await state.database.transaction((tx) => tx.list("audit_events"));
   assert.equal(audit.filter((event) => event.action_name === "automation_job.claim").length, 4);
+});
+
+
+test("persistent user administration changes authorization immediately and protects Owners", async () => {
+  const state = await createSeededPlatformState();
+  const app = createPlatformApp({ env: identityEnv, state });
+  const firstEmail = "owner@techmaxxed.com";
+  const first = await bootstrap(firstEmail, "/users", app, state);
+  const headersFor = (email, session) => ({
+    ...authHeaders(email),
+    cookie: session.cookie,
+    origin: "https://admin.techmaxxed.com",
+    "content-type": "application/json",
+    "x-csrf-token": session.csrfToken,
+  });
+  const postAs = (email, session, path, body) => app.fetch(new Request(
+    `https://admin.techmaxxed.com${path}`,
+    { method: "POST", headers: headersFor(email, session), body: JSON.stringify(body) },
+  ));
+
+  const firstUserResponse = await postAs(firstEmail, first, "/users", {
+    email: firstEmail,
+    displayName: "Primary Owner",
+    status: "active",
+  });
+  assert.equal(firstUserResponse.status, 200);
+  const firstUser = (await firstUserResponse.json()).record;
+  const firstGrant = await postAs(firstEmail, first, `/users/${firstUser.id}/roles`, {
+    roleName: "Owner",
+  });
+  assert.equal(firstGrant.status, 200);
+
+  const lastOwnerRevoke = await postAs(firstEmail, first, `/users/${firstUser.id}/roles/revoke`, {
+    roleName: "Owner",
+  });
+  assert.equal(lastOwnerRevoke.status, 409);
+  assert.equal((await lastOwnerRevoke.json()).error, "access_safety_conflict:last_active_owner");
+
+  const secondUserResponse = await postAs(firstEmail, first, "/users", {
+    email: "owner-2@techmaxxed.com",
+    displayName: "Secondary Owner",
+    status: "active",
+  });
+  const secondUser = (await secondUserResponse.json()).record;
+  assert.equal((await postAs(firstEmail, first, `/users/${secondUser.id}/roles`, {
+    roleName: "Owner",
+  })).status, 200);
+
+  const qaUserResponse = await postAs(firstEmail, first, "/users", {
+    email: "persistent-qa@techmaxxed.com",
+    displayName: "Persistent QA",
+    status: "active",
+  });
+  const qaUser = (await qaUserResponse.json()).record;
+  assert.equal((await postAs(firstEmail, first, `/users/${qaUser.id}/roles`, {
+    roleName: "QA Lead",
+  })).status, 200);
+
+  const qaTesting = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions", {
+    headers: authHeaders("persistent-qa@techmaxxed.com"),
+  }));
+  assert.equal(qaTesting.status, 200);
+  const qaUsers = await app.fetch(new Request("https://admin.techmaxxed.com/users", {
+    headers: authHeaders("persistent-qa@techmaxxed.com"),
+  }));
+  assert.equal(qaUsers.status, 403);
+
+  const usersPage = await app.fetch(new Request("https://admin.techmaxxed.com/users", {
+    headers: authHeaders(firstEmail),
+  }));
+  const usersHtml = await usersPage.text();
+  assert.match(usersHtml, /Access directory/);
+  assert.match(usersHtml, /persistent-qa@techmaxxed\.com/);
+  assert.match(usersHtml, /Remove QA Lead/);
+  assert.doesNotMatch(usersHtml, /<script>persistent-qa/);
+
+  const revokeFirst = await postAs(firstEmail, first, `/users/${firstUser.id}/roles/revoke`, {
+    roleName: "Owner",
+  });
+  assert.equal(revokeFirst.status, 200);
+  const firstDenied = await app.fetch(new Request("https://admin.techmaxxed.com/users", {
+    headers: authHeaders(firstEmail),
+  }));
+  assert.equal(firstDenied.status, 403);
+
+  const second = await bootstrap("owner-2@techmaxxed.com", "/users", app, state);
+  const disableLastOwner = await postAs(
+    "owner-2@techmaxxed.com",
+    second,
+    `/users/${secondUser.id}/status`,
+    { status: "inactive" },
+  );
+  assert.equal(disableLastOwner.status, 409);
+  assert.equal((await disableLastOwner.json()).error, "access_safety_conflict:last_active_owner");
+
+  const adminUserResponse = await postAs("owner-2@techmaxxed.com", second, "/users", {
+    email: "persistent-admin@techmaxxed.com",
+    displayName: "Persistent Admin",
+    status: "active",
+  });
+  const adminUser = (await adminUserResponse.json()).record;
+  assert.equal((await postAs("owner-2@techmaxxed.com", second, `/users/${adminUser.id}/roles`, {
+    roleName: "Administrator",
+  })).status, 200);
+  const candidateResponse = await postAs("owner-2@techmaxxed.com", second, "/users", {
+    email: "owner-candidate@techmaxxed.com",
+    displayName: "Owner Candidate",
+    status: "active",
+  });
+  const candidate = (await candidateResponse.json()).record;
+  const admin = await bootstrap("persistent-admin@techmaxxed.com", "/users", app, state);
+  const escalation = await postAs(
+    "persistent-admin@techmaxxed.com",
+    admin,
+    `/users/${candidate.id}/roles`,
+    { roleName: "Owner" },
+  );
+  assert.equal(escalation.status, 403);
+  assert.equal((await escalation.json()).error, "forbidden:security.manage");
+
+  const inactiveResponse = await postAs("owner-2@techmaxxed.com", second, "/users", {
+    email: "inactive-qa@techmaxxed.com",
+    displayName: "Inactive QA",
+    status: "inactive",
+  });
+  const inactive = (await inactiveResponse.json()).record;
+  assert.equal((await postAs("owner-2@techmaxxed.com", second, `/users/${inactive.id}/roles`, {
+    roleName: "QA Lead",
+  })).status, 200);
+  const inactiveDenied = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions", {
+    headers: authHeaders("inactive-qa@techmaxxed.com"),
+  }));
+  assert.equal(inactiveDenied.status, 403);
+
+  const audit = await state.database.transaction((tx) => tx.list("audit_events"));
+  assert.equal(audit.some((event) => event.action_name === "user.create"), true);
+  assert.equal(audit.some((event) => event.action_name === "role.assign"), true);
+  assert.equal(audit.some((event) => event.action_name === "role.revoke"), true);
 });

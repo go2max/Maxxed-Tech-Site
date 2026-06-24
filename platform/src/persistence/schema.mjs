@@ -1,6 +1,7 @@
 export const TABLES = Object.freeze([
   "users",
   "role_assignments",
+  "access_role_events",
   "products",
   "builds",
   "releases",
@@ -24,6 +25,7 @@ export const TABLES = Object.freeze([
 export const TABLE_KEYS = Object.freeze({
   users: "id",
   role_assignments: "id",
+  access_role_events: "id",
   products: "id",
   builds: "id",
   releases: "id",

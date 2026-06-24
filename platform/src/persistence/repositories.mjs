@@ -34,6 +34,7 @@ export function createRepositories() {
   return {
     users: new GenericRepository("users"),
     roleAssignments: new GenericRepository("role_assignments"),
+    accessRoleEvents: new GenericRepository("access_role_events"),
     products: new GenericRepository("products"),
     builds: new GenericRepository("builds"),
     releases: new GenericRepository("releases"),
