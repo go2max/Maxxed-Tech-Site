@@ -949,6 +949,87 @@ export function createPlatformServices(database) {
         return { schedules, jobs, dispatchedAt: dispatchAt };
       });
     },
+    recordBackupSnapshot(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.SECURITY_MANAGE,
+        action: "backup_snapshot.create",
+        targetType: "backup_snapshot",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const byteSize = Number(payload.byteSize);
+          if (!Number.isSafeInteger(byteSize) || byteSize <= 0) throw new Error("invalid_backup_size");
+          const sha256 = requireString(payload.plaintextSha256, "invalid_backup_sha256").toLowerCase();
+          if (!/^[a-f0-9]{64}$/.test(sha256)) throw new Error("invalid_backup_sha256");
+          const retentionUntil = requireString(payload.retentionUntil, "invalid_backup_retention");
+          if (!Number.isFinite(Date.parse(retentionUntil))) throw new Error("invalid_backup_retention");
+          const tableCounts = payload.tableCounts;
+          if (!tableCounts || typeof tableCounts !== "object" || Array.isArray(tableCounts)) {
+            throw new Error("invalid_backup_table_counts");
+          }
+          return {
+            after: await repositories.backupSnapshots.insert(tx, {
+              id: requireString(payload.id, "invalid_backup_id"),
+              object_key: requireString(payload.objectKey, "invalid_backup_object_key"),
+              plaintext_sha256: sha256,
+              byte_size: byteSize,
+              table_counts_json: JSON.stringify(tableCounts),
+              storage_state: "available",
+              created_by: context.actor.email,
+              verified_at: null,
+              verification_details_json: "{}",
+              retention_until: retentionUntil,
+            }, now),
+          };
+        },
+      });
+    },
+    recordBackupVerification(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.SECURITY_MANAGE,
+        action: "backup_snapshot.verify",
+        targetType: "backup_snapshot",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const backupId = requireString(payload.backupId, "invalid_backup_id");
+          const before = await repositories.backupSnapshots.get(tx, backupId);
+          if (!before) throw new Error("missing_row:backup_snapshot");
+          if (before.storage_state === "deleted") throw new Error("backup_state_conflict:deleted");
+          const status = requireString(payload.status, "invalid_backup_verification_status");
+          if (!["verified", "failed"].includes(status)) throw new Error("invalid_backup_verification_status");
+          return {
+            before,
+            after: await repositories.backupSnapshots.update(tx, backupId, {
+              storage_state: status === "verified" ? "verified" : "verification_failed",
+              verified_at: now,
+              verification_details_json: JSON.stringify(payload.details ?? {}),
+            }, now),
+          };
+        },
+      });
+    },
+    deleteBackupSnapshot(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.SECURITY_MANAGE,
+        action: "backup_snapshot.delete",
+        targetType: "backup_snapshot",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const backupId = requireString(payload.backupId, "invalid_backup_id");
+          const before = await repositories.backupSnapshots.get(tx, backupId);
+          if (!before) throw new Error("missing_row:backup_snapshot");
+          if (before.storage_state === "deleted") throw new Error("backup_state_conflict:deleted");
+          return {
+            before,
+            after: await repositories.backupSnapshots.update(tx, backupId, {
+              storage_state: "deleted",
+            }, now),
+          };
+        },
+      });
+    },
     createSupportCase(context, payload) {
       return auditedMutation({
         actor: context.actor,
