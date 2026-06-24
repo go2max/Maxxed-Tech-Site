@@ -87,9 +87,21 @@ export async function runRemoteCycle({
   }, { allowNotFound: true });
   if (!claimed) return { status: "idle", message: "No matching queued job." };
 
-  const artifact = selectArtifact(artifacts, claimed.product_id);
-  const orderedSteps = JSON.parse(claimed.ordered_steps_json);
-  if (!Array.isArray(orderedSteps) || orderedSteps.length === 0) throw new Error("invalid_claimed_steps");
+  let artifact;
+  let orderedSteps;
+  try {
+    artifact = selectArtifact(artifacts, claimed.product_id);
+    orderedSteps = JSON.parse(claimed.ordered_steps_json);
+    if (!Array.isArray(orderedSteps) || orderedSteps.length === 0) throw new Error("invalid_claimed_steps");
+  } catch (error) {
+    await post(`/runner/jobs/${encodeURIComponent(claimed.id)}/complete`, {
+      runnerId: args.runnerId,
+      status: "interrupted",
+      result: { error: error.message },
+      evidence: [],
+    });
+    throw error;
+  }
 
   const jobController = new AbortController();
   const heartbeatStop = new AbortController();
