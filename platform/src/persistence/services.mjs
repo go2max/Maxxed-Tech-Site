@@ -305,6 +305,62 @@ export function createPlatformServices(database) {
         }),
       });
     },
+    claimAutomationJob(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.QA_EXECUTE,
+        action: "automation_job.claim",
+        targetType: "automation_job",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const runnerId = requireString(payload.runnerId, "invalid_runner_id");
+          const deviceId = requireString(payload.deviceId, "invalid_device_id");
+          const jobs = await repositories.automationJobs.list(tx);
+          const before = jobs.find((job) =>
+            job.lease_state === "queued" &&
+            job.runner_id === runnerId &&
+            job.device_id === deviceId
+          );
+          if (!before) throw new Error("missing_row:automation_job");
+          return {
+            before,
+            after: await repositories.automationJobs.update(tx, before.id, {
+              lease_state: "running",
+            }, now),
+          };
+        },
+      });
+    },
+    completeAutomationJob(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.QA_EXECUTE,
+        action: "automation_job.complete",
+        targetType: "automation_job",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const jobId = requireString(payload.jobId, "invalid_job_id");
+          const runnerId = requireString(payload.runnerId, "invalid_runner_id");
+          const before = await repositories.automationJobs.get(tx, jobId);
+          if (!before) throw new Error("missing_row:automation_job");
+          if (before.runner_id !== runnerId || before.lease_state !== "running") {
+            throw new Error("forbidden:automation_job_lease");
+          }
+          const status = requireString(payload.status, "invalid_job_status");
+          if (!["completed", "failed", "blocked", "interrupted"].includes(status)) {
+            throw new Error("invalid_job_status");
+          }
+          return {
+            before,
+            after: await repositories.automationJobs.update(tx, before.id, {
+              lease_state: status,
+              result_json: JSON.stringify(payload.result ?? {}),
+              evidence_json: JSON.stringify(requireArray(payload.evidence ?? [], "invalid_job_evidence")),
+            }, now),
+          };
+        },
+      });
+    },
     createSupportCase(context, payload) {
       return auditedMutation({
         actor: context.actor,
