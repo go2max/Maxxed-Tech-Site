@@ -41,7 +41,7 @@ function parseStoredJson(value, fallback) {
   }
 }
 
-export function renderTestingFunctionsPage({ products = [], jobs = [], runners = [], fleetStaleMs = 120000, fleetOfflineMs = 600000 } = {}) {
+export function renderTestingFunctionsPage({ products = [], jobs = [], runners = [], schedules = [], fleetStaleMs = 120000, fleetOfflineMs = 600000 } = {}) {
   const productById = new Map(products.map((product) => [product.id, product]));
   const recentJobs = [...jobs]
     .sort((left, right) => String(right.updated_at).localeCompare(String(left.updated_at)))
@@ -78,6 +78,21 @@ export function renderTestingFunctionsPage({ products = [], jobs = [], runners =
   const productChoices = products.map((product) => `
     <label><input type="checkbox" name="productId" value="${escapeHtml(product.id)}"> ${escapeHtml(product.name)}</label>
   `).join("");
+  const scheduleProductChoices = products.map((product) => `
+    <label><input type="checkbox" name="scheduleProductId" value="${escapeHtml(product.id)}"> ${escapeHtml(product.name)}</label>
+  `).join("");
+  const scheduleMarkup = schedules.length
+    ? `<ul>${[...schedules].sort((left, right) => left.next_run_at.localeCompare(right.next_run_at)).map((schedule) => {
+        const scheduledProducts = parseStoredJson(schedule.product_ids_json, []);
+        const enabled = Number(schedule.enabled) === 1;
+        return `<li><strong>${escapeHtml(schedule.name)}</strong> | ${enabled ? "enabled" : "paused"}<br>
+          <span>Apps: ${scheduledProducts.map((id) => escapeHtml(productById.get(id)?.name || id)).join(" | ")}</span><br>
+          <span>Every ${escapeHtml(schedule.cadence_minutes)} minutes | Next: ${escapeHtml(schedule.next_run_at)} | Last: ${escapeHtml(schedule.last_run_at || "never")}</span><br>
+          <span>Runner: ${escapeHtml(schedule.runner_id)} | Device: ${escapeHtml(schedule.device_id)}</span>
+          <p><button type="button" data-schedule-toggle data-schedule-id="${escapeHtml(schedule.id)}" data-schedule-enabled="${enabled ? "false" : "true"}">${enabled ? "Pause schedule" : "Resume schedule"}</button></p>
+        </li>`;
+      }).join("")}</ul>`
+    : '<p class="empty-state">No regression schedules are configured.</p>';
   const productCatalog = products.map((product) => `<li>
     <strong>${escapeHtml(product.name)}</strong> <code>${escapeHtml(product.packageId)}</code><br>
     <span>${escapeHtml(product.coverage)}</span><br>
@@ -131,6 +146,22 @@ export function renderTestingFunctionsPage({ products = [], jobs = [], runners =
     <p id="testing-status" aria-live="polite"></p>
     <p>The server supplies each app's package-bound steps. Batch requests cannot add commands or paths.</p>
     <script src="/testing-functions.js" defer></script>`)}
+    ${card("Regression schedules", `<form id="testing-schedule-form">
+      <label>Schedule name <input name="name" required maxlength="80" placeholder="Nightly portfolio regression"></label>
+      <label>Runner ID <input name="runnerId" value="local-windows-runner" required maxlength="80"></label>
+      <label>Device ID <input name="deviceId" value="android-device-1" required maxlength="80"></label>
+      <label>Cadence
+        <select name="cadenceMinutes">
+          <option value="60">Hourly</option>
+          <option value="360">Every 6 hours</option>
+          <option value="1440" selected>Daily</option>
+          <option value="10080">Weekly</option>
+        </select>
+      </label>
+      <fieldset><legend>Apps</legend>${scheduleProductChoices}</fieldset>
+      <button type="submit">Create schedule</button>
+      <button type="button" data-run-due-schedules>Run due schedules now</button>
+    </form>${scheduleMarkup}`)}
     ${card("Approved app tests", `<ul>${productCatalog}</ul>`)}
     ${card("Runner fleet", `${fleetMarkup}<p>Online runners checked in within ${escapeHtml(Math.round(fleetStaleMs / 1000))} seconds; offline begins after ${escapeHtml(Math.round(fleetOfflineMs / 1000))} seconds.</p>`)}
     ${card("Portfolio job status", `<p>Queued: ${escapeHtml(counts.queued || 0)} | Running: ${escapeHtml(counts.running || 0)} | Cancelling: ${escapeHtml(counts.cancelling || 0)} | Completed: ${escapeHtml(counts.completed || 0)} | Needs attention: ${escapeHtml((counts.failed || 0) + (counts.blocked || 0) + (counts.interrupted || 0))} | Cancelled: ${escapeHtml(counts.cancelled || 0)}</p>
@@ -163,7 +194,7 @@ export function renderTestingJobPage({ product, job, evidenceObjects = [] }) {
       <p>State: ${escapeHtml(job.state)} | Final result: ${escapeHtml(job.result?.finalStatus || "pending")}</p>
       <p>Runner: ${escapeHtml(job.runnerId)} | Device: ${escapeHtml(job.deviceId)}</p>
       <p>Created: ${escapeHtml(job.createdAt)} | Updated: ${escapeHtml(job.updatedAt)}</p>
-      <p><a href="/testing-functions/jobs/${encodeURIComponent(job.id)}/result.json">Download result JSON</a> | <a href="/testing-functions">Back to Testing Functions</a></p>`)}
+      <p><a href="/testing-functions/jobs/${encodeURIComponent(job.id)}/result.json">Download result JSON</a> | <a href="/testing-functions/jobs/${encodeURIComponent(job.id)}/comparison.json">Compare with prior run</a> | <a href="/testing-functions">Back to Testing Functions</a></p>`)}
     ${card("Approved steps", `<p>${job.orderedSteps.map(escapeHtml).join(" | ") || "No steps recorded."}</p>`)}
     ${card("Step results", stepMarkup)}
     ${card("Evidence index", evidenceMarkup)}

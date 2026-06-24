@@ -13,6 +13,7 @@ import { createPlatformDatabase } from "./persistence/database.mjs";
 import { createPlatformServices } from "./persistence/services.mjs";
 import { renderShell } from "./ui/layout.mjs";
 import { getTestingProduct, requireTestingProducts, TESTING_PRODUCTS } from "./testing/catalog.mjs";
+import { buildRegressionComparison } from "./testing/regression.mjs";
 import { MemoryEvidenceStore, R2EvidenceStore, UnavailableEvidenceStore } from "./evidence/storage.mjs";
 
 const stateCache = new WeakMap();
@@ -122,9 +123,13 @@ function routeTable() {
     ["GET", /^\/testing-functions$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctions }],
     ["GET", /^\/testing-functions\.js$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctionsScript }],
     ["GET", /^\/testing-functions\/jobs\/[^/]+\/result\.json$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingJobResult }],
+    ["GET", /^\/testing-functions\/jobs\/[^/]+\/comparison\.json$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingJobComparison }],
     ["GET", /^\/testing-functions\/jobs\/[^/]+\/evidence\/[^/]+$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingEvidenceDownload }],
     ["GET", /^\/testing-functions\/jobs\/[^/]+$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingJobDetail }],
     ["POST", /^\/testing-functions\/jobs\/batch$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: mutateTestingBatch }],
+    ["POST", /^\/testing-functions\/schedules$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: createTestingSchedule }],
+    ["POST", /^\/testing-functions\/schedules\/run-due$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: dispatchTestingSchedules }],
+    ["POST", /^\/testing-functions\/schedules\/[^/]+\/toggle$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: toggleTestingSchedule }],
     ["POST", /^\/testing-functions\/evidence\/purge$/, { permission: PERMISSIONS.SECURITY_MANAGE, csrf: true, handler: purgeExpiredEvidence }],
     ["POST", /^\/testing-functions\/jobs\/[^/]+\/cancel$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: cancelTestingJob }],
     ["POST", /^\/testing-functions\/jobs\/[^/]+\/retry$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: retryTestingJob }],
@@ -170,6 +175,17 @@ async function runnerTokenMatches(authorization, config, runnerId) {
     anyMatch |= Number(difference === 0);
   }
   return anyMatch !== 0;
+}
+
+function schedulerActor() {
+  return {
+    email: "testing-scheduler@system.internal",
+    displayName: "Testing Scheduler",
+    subject: "service:testing-scheduler",
+    roles: ["Scheduler"],
+    permissions: new Set([PERMISSIONS.QA_ASSIGN]),
+    isDevelopmentOverride: false,
+  };
 }
 
 function runnerActor(runnerId) {
@@ -265,6 +281,7 @@ async function handleTestingFunctions({ identity, csrfToken, state, config }) {
   const jobs = (await snapshot(state, "automation_jobs"))
     .filter((job) => approvedProductIds.has(job.product_id));
   const runners = await snapshot(state, "runner_nodes");
+  const schedules = await snapshot(state, "test_schedules");
   return renderDashboardPage({
     title: "Testing Functions",
     identity,
@@ -273,6 +290,7 @@ async function handleTestingFunctions({ identity, csrfToken, state, config }) {
       products: TESTING_PRODUCTS,
       jobs,
       runners,
+      schedules,
       fleetStaleMs: config.runnerFleetStaleMs,
       fleetOfflineMs: config.runnerFleetOfflineMs,
     }),
@@ -355,6 +373,57 @@ document.querySelectorAll("[data-job-action]").forEach((button) => {
   });
 });
 
+document.querySelector("#testing-schedule-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const productIds = [...form.querySelectorAll("[name=scheduleProductId]:checked")].map((input) => input.value);
+  const button = form.querySelector("[type=submit]");
+  button.disabled = true;
+  status.textContent = "Creating regression schedule...";
+  try {
+    await post("/testing-functions/schedules", {
+      name: form.elements.name.value,
+      runnerId: form.elements.runnerId.value,
+      deviceId: form.elements.deviceId.value,
+      cadenceMinutes: Number(form.elements.cadenceMinutes.value),
+      productIds,
+    });
+    status.textContent = "Schedule created. Refreshing...";
+    window.setTimeout(() => location.reload(), 500);
+  } catch (error) {
+    status.textContent = "Could not create schedule: " + error.message;
+    button.disabled = false;
+  }
+});
+
+document.querySelector("[data-run-due-schedules]")?.addEventListener("click", async (event) => {
+  event.currentTarget.disabled = true;
+  status.textContent = "Dispatching due schedules...";
+  try {
+    const result = await post("/testing-functions/schedules/run-due");
+    status.textContent = "Queued " + result.jobs.length + " scheduled job(s). Refreshing...";
+    window.setTimeout(() => location.reload(), 500);
+  } catch (error) {
+    status.textContent = "Schedule dispatch failed: " + error.message;
+    event.currentTarget.disabled = false;
+  }
+});
+
+document.querySelectorAll("[data-schedule-toggle]").forEach((button) => {
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    try {
+      await post("/testing-functions/schedules/" + encodeURIComponent(button.dataset.scheduleId) + "/toggle", {
+        enabled: button.dataset.scheduleEnabled === "true",
+      });
+      location.reload();
+    } catch (error) {
+      status.textContent = "Schedule update failed: " + error.message;
+      button.disabled = false;
+    }
+  });
+});
+
 function applyFilters() {
   const product = document.querySelector("[name=historyProduct]")?.value || "";
   const state = document.querySelector("[name=historyState]")?.value || "";
@@ -402,6 +471,23 @@ async function createTestingJobs({ requestId, identity, state }, payload) {
 async function mutateTestingBatch(context) {
   const records = await createTestingJobs(context, context.payload);
   return json({ ok: true, records });
+}
+
+async function createTestingSchedule({ requestId, identity, payload, state }) {
+  return ok(await state.services.createTestSchedule({ actor: identity, requestId }, payload));
+}
+
+async function toggleTestingSchedule({ requestId, request, identity, payload, state }) {
+  const scheduleId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  return ok(await state.services.setTestScheduleEnabled({ actor: identity, requestId }, {
+    scheduleId,
+    enabled: payload.enabled,
+  }));
+}
+
+async function dispatchTestingSchedules({ requestId, identity, state }) {
+  const result = await state.services.dispatchDueTestSchedules({ actor: identity, requestId });
+  return json({ ok: true, ...result });
 }
 
 async function mutateRemoteTestJob(context) {
@@ -501,6 +587,24 @@ async function purgeExpiredEvidence({ requestId, identity, state, evidenceStore 
     }));
   }
   return json({ ok: true, purged: records.length, records });
+}
+
+async function handleTestingJobComparison({ request, state }) {
+  const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  const currentRecord = await resolveApprovedTestingJob(state, jobId);
+  const current = testingJobExport(currentRecord);
+  const baselineRecord = (await snapshot(state, "automation_jobs"))
+    .filter((record) =>
+      record.id !== currentRecord.id &&
+      record.product_id === currentRecord.product_id &&
+      ["completed", "failed", "blocked", "interrupted", "cancelled"].includes(record.lease_state) &&
+      record.created_at < currentRecord.created_at
+    )
+    .sort((left, right) => right.created_at.localeCompare(left.created_at))[0];
+  if (!baselineRecord) throw new Error("missing_row:regression_baseline");
+  return json(buildRegressionComparison(current, testingJobExport(baselineRecord)), {
+    headers: { "cache-control": "no-store" },
+  });
 }
 
 async function handleTestingJobResult({ request, state }) {
@@ -934,6 +1038,15 @@ export function createPlatformApp(options = {}) {
                   : 500;
         return appendSecurityHeaders(denied(requestId, status, error.message), requestId, url.protocol === "https:");
       }
+    },
+    async scheduled(_event, env = {}) {
+      const resolvedEnv = { ...env, ...(options.env || {}) };
+      const config = loadPlatformConfig(resolvedEnv);
+      const state = await resolveState(options, resolvedEnv);
+      return state.services.dispatchDueTestSchedules({
+        actor: schedulerActor(),
+        requestId: `scheduled-${makeRequestId()}`,
+      }, { now: new Date().toISOString(), config });
     },
   };
 }
