@@ -41,7 +41,7 @@ function parseStoredJson(value, fallback) {
   }
 }
 
-export function renderTestingFunctionsPage({ products = [], jobs = [] } = {}) {
+export function renderTestingFunctionsPage({ products = [], jobs = [], runners = [], fleetStaleMs = 120000, fleetOfflineMs = 600000 } = {}) {
   const productById = new Map(products.map((product) => [product.id, product]));
   const recentJobs = [...jobs]
     .sort((left, right) => String(right.updated_at).localeCompare(String(left.updated_at)))
@@ -51,6 +51,29 @@ export function renderTestingFunctionsPage({ products = [], jobs = [] } = {}) {
     return summary;
   }, {});
   const terminalStates = new Set(["completed", "failed", "blocked", "interrupted", "cancelled"]);
+  const fleetNow = Date.now();
+  const fleet = [...runners]
+    .sort((left, right) => String(right.last_seen_at).localeCompare(String(left.last_seen_at)))
+    .map((runner) => {
+      const ageMs = fleetNow - new Date(runner.last_seen_at).getTime();
+      const health = !Number.isFinite(ageMs) || ageMs > fleetOfflineMs
+        ? "offline"
+        : ageMs > fleetStaleMs ? "stale" : "online";
+      const capabilities = parseStoredJson(runner.product_ids_json, []);
+      const activeJob = jobs.find((job) =>
+        job.runner_id === runner.runner_id &&
+        job.device_id === runner.device_id &&
+        ["running", "cancelling"].includes(job.lease_state)
+      );
+      return { ...runner, health, capabilities, activeJob };
+    });
+  const fleetMarkup = fleet.length
+    ? `<ul>${fleet.map((runner) => `<li>
+        <strong>${escapeHtml(runner.health)}</strong> ${escapeHtml(runner.runner_id)} on ${escapeHtml(runner.device_id)}<br>
+        <span>Agent: ${escapeHtml(runner.agent_version)} | Apps: ${runner.capabilities.map((id) => escapeHtml(productById.get(id)?.name || id)).join(" | ")}</span><br>
+        <span>Last seen: ${escapeHtml(runner.last_seen_at)} | Workload: ${runner.activeJob ? `${escapeHtml(runner.activeJob.product_id)} (${escapeHtml(runner.activeJob.lease_state)})` : "idle"}</span>
+      </li>`).join("")}</ul>`
+    : '<p class="empty-state">No runner has checked in yet.</p>';
   const productChoices = products.map((product) => `
     <label><input type="checkbox" name="productId" value="${escapeHtml(product.id)}"> ${escapeHtml(product.name)}</label>
   `).join("");
@@ -88,7 +111,7 @@ export function renderTestingFunctionsPage({ products = [], jobs = [] } = {}) {
             ? `<button type="button" data-job-action="retry" data-job-id="${escapeHtml(job.id)}">Retry as new job</button>`
             : "";
         return `<li data-history-job data-product="${escapeHtml(job.product_id)}" data-state="${escapeHtml(job.lease_state)}">
-          <strong>${escapeHtml(product?.name || job.product_id)}</strong> | <strong>${escapeHtml(job.lease_state)}</strong> <code>${escapeHtml(job.id)}</code><br>
+          <strong>${escapeHtml(product?.name || job.product_id)}</strong> | <strong>${escapeHtml(job.lease_state)}</strong> <a href="/testing-functions/jobs/${encodeURIComponent(job.id)}"><code>${escapeHtml(job.id)}</code></a><br>
           <span>Final result: ${escapeHtml(result.finalStatus || "pending")} | Runner: ${escapeHtml(job.runner_id)} | Device: ${escapeHtml(job.device_id)}</span><br>
           ${progress}${stepSummary}${retrySource}<br>
           <span>Evidence records: ${escapeHtml(Array.isArray(evidence) ? evidence.length : 0)} | Updated: ${escapeHtml(job.updated_at)}</span>
@@ -108,6 +131,7 @@ export function renderTestingFunctionsPage({ products = [], jobs = [] } = {}) {
     <p>The server supplies each app's package-bound steps. Batch requests cannot add commands or paths.</p>
     <script src="/testing-functions.js" defer></script>`)}
     ${card("Approved app tests", `<ul>${productCatalog}</ul>`)}
+    ${card("Runner fleet", `${fleetMarkup}<p>Online runners checked in within ${escapeHtml(Math.round(fleetStaleMs / 1000))} seconds; offline begins after ${escapeHtml(Math.round(fleetOfflineMs / 1000))} seconds.</p>`)}
     ${card("Portfolio job status", `<p>Queued: ${escapeHtml(counts.queued || 0)} | Running: ${escapeHtml(counts.running || 0)} | Cancelling: ${escapeHtml(counts.cancelling || 0)} | Completed: ${escapeHtml(counts.completed || 0)} | Needs attention: ${escapeHtml((counts.failed || 0) + (counts.blocked || 0) + (counts.interrupted || 0))} | Cancelled: ${escapeHtml(counts.cancelled || 0)}</p>
       <p>Runner heartbeats maintain active leases. Results refresh every 30 seconds while this page is idle.</p>`)}
     ${card("Recent test jobs", `<p>
@@ -119,3 +143,26 @@ export function renderTestingFunctionsPage({ products = [], jobs = [] } = {}) {
   </section>`;
 }
 
+
+export function renderTestingJobPage({ product, job }) {
+  const steps = Array.isArray(job.result?.steps) ? job.result.steps : [];
+  const evidence = Array.isArray(job.evidence) ? job.evidence : [];
+  const stepMarkup = steps.length
+    ? `<ul>${steps.map((step) => `<li><strong>${escapeHtml(step.stepId || "unknown")}</strong>: ${escapeHtml(step.status || "unknown")} | Exit: ${escapeHtml(step.exitCode ?? "n/a")}</li>`).join("")}</ul>`
+    : '<p class="empty-state">No completed step results are available.</p>';
+  const evidenceMarkup = evidence.length
+    ? `<ul>${evidence.map((item) => `<li>${escapeHtml(item.stepId || "job")} | ${escapeHtml(item.type || "unknown")} | <code>${escapeHtml(item.ref || "")}</code></li>`).join("")}</ul>`
+    : '<p class="empty-state">No evidence records are available.</p>';
+  return `<section class="grid">
+    ${card("Job summary", `<p><strong>${escapeHtml(product?.name || job.productId)}</strong></p>
+      <p><code>${escapeHtml(job.id)}</code></p>
+      <p>State: ${escapeHtml(job.state)} | Final result: ${escapeHtml(job.result?.finalStatus || "pending")}</p>
+      <p>Runner: ${escapeHtml(job.runnerId)} | Device: ${escapeHtml(job.deviceId)}</p>
+      <p>Created: ${escapeHtml(job.createdAt)} | Updated: ${escapeHtml(job.updatedAt)}</p>
+      <p><a href="/testing-functions/jobs/${encodeURIComponent(job.id)}/result.json">Download result JSON</a> | <a href="/testing-functions">Back to Testing Functions</a></p>`)}
+    ${card("Approved steps", `<p>${job.orderedSteps.map(escapeHtml).join(" | ") || "No steps recorded."}</p>`)}
+    ${card("Step results", stepMarkup)}
+    ${card("Evidence index", evidenceMarkup)}
+    ${card("Raw bounded result", `<pre><code>${escapeHtml(JSON.stringify(job.result, null, 2))}</code></pre>`)}
+  </section>`;
+}
