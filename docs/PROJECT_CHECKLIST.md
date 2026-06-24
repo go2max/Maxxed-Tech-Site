@@ -133,18 +133,24 @@ These are website display states, not final Play Console approvals.
 - [x] Authorization-tested services covering the required record families.
 - [x] Rollback strategy documentation for schema and data recovery.
 
+### Dashboard Complete
+
+- [x] Private portfolio overview route backed by persisted records.
+- [x] Role-scoped routes for releases, QA, bugs, beta applications, automation, incidents, audit inspection, knowledge base, and readiness.
+- [x] Dashboard route tests proving representative allow and deny flows.
+
 ### Not Yet Implemented
 
 - [ ] Private identity provider integration.
 - [ ] Owner MFA enrollment and recovery process.
-- [ ] User and role administration.
-- [ ] Security and product-health dashboards.
+- [ ] User and role administration mutations.
 - [ ] Google Play Developer Reporting API synchronization.
 - [ ] Uptime and certificate monitoring.
 - [ ] Dependency and secret-scanning integration.
 - [ ] Backup automation and restore testing.
-- [ ] Internal knowledge base UI.
+- [ ] Internal knowledge base editing workflow.
 - [ ] Product Readiness Score calculation and evidence gates in the dashboard.
+- [ ] Windows-first local APK runner.
 
 ## Sequential APK Test Environment
 
@@ -178,7 +184,7 @@ These are website display states, not final Play Console approvals.
 2. Deploy the validated public site and connect DNS.
 3. Activate the three public email addresses.
 4. Run live desktop, mobile, security-header, SEO, and accessibility checks.
-5. Begin Phase 3 of the private platform dashboard implementation.
+5. Begin Phase 4 of the Windows-first sequential APK runner implementation.
 6. Keep beta enrollment manual until authenticated approval and audit logging exist.
 
 ## Reference Documents

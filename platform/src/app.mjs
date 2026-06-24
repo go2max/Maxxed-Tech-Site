@@ -1,3 +1,5 @@
+import { createSeededPlatformState } from "./dashboard/state.mjs";
+import { renderAuditPage, renderPortfolioPage, renderRecordPage } from "./dashboard/renderers.mjs";
 import { defaultAccessStore } from "./auth/access-store.mjs";
 import { extractTrustedIdentity } from "./auth/identity.mjs";
 import { createCsrfToken, createSession, readSession } from "./auth/session.mjs";
@@ -8,12 +10,25 @@ import { createLogger } from "./logging.mjs";
 import { NoopRateLimiter } from "./rate-limiters.mjs";
 import { renderShell } from "./ui/layout.mjs";
 
+const statePromise = createSeededPlatformState();
+
 function denied(requestId, status, code) {
   return json({ error: code, requestId }, { status });
 }
 
 function makeRequestId() {
   return crypto.randomUUID();
+}
+
+function snapshotTx(database) {
+  return {
+    list(table) {
+      return [...database.tables[table].values()].map((row) => structuredClone(row));
+    },
+    get(table, id) {
+      return structuredClone(database.tables[table].get(id));
+    },
+  };
 }
 
 async function readBody(request, config) {
@@ -38,9 +53,19 @@ function requireOrigin(request) {
 function routeTable() {
   return [
     ["GET", /^\/health$/, { public: true, handler: async ({ requestId }) => json({ ok: true, service: "maxxed-private-platform", requestId }) }],
-    ["GET", /^\/$/, { permission: PERMISSIONS.PRODUCTS_READ, handler: handleDashboard }],
+    ["GET", /^\/$/, { permission: PERMISSIONS.PRODUCTS_READ, handler: handlePortfolio }],
+    ["GET", /^\/portfolio$/, { permission: PERMISSIONS.PRODUCTS_READ, handler: handlePortfolio }],
     ["GET", /^\/users$/, { permission: PERMISSIONS.USERS_READ, handler: handleUsers }],
     ["GET", /^\/analytics$/, { permission: PERMISSIONS.ANALYTICS_READ, handler: async ({ requestId }) => json({ ok: true, area: "analytics", requestId }) }],
+    ["GET", /^\/releases$/, { permission: PERMISSIONS.RELEASES_PREPARE, handler: handleReleases }],
+    ["GET", /^\/qa$/, { permission: PERMISSIONS.QA_EXECUTE, handler: handleQa }],
+    ["GET", /^\/bugs$/, { permission: PERMISSIONS.QA_EXECUTE, handler: handleBugs }],
+    ["GET", /^\/beta\/applications$/, { permission: PERMISSIONS.BETA_REVIEW, handler: handleBetaApplications }],
+    ["GET", /^\/automation$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleAutomation }],
+    ["GET", /^\/incidents$/, { permission: PERMISSIONS.ANALYTICS_READ, handler: handleIncidents }],
+    ["GET", /^\/security\/audit$/, { permission: PERMISSIONS.AUDIT_READ, handler: handleSecurityAudit }],
+    ["GET", /^\/knowledge-base$/, { permission: PERMISSIONS.DOCS_EDIT, handler: handleKnowledgeBase }],
+    ["GET", /^\/readiness$/, { permission: PERMISSIONS.ANALYTICS_READ, handler: handleReadiness }],
     ["GET", /^\/beta\/portal$/, { permission: PERMISSIONS.BETA_PORTAL, handler: handleBetaPortal }],
     ["GET", /^\/docs\/editor$/, { permission: PERMISSIONS.DOCS_EDIT, handler: handleDocsEditor }],
     ["POST", /^\/products$/, { permission: PERMISSIONS.PRODUCTS_WRITE, csrf: true, handler: async ({ requestId }) => json({ ok: true, action: "product-updated", requestId }) }],
@@ -54,52 +79,152 @@ function routeTable() {
   ];
 }
 
-async function handleDashboard({ identity, csrfToken }) {
-  return html(
-    renderShell({
-      title: "Operations Overview",
-      identity,
-      csrfToken,
-      content: `<section class="grid">
-        <article class="card"><h2>Trust boundary</h2><p>The private platform is separate from the public Worker and the local APK runner.</p></article>
-        <article class="card"><h2>Security posture</h2><p>Deny by default, trusted identity on the server, CSRF enforcement for mutations, and structured request IDs.</p></article>
-        <article class="card"><h2>Validation posture</h2><p>Routes reject missing trusted identity, browser role claims, invalid origins, and missing CSRF tokens.</p></article>
-      </section>`,
+async function renderDashboardPage({ title, identity, csrfToken, content }) {
+  return html(renderShell({ title, identity, csrfToken, content }));
+}
+
+async function handlePortfolio({ identity, csrfToken }) {
+  const { database } = await statePromise;
+  const tx = snapshotTx(database);
+  return renderDashboardPage({
+    title: "Operations Overview",
+    identity,
+    csrfToken,
+    content: renderPortfolioPage({
+      products: tx.list("products"),
+      builds: tx.list("builds"),
+      releases: tx.list("releases"),
+      readiness: tx.list("readiness_snapshots"),
     }),
-  );
+  });
 }
 
 async function handleUsers({ identity, csrfToken }) {
-  return html(
-    renderShell({
-      title: "User and Role Administration",
-      identity,
-      csrfToken,
-      content: `<section class="card"><h2>Authorized view</h2><p>This view exists only for roles with <code>users.read</code>.</p></section>`,
-    }),
-  );
+  const { database } = await statePromise;
+  const tx = snapshotTx(database);
+  return renderDashboardPage({
+    title: "User and Role Administration",
+    identity,
+    csrfToken,
+    content: renderRecordPage("Assigned roles", "Access control", tx.list("role_assignments"), (row) => `${row.role_name} for ${row.user_id}`),
+  });
+}
+
+async function handleReleases({ identity, csrfToken }) {
+  const { database } = await statePromise;
+  const tx = snapshotTx(database);
+  return renderDashboardPage({
+    title: "Releases",
+    identity,
+    csrfToken,
+    content: renderRecordPage("Release approvals", "Promotion gates", tx.list("releases"), (row) => `${row.stage} with owner ${row.owner_approval_state}`),
+  });
+}
+
+async function handleQa({ identity, csrfToken }) {
+  const { database } = await statePromise;
+  const tx = snapshotTx(database);
+  return renderDashboardPage({
+    title: "QA Plans and Executions",
+    identity,
+    csrfToken,
+    content: `${renderRecordPage("QA plans", "Assignments", tx.list("qa_plans"), (row) => `${row.version_label}`)}${renderRecordPage("Executions", "Evidence", tx.list("qa_executions"), (row) => `${row.assignee_email} => ${row.result_state}`)}`,
+  });
+}
+
+async function handleBugs({ identity, csrfToken }) {
+  const { database } = await statePromise;
+  const tx = snapshotTx(database);
+  return renderDashboardPage({
+    title: "Bug Tracking",
+    identity,
+    csrfToken,
+    content: renderRecordPage("Bugs", "Verification", tx.list("bugs"), (row) => `${row.severity} ${row.status} owned by ${row.owner_email}`),
+  });
+}
+
+async function handleBetaApplications({ identity, csrfToken }) {
+  const { database } = await statePromise;
+  const tx = snapshotTx(database);
+  return renderDashboardPage({
+    title: "Beta Applications",
+    identity,
+    csrfToken,
+    content: renderRecordPage("Tester queue", "Review state", tx.list("beta_applications"), (row) => `${row.email} => ${row.status}`),
+  });
+}
+
+async function handleAutomation({ identity, csrfToken }) {
+  const { database } = await statePromise;
+  const tx = snapshotTx(database);
+  return renderDashboardPage({
+    title: "Automation Jobs",
+    identity,
+    csrfToken,
+    content: renderRecordPage("Sequential jobs", "Leases", tx.list("automation_jobs"), (row) => `${row.runner_id} on ${row.device_id} => ${row.lease_state}`),
+  });
+}
+
+async function handleIncidents({ identity, csrfToken }) {
+  const { database } = await statePromise;
+  const tx = snapshotTx(database);
+  return renderDashboardPage({
+    title: "Incidents and Health",
+    identity,
+    csrfToken,
+    content: `${renderRecordPage("Incidents", "Severity", tx.list("incidents"), (row) => `${row.severity} => ${row.status}`)}${renderRecordPage("Integration state", "Freshness", tx.list("integration_states"), (row) => `${row.monitor_name} => ${row.freshness_state}`)}`,
+  });
+}
+
+async function handleSecurityAudit({ identity, csrfToken }) {
+  const { database, services } = await statePromise;
+  const tx = snapshotTx(database);
+  return renderDashboardPage({
+    title: "Security Events and Audit Log",
+    identity,
+    csrfToken,
+    content: `${renderAuditPage(services.auditRepository.list(tx))}`,
+  });
+}
+
+async function handleKnowledgeBase({ identity, csrfToken }) {
+  const { database } = await statePromise;
+  const tx = snapshotTx(database);
+  return renderDashboardPage({
+    title: "Knowledge Base",
+    identity,
+    csrfToken,
+    content: renderRecordPage("Runbooks", "Publication state", tx.list("knowledge_base_entries"), (row) => `${row.title} => ${row.publication_state}`),
+  });
+}
+
+async function handleReadiness({ identity, csrfToken }) {
+  const { database } = await statePromise;
+  const tx = snapshotTx(database);
+  return renderDashboardPage({
+    title: "Readiness Score",
+    identity,
+    csrfToken,
+    content: renderRecordPage("Snapshots", "Mandatory gates", tx.list("readiness_snapshots"), (row) => `Score ${row.score}`),
+  });
 }
 
 async function handleBetaPortal({ identity, csrfToken }) {
-  return html(
-    renderShell({
-      title: "Beta Tester Portal",
-      identity,
-      csrfToken,
-      content: `<section class="card"><h2>Assigned testing work</h2><p>Portal-only users can view instructions and submit feedback without broader administrative access.</p></section>`,
-    }),
-  );
+  return renderDashboardPage({
+    title: "Beta Tester Portal",
+    identity,
+    csrfToken,
+    content: `<section class="card"><h2>Assigned testing work</h2><p>Portal-only users can view instructions and submit feedback without broader administrative access.</p></section>`,
+  });
 }
 
 async function handleDocsEditor({ identity, csrfToken }) {
-  return html(
-    renderShell({
-      title: "Documentation Workspace",
-      identity,
-      csrfToken,
-      content: `<section class="card"><h2>Managed content</h2><p>Documentation editors can draft and publish approved internal and public content without broader administrative access.</p></section>`,
-    }),
-  );
+  return renderDashboardPage({
+    title: "Documentation Workspace",
+    identity,
+    csrfToken,
+    content: `<section class="card"><h2>Managed content</h2><p>Documentation editors can draft and publish approved internal and public content without broader administrative access.</p></section>`,
+  });
 }
 
 export function createPlatformApp(options = {}) {
