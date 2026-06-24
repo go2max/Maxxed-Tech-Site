@@ -11,11 +11,13 @@ implemented feature.
 
 - [x] Public multi-page website source is complete for the initial launch.
 - [x] Website build and validation pass on Node.js without Bash or WSL.
-- [x] Wave 1 platform foundation is merged on GitHub `main` at commit `3ff97c2`.
+- [x] Wave 1 platform foundation and post-merge hardening are merged on GitHub `main` through PRs #6 and #7 at commit `b6975f1`.
+- [x] The final Wave 1 Windows CI gate and tracked-file secret scan passed.
+- [x] A sanitized Wave 1 restart checkpoint is stored in `docs/WAVE1_RESTART_CHECKPOINT.md`.
 - [ ] Public website is deployed to production hosting.
 - [ ] `techmaxxed.com` is purchased, connected, and serving the site.
 - [ ] Production support, privacy, and beta email addresses are active.
-- [ ] Private admin, monitoring, QA, beta automation, and APK runner are built.
+- [ ] Private admin, monitoring, QA, beta automation, and APK runner are production-configured and deployed.
 
 ## Public Website
 
@@ -205,3 +207,4 @@ These are website display states, not final Play Console approvals.
 - `docs/PRIVATE_OPERATIONS_PLATFORM.md`: private dashboard and APK runner design.
 - `docs/ADMIN_AND_BETA_AUTOMATION.md`: admin identity and beta automation plan.
 - `docs/PLATFORM_ROLLBACK_STRATEGY.md`: migration and recovery posture.
+- `docs/WAVE1_RESTART_CHECKPOINT.md`: sanitized project state and restart instructions.
