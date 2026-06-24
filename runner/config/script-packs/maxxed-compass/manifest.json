@@ -1,0 +1,7 @@
+{
+  "app": "maxxed-compass",
+  "steps": [
+    { "id": "artifact-verify", "timeoutSeconds": 2, "continueOnFailure": false, "commandRef": "runner/scripts/common/pass-step.mjs" },
+    { "id": "sensor-smoke", "timeoutSeconds": 2, "continueOnFailure": false, "commandRef": "runner/scripts/common/pass-step.mjs" }
+  ]
+}

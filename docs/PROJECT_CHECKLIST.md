@@ -139,6 +139,16 @@ These are website display states, not final Play Console approvals.
 - [x] Role-scoped routes for releases, QA, bugs, beta applications, automation, incidents, audit inspection, knowledge base, and readiness.
 - [x] Dashboard route tests proving representative allow and deny flows.
 
+### Runner Foundation Complete
+
+- [x] Windows-first local runner command path using Node and PowerShell-friendly arguments.
+- [x] APK dry-run inspection using local bytes plus sidecar metadata without installation or execution.
+- [x] Product matching fails closed when real package IDs are not configured locally.
+- [x] Allowlisted script-pack manifests for the six current Android apps.
+- [x] Sequential step execution with durable runner and device lease state.
+- [x] Deterministic JSON and HTML report generation.
+- [x] Runner tests for dry run, mismatch rejection, allowlist enforcement, failure redaction, and lease contention.
+
 ### Not Yet Implemented
 
 - [ ] Private identity provider integration.
@@ -150,26 +160,27 @@ These are website display states, not final Play Console approvals.
 - [ ] Backup automation and restore testing.
 - [ ] Internal knowledge base editing workflow.
 - [ ] Product Readiness Score calculation and evidence gates in the dashboard.
-- [ ] Windows-first local APK runner.
+- [ ] Full beta enrollment workflow and adapters.
+- [ ] Final hardening and release-preparation runbooks.
 
 ## Sequential APK Test Environment
 
 ### Phase 1: Next Engineering Milestone
 
-- [ ] Create a Windows-friendly local runner and operator interface.
-- [ ] Select an APK from local disk without executing it during inspection.
-- [ ] Calculate and record SHA-256.
-- [ ] Detect package name, version, and signing metadata.
-- [ ] Reject package and application mismatches.
-- [ ] Load only approved scripts for the detected application.
-- [ ] Allow the operator to order scripts before execution.
-- [ ] Execute exactly one job and one script step at a time.
-- [ ] Lock the selected emulator or physical device for the job.
+- [x] Create a Windows-friendly local runner and operator interface.
+- [x] Select an APK from local disk without executing it during inspection.
+- [x] Calculate and record SHA-256.
+- [x] Detect package name, version, and signing metadata using sidecar-backed dry-run metadata.
+- [x] Reject package and application mismatches.
+- [x] Load only approved scripts for the detected application.
+- [x] Allow the operator to order scripts before execution.
+- [x] Execute exactly one job and one script step at a time.
+- [x] Lock the selected emulator or physical device for the job.
 - [ ] Capture logcat, screenshots, video where enabled, performance, and failures.
 - [ ] Apply per-step timeouts and guaranteed cleanup.
-- [ ] Produce local HTML and JSON reports.
+- [x] Produce local HTML and JSON reports.
 - [ ] Recover safely after runner or device interruption.
-- [ ] Keep production signing keys and production secrets off the runner.
+- [x] Keep production signing keys and production secrets off the runner.
 
 ### Later Phases
 
@@ -184,7 +195,7 @@ These are website display states, not final Play Console approvals.
 2. Deploy the validated public site and connect DNS.
 3. Activate the three public email addresses.
 4. Run live desktop, mobile, security-header, SEO, and accessibility checks.
-5. Begin Phase 4 of the Windows-first sequential APK runner implementation.
+5. Complete the remaining beta, monitoring, and hardening phases.
 6. Keep beta enrollment manual until authenticated approval and audit logging exist.
 
 ## Reference Documents
