@@ -3,38 +3,38 @@
     {
       "slug": "maxxed-remote",
       "displayName": "Maxxed Remote",
-      "packageId": null,
-      "packageIdConfigRequired": true
+      "packageId": "com.maxxedtechnicalsystems.maxxedremote",
+      "packageIdConfigRequired": false
     },
     {
       "slug": "maxxed-compass",
       "displayName": "Maxxed Compass",
-      "packageId": null,
-      "packageIdConfigRequired": true
+      "packageId": "com.maxxed.compass",
+      "packageIdConfigRequired": false
     },
     {
       "slug": "maxxed-measure",
       "displayName": "Maxxed Measure",
-      "packageId": null,
-      "packageIdConfigRequired": true
+      "packageId": "com.maxxed.measure",
+      "packageIdConfigRequired": false
     },
     {
       "slug": "maxxed-gold-estimator",
       "displayName": "Maxxed Gold Estimator",
-      "packageId": null,
-      "packageIdConfigRequired": true
+      "packageId": "com.maxxed.goldestimator",
+      "packageIdConfigRequired": false
     },
     {
       "slug": "fishing-maxxed",
       "displayName": "Fishing Maxxed",
-      "packageId": null,
-      "packageIdConfigRequired": true
+      "packageId": "com.maxxed.fishingmaxxed",
+      "packageIdConfigRequired": false
     },
     {
       "slug": "rival-rush",
       "displayName": "Rival Rush",
-      "packageId": null,
-      "packageIdConfigRequired": true
+      "packageId": "com.maxxed_technical_systems.rivalrushlaunch",
+      "packageIdConfigRequired": false
     }
   ]
 }
