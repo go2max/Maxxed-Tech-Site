@@ -98,7 +98,7 @@ test("knowledge base UI enforces draft, review, separate approval, publication, 
   const docs = await session(app, "docs@techmaxxed.com");
   assert.equal(docs.response.status, 200);
   assert.match(docs.body, /knowledge-base-form/);
-  assert.match(docs.body, /data-kb-submit/);
+  assert.match(docs.body, /name="classification"/);
   assert.doesNotMatch(docs.body, /<script>alert\(1\)<\/script>/);
 
   const script = await app.fetch(new Request("https://admin.techmaxxed.com/knowledge-base.js", {
