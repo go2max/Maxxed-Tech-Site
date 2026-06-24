@@ -150,17 +150,20 @@ export function createPlatformServices(database) {
           if (roleName === ROLES.OWNER) requirePermission(context.actor, PERMISSIONS.SECURITY_MANAGE);
           const user = await repositories.users.get(tx, userId);
           if (!user) throw new Error("missing_row:user");
+          const roleEvents = await repositories.accessRoleEvents.list(tx);
           const roles = currentRoles(
             userId,
             await repositories.roleAssignments.list(tx),
-            await repositories.accessRoleEvents.list(tx),
+            roleEvents,
           );
           if (roles.includes(roleName)) throw new Error("access_state_conflict:role_already_granted");
+          const eventSequence = Math.max(0, ...roleEvents.map((event) => Number(event.event_sequence) || 0)) + 1;
           return {
             after: await repositories.accessRoleEvents.insert(tx, makeRecord("role-event", {
               user_id: userId,
               role_name: roleName,
               action: "grant",
+              event_sequence: eventSequence,
               assigned_by: context.actor.email,
             }), now),
           };
@@ -193,11 +196,13 @@ export function createPlatformServices(database) {
             );
             if (activeOwners.length <= 1) throw new Error("access_safety_conflict:last_active_owner");
           }
+          const eventSequence = Math.max(0, ...events.map((event) => Number(event.event_sequence) || 0)) + 1;
           return {
             after: await repositories.accessRoleEvents.insert(tx, makeRecord("role-event", {
               user_id: userId,
               role_name: roleName,
               action: "revoke",
+              event_sequence: eventSequence,
               assigned_by: context.actor.email,
             }), now),
           };
