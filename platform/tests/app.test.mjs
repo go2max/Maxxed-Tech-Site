@@ -840,7 +840,10 @@ test("per-runner credentials isolate fleet identities and expose authenticated r
         finalStatus: "pass",
         steps: [{ stepId: "launch-smoke", status: "pass", exitCode: 0 }],
       },
-      evidence: [{ stepId: "launch-smoke", type: "screenshot", ref: "reports/screen.png" }],
+      evidence: [
+        { stepId: "launch-smoke", type: "screenshot", ref: "reports/screen.png" },
+        { stepId: "ux-inventory", type: "malicious", ref: "<img src=x onerror=alert(1)>" },
+      ],
     }),
   }));
   assert.equal(completed.status, 200);
@@ -861,6 +864,8 @@ test("per-runner credentials isolate fleet identities and expose authenticated r
   assert.match(detailHtml, /Download result JSON/);
   assert.match(detailHtml, /launch-smoke/);
   assert.match(detailHtml, /reports\/screen\.png/);
+  assert.doesNotMatch(detailHtml, /<img src=x onerror=alert\(1\)>/);
+  assert.match(detailHtml, /&lt;img src=x onerror=alert\(1\)&gt;/);
 
   const result = await app.fetch(new Request(`https://admin.techmaxxed.com/testing-functions/jobs/${queued.id}/result.json`, {
     headers: authHeaders(email),
