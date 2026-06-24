@@ -584,7 +584,10 @@ export function createPlatformServices(database) {
             before,
             after: await repositories.automationJobs.update(tx, before.id, {
               lease_state: status,
-              result_json: JSON.stringify(payload.result ?? {}),
+              result_json: JSON.stringify({
+                ...parseObjectJson(before.result_json),
+                ...(payload.result ?? {}),
+              }),
               evidence_json: JSON.stringify(requireArray(payload.evidence ?? [], "invalid_job_evidence")),
             }, now),
           };
