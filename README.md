@@ -67,3 +67,6 @@ handling are documented in `docs/PRIVATE_TEST_EVIDENCE.md`.
 
 Scheduled portfolio regressions, cron dispatch, and prior-run comparisons are
 documented in `docs/REGRESSION_SCHEDULING.md`.
+
+Automatic compatible-device routing and server-enforced per-device capacity are
+documented in `docs/AUTOMATIC_DEVICE_POOLS.md`.
