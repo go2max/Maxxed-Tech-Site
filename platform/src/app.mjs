@@ -526,10 +526,17 @@ async function heartbeatRunnerJob({ requestId, request, identity, payload, state
 
 async function completeRunnerJob({ requestId, request, identity, payload, state }) {
   const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
-  return ok(await state.services.completeAutomationJob({ actor: identity, requestId }, {
+  const job = await state.services.completeAutomationJob({ actor: identity, requestId }, {
     ...payload,
     jobId,
-  }));
+  });
+  await state.services.recordRunnerHeartbeat({ actor: identity, requestId }, {
+    runnerId: payload.runnerId,
+    deviceId: job.device_id,
+    productIds: payload.productIds ?? [job.product_id],
+    agentVersion: payload.agentVersion,
+  });
+  return ok(job);
 }
 
 async function mutateProduct({ requestId, identity, payload, state }) {
