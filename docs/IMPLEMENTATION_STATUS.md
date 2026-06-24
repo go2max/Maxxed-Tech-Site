@@ -4,29 +4,19 @@ Last updated: June 23, 2026
 
 ## Current State
 
-- Phase 0 through Phase 5 are complete.
-- Phase 6 is complete and ready to commit.
-- Phase 7 is not started.
+- Phase 0 through Phase 6 are complete.
+- Phase 7 is complete and ready to commit.
 - Public-site source remains the validated baseline and must stay independently deployable.
-
-## Baseline Evidence
-
-- Current branch: `main`
-- Phase 0 commit: `6baa518`
-- Phase 1 commit: `14b5e6c`
-- Phase 2 commit: `0fcac51`
-- Phase 3 commit: `09127f6`
-- Phase 4 commit: `855ce35`
-- Phase 5 commit: `ea9d797`
+- Repository-controlled private platform, runner, beta-adapter contracts, readiness scoring, CI workflow, and hardening docs now exist in the repository.
 
 ## Validation Evidence
 
 - `npm run check`
+  - Result: passed twice from a clean state
+- `node .\scripts\security-scan.mjs`
   - Result: passed
-  - Evidence: public-site validation, private-platform suites, beta suite, readiness suite, and runner suite all passed
-- `node --test .\platform\tests\readiness.test.mjs`
-  - Result: passed
-  - Evidence: weighted readiness scoring and mandatory gate blocking behaved as expected; stale and unavailable integration state stayed truthful
+- `powershell -ExecutionPolicy Bypass -File .\scripts\check.ps1`
+  - Result: passed earlier in the phase sequence
 
 ## Phase Log
 
@@ -38,9 +28,24 @@ Last updated: June 23, 2026
 | 3 | Complete | `09127f6` | `node --test .\platform\tests\dashboard.test.mjs`; `npm run check` | Operational dashboard |
 | 4 | Complete | `855ce35` | `node --test .\runner\tests\runner.test.mjs`; `npm run check` | Sequential runner foundation |
 | 5 | Complete | `ea9d797` | `node --test .\platform\tests\beta.test.mjs`; `npm run check` | Beta adapters and consent separation |
-| 6 | Complete | Pending | `node --test .\platform\tests\readiness.test.mjs`; `npm run check` | Weighted readiness scoring plus truthful stale and unavailable integration summaries |
-| 7 | Not started | Pending | Pending | Hardening, CI, and final release preparation |
+| 6 | Complete | `7d9ecab` | `node --test .\platform\tests\readiness.test.mjs`; `npm run check` | Monitoring summaries and readiness scoring |
+| 7 | Complete | Pending | `npm run check` twice; `node .\scripts\security-scan.mjs` | CI workflow, hardening docs, environment inventory, deployment notes, and local secret scan |
 
-## Next Phase
+## Known Limitations
 
-- Phase 7 will add CI, runbooks, environment documentation, and the final hardening and cleanup pass.
+- Real product package IDs remain local operator configuration, not Git-tracked values.
+- APK metadata inspection currently uses sidecar-backed dry-run metadata instead of Android SDK tooling.
+- Google Workspace and Google Play adapters are disabled by default and intentionally unavailable without external credentials.
+- Production deployment, DNS, certificates, real identity-provider setup, real database/storage provisioning, and physical-device validation remain external gates.
+
+## Exact Operator Actions Still Required
+
+1. Purchase or recover `techmaxxed.com`.
+2. Provision and verify production DNS and certificates.
+3. Create production support, privacy, and beta mailboxes.
+4. Configure the production identity-aware proxy and trusted identity headers.
+5. Provision the production database and artifact storage.
+6. Provide real local product package-ID configuration for runner usage.
+7. Supply Google Workspace and Google Play credentials if live beta enrollment is desired.
+8. Perform physical Android and television validation.
+9. Authorize production deployment and release promotion.
