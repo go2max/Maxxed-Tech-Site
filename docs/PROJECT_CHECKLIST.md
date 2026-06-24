@@ -159,7 +159,7 @@ These are website display states, not final Play Console approvals.
 - [ ] Google Play Developer Reporting API synchronization.
 - [ ] Uptime and certificate monitoring.
 - [ ] Dependency and secret-scanning integration.
-- [ ] Backup automation and restore testing.
+- [x] Encrypted backup automation and non-destructive restore verification.
 - [ ] Internal knowledge base editing workflow.
 - [ ] Product Readiness Score calculation and evidence gates in the dashboard.
 - [ ] Full beta enrollment workflow and adapters.

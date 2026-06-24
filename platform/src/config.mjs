@@ -80,6 +80,11 @@ export function loadPlatformConfig(env = {}) {
     runnerFleetOfflineMs: requirePositiveNumber(env.RUNNER_FLEET_OFFLINE_MS, 10 * 60 * 1000, "invalid_runner_fleet_offline"),
     evidenceMaxBytes: requirePositiveNumber(env.EVIDENCE_MAX_BYTES, 25 * 1024 * 1024, "invalid_evidence_max_bytes"),
     evidenceRetentionDays: requirePositiveNumber(env.EVIDENCE_RETENTION_DAYS, 30, "invalid_evidence_retention_days"),
+    backupEncryptionKey: String(env.BACKUP_ENCRYPTION_KEY || ""),
+    backupScheduleEnabled: env.BACKUP_SCHEDULE_ENABLED === "true",
+    backupIntervalHours: requirePositiveNumber(env.BACKUP_INTERVAL_HOURS, 24, "invalid_backup_interval_hours"),
+    backupRetentionDays: requirePositiveNumber(env.BACKUP_RETENTION_DAYS, 30, "invalid_backup_retention_days"),
+    backupMaxBytes: requirePositiveNumber(env.BACKUP_MAX_BYTES, 100 * 1024 * 1024, "invalid_backup_max_bytes"),
     sessionAbsoluteTtlMs: requirePositiveNumber(env.SESSION_ABSOLUTE_TTL_MS, DEFAULT_SESSION_ABSOLUTE_TTL_MS, "invalid_session_absolute_ttl"),
     sessionIdleTtlMs: requirePositiveNumber(env.SESSION_IDLE_TTL_MS, DEFAULT_SESSION_IDLE_TTL_MS, "invalid_session_idle_ttl"),
     maxRequestBytes: requirePositiveNumber(env.MAX_REQUEST_BYTES, DEFAULT_MAX_REQUEST_BYTES, "invalid_max_request_bytes"),
@@ -100,6 +105,10 @@ export function loadPlatformConfig(env = {}) {
   }
   if (config.evidenceMaxBytes > 100 * 1024 * 1024 || config.evidenceRetentionDays > 3650) {
     throw new Error("invalid_evidence_limits");
+  }
+  if (config.backupIntervalHours > 168 || config.backupRetentionDays > 3650 ||
+      config.backupMaxBytes > 500 * 1024 * 1024) {
+    throw new Error("invalid_backup_limits");
   }
 
   if (!isStrongSessionSecret(config.sessionSecret)) {

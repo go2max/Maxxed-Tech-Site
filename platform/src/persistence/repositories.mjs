@@ -47,6 +47,7 @@ export function createRepositories() {
     runnerNodes: new GenericRepository("runner_nodes"),
     testEvidenceObjects: new GenericRepository("test_evidence_objects"),
     testSchedules: new GenericRepository("test_schedules"),
+    backupSnapshots: new GenericRepository("backup_snapshots"),
     supportCases: new GenericRepository("support_cases"),
     incidents: new GenericRepository("incidents"),
     integrationStates: new GenericRepository("integration_states"),

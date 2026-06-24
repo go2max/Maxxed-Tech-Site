@@ -1,5 +1,5 @@
 import { createSeededPlatformState } from "./dashboard/state.mjs";
-import { renderAuditPage, renderPortfolioPage, renderRecordPage, renderTestingFunctionsPage, renderTestingJobPage, renderUserAdminPage } from "./dashboard/renderers.mjs";
+import { renderAuditPage, renderBackupPage, renderPortfolioPage, renderRecordPage, renderTestingFunctionsPage, renderTestingJobPage, renderUserAdminPage } from "./dashboard/renderers.mjs";
 import { defaultAccessStore, PersistentAccessStore } from "./auth/access-store.mjs";
 import { extractTrustedIdentity } from "./auth/identity.mjs";
 import { createCsrfToken, createSession, readSession, sessionMatchesIdentity } from "./auth/session.mjs";
@@ -15,9 +15,12 @@ import { renderShell } from "./ui/layout.mjs";
 import { getTestingProduct, requireTestingProducts, TESTING_PRODUCTS } from "./testing/catalog.mjs";
 import { buildRegressionComparison } from "./testing/regression.mjs";
 import { MemoryEvidenceStore, R2EvidenceStore, UnavailableEvidenceStore } from "./evidence/storage.mjs";
+import { MemoryBackupStore, R2BackupStore, UnavailableBackupStore } from "./backups/storage.mjs";
+import { createEncryptedBackup, purgeExpiredBackups, verifyEncryptedBackup } from "./backups/service.mjs";
 
 const stateCache = new WeakMap();
 const evidenceStoreCache = new WeakMap();
+const backupStoreCache = new WeakMap();
 
 function denied(requestId, status, code, details) {
   return json({ error: code, requestId, ...(details ? { details } : {}) }, { status });
@@ -97,6 +100,17 @@ function resolveEvidenceStore(options, env, config) {
   return new UnavailableEvidenceStore();
 }
 
+function resolveBackupStore(options, env, config) {
+  if (options.backupStore) return options.backupStore;
+  const binding = env.PLATFORM_BACKUPS || options.env?.PLATFORM_BACKUPS;
+  if (binding) return new R2BackupStore(binding);
+  if (config.isTest || config.appEnv === "development") {
+    if (!backupStoreCache.has(options)) backupStoreCache.set(options, new MemoryBackupStore());
+    return backupStoreCache.get(options);
+  }
+  return new UnavailableBackupStore();
+}
+
 function requireOrigin(request) {
   const origin = request.headers.get("origin");
   if (!origin) return false;
@@ -143,6 +157,11 @@ function routeTable() {
     ["POST", /^\/testing-functions\/maxxed-remote\/jobs\/[^/]+\/retry$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: retryTestingJob }],
     ["GET", /^\/incidents$/, { permission: PERMISSIONS.INCIDENTS_READ, handler: handleIncidents }],
     ["GET", /^\/security\/audit$/, { permission: PERMISSIONS.AUDIT_READ, handler: handleSecurityAudit }],
+    ["GET", /^\/security\/backups$/, { permission: PERMISSIONS.SECURITY_MANAGE, handler: handleBackups }],
+    ["GET", /^\/security\/backups\.js$/, { permission: PERMISSIONS.SECURITY_MANAGE, handler: handleBackupsScript }],
+    ["POST", /^\/security\/backups$/, { permission: PERMISSIONS.SECURITY_MANAGE, csrf: true, handler: createBackup }],
+    ["POST", /^\/security\/backups\/purge$/, { permission: PERMISSIONS.SECURITY_MANAGE, csrf: true, handler: purgeBackups }],
+    ["POST", /^\/security\/backups\/[^/]+\/verify$/, { permission: PERMISSIONS.SECURITY_MANAGE, csrf: true, handler: verifyBackup }],
     ["GET", /^\/knowledge-base$/, { permission: PERMISSIONS.DOCS_READ, handler: handleKnowledgeBase }],
     ["GET", /^\/readiness$/, { permission: PERMISSIONS.READINESS_READ, handler: handleReadiness }],
     ["GET", /^\/beta\/portal$/, { permission: PERMISSIONS.BETA_PORTAL, handler: handleBetaPortal }],
@@ -189,6 +208,17 @@ function schedulerActor() {
     subject: "service:testing-scheduler",
     roles: ["Scheduler"],
     permissions: new Set([PERMISSIONS.QA_ASSIGN]),
+    isDevelopmentOverride: false,
+  };
+}
+
+function backupActor() {
+  return {
+    email: "backup-scheduler@system.internal",
+    displayName: "Backup Scheduler",
+    subject: "service:backup-scheduler",
+    roles: ["Backup Scheduler"],
+    permissions: new Set([PERMISSIONS.SECURITY_MANAGE]),
     isDevelopmentOverride: false,
   };
 }
@@ -739,6 +769,106 @@ async function handleIncidents({ identity, csrfToken, state }) {
   });
 }
 
+function backupView(record) {
+  return {
+    id: record.id,
+    plaintextSha256: record.plaintext_sha256,
+    byteSize: record.byte_size,
+    tableCounts: parseStoredJson(record.table_counts_json, {}),
+    storageState: record.storage_state,
+    createdBy: record.created_by,
+    verifiedAt: record.verified_at,
+    verificationDetails: parseStoredJson(record.verification_details_json, {}),
+    retentionUntil: record.retention_until,
+    createdAt: record.created_at,
+    updatedAt: record.updated_at,
+  };
+}
+
+async function handleBackups({ identity, csrfToken, state }) {
+  return renderDashboardPage({
+    title: "Encrypted Backups",
+    identity,
+    csrfToken,
+    content: renderBackupPage({ backups: await snapshot(state, "backup_snapshots") }),
+  });
+}
+
+async function handleBackupsScript() {
+  return new Response(`const status = document.querySelector("#backup-status");
+const csrfToken = () => document.querySelector("[data-csrf-token]")?.textContent || "";
+async function post(path) {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-csrf-token": csrfToken() },
+    body: "{}",
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || "request_failed");
+  return result;
+}
+async function run(button, path, message) {
+  button.disabled = true;
+  status.textContent = message;
+  try {
+    await post(path);
+    location.reload();
+  } catch (error) {
+    status.textContent = "Backup operation failed: " + error.message;
+    button.disabled = false;
+  }
+}
+document.querySelector("[data-backup-create]")?.addEventListener("click", (event) =>
+  run(event.currentTarget, "/security/backups", "Creating encrypted backup..."));
+document.querySelector("[data-backup-purge]")?.addEventListener("click", (event) =>
+  run(event.currentTarget, "/security/backups/purge", "Purging expired backups..."));
+document.querySelectorAll("[data-backup-verify]").forEach((button) =>
+  button.addEventListener("click", () => run(
+    button,
+    "/security/backups/" + encodeURIComponent(button.dataset.backupId) + "/verify",
+    "Running non-destructive restore verification...",
+  )));`, {
+    headers: { "content-type": "application/javascript; charset=utf-8", "cache-control": "no-store" },
+  });
+}
+
+async function createBackup({ requestId, identity, state, config, backupStore }) {
+  const result = await createEncryptedBackup({
+    state,
+    store: backupStore,
+    encryptionKey: config.backupEncryptionKey,
+    actor: identity,
+    requestId,
+    retentionDays: config.backupRetentionDays,
+    maximumBytes: config.backupMaxBytes,
+  });
+  return ok(backupView(result.record));
+}
+
+async function verifyBackup({ requestId, request, identity, state, config, backupStore }) {
+  const backupId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  const record = (await snapshot(state, "backup_snapshots"))
+    .find((item) => item.id === backupId && item.storage_state !== "deleted");
+  if (!record) throw new Error("missing_row:backup_snapshot");
+  const result = await verifyEncryptedBackup({
+    state,
+    store: backupStore,
+    encryptionKey: config.backupEncryptionKey,
+    actor: identity,
+    requestId,
+    record,
+    maximumBytes: config.backupMaxBytes,
+  });
+  return json({ ok: true, record: backupView(result.record), details: result.details });
+}
+
+async function purgeBackups({ requestId, identity, state, backupStore }) {
+  const purged = await purgeExpiredBackups({
+    state, store: backupStore, actor: identity, requestId,
+  });
+  return json({ ok: true, purged });
+}
+
 async function handleSecurityAudit({ identity, csrfToken, state }) {
   return renderDashboardPage({
     title: "Security Events and Audit Log",
@@ -1122,8 +1252,10 @@ export function createPlatformApp(options = {}) {
       }
 
       try {
-        const evidenceStore = resolveEvidenceStore(options, { ...env, ...(options.env || {}) }, config);
-        const response = await meta.handler({ requestId, request, identity, csrfToken, payload, state, config, evidenceStore });
+        const resolvedEnv = { ...env, ...(options.env || {}) };
+        const evidenceStore = resolveEvidenceStore(options, resolvedEnv, config);
+        const backupStore = resolveBackupStore(options, resolvedEnv, config);
+        const response = await meta.handler({ requestId, request, identity, csrfToken, payload, state, config, evidenceStore, backupStore });
         response.headers.set("set-cookie", `__Host-maxxed-session=${nextSessionToken}; Path=/; HttpOnly; SameSite=Strict; Secure`);
         return appendSecurityHeaders(response, requestId, url.protocol === "https:");
       } catch (error) {
@@ -1135,9 +1267,20 @@ export function createPlatformApp(options = {}) {
                 error.message.startsWith("evidence_state_conflict:") ||
                 error.message.startsWith("access_state_conflict:") ||
                 error.message.startsWith("access_safety_conflict:") ||
+                error.message.startsWith("backup_state_conflict:") ||
+                error.message.startsWith("backup_integrity_") ||
+                error.message.startsWith("backup_table_") ||
+                error.message.startsWith("backup_audit_") ||
+                error.message === "backup_decryption_failed" ||
+                error.message === "invalid_backup_envelope" ||
+                error.message === "invalid_backup_snapshot" ||
+                error.message === "missing_backup_object" ||
                 error.message === "evidence_integrity_failed" ? 409
-              : error.message === "evidence_store_unavailable" ? 503
-                : error.message.startsWith("invalid_") ? 400
+              : error.message === "evidence_store_unavailable" ||
+                  error.message === "backup_store_unavailable" ||
+                  error.message === "invalid_backup_encryption_key" ? 503
+                : error.message === "backup_too_large" ? 413
+                  : error.message.startsWith("invalid_") ? 400
                   : 500;
         return appendSecurityHeaders(denied(requestId, status, error.message), requestId, url.protocol === "https:");
       }
@@ -1146,10 +1289,43 @@ export function createPlatformApp(options = {}) {
       const resolvedEnv = { ...env, ...(options.env || {}) };
       const config = loadPlatformConfig(resolvedEnv);
       const state = await resolveState(options, resolvedEnv);
-      return state.services.dispatchDueTestSchedules({
+      const testing = await state.services.dispatchDueTestSchedules({
         actor: schedulerActor(),
         requestId: `scheduled-${makeRequestId()}`,
       }, { now: new Date().toISOString(), config });
+      let backup = null;
+      if (config.backupScheduleEnabled) {
+        const store = resolveBackupStore(options, resolvedEnv, config);
+        const records = await snapshot(state, "backup_snapshots");
+        const latest = records.filter((record) => record.storage_state !== "deleted")
+          .sort((left, right) => right.created_at.localeCompare(left.created_at))[0];
+        const due = !latest ||
+          Date.now() - Date.parse(latest.created_at) >= config.backupIntervalHours * 3_600_000;
+        if (due) {
+          const actor = backupActor();
+          const requestId = `scheduled-backup-${makeRequestId()}`;
+          const created = await createEncryptedBackup({
+            state,
+            store,
+            encryptionKey: config.backupEncryptionKey,
+            actor,
+            requestId,
+            retentionDays: config.backupRetentionDays,
+            maximumBytes: config.backupMaxBytes,
+          });
+          backup = await verifyEncryptedBackup({
+            state,
+            store,
+            encryptionKey: config.backupEncryptionKey,
+            actor,
+            requestId,
+            record: created.record,
+            maximumBytes: config.backupMaxBytes,
+          });
+          await purgeExpiredBackups({ state, store, actor, requestId });
+        }
+      }
+      return { ...testing, backup };
     },
   };
 }

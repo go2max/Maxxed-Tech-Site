@@ -73,3 +73,6 @@ documented in `docs/AUTOMATIC_DEVICE_POOLS.md`.
 
 Persistent D1-backed user roles, bootstrap, last-Owner protection, and recovery
 are documented in `docs/ACCESS_DIRECTORY_OPERATIONS.md`.
+
+Encrypted D1 backup automation, private storage, restore verification, retention,
+and disaster recovery are documented in `docs/ENCRYPTED_BACKUP_OPERATIONS.md`.

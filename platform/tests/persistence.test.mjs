@@ -35,6 +35,9 @@ test("fresh migration and repeat migration succeed for memory and D1 adapters", 
   const accessSql = await loadMigrationSql("0005_persistent_access_directory.sql");
   assert.match(accessSql, /CREATE TABLE IF NOT EXISTS access_role_events/);
   assert.match(accessSql, /access_role_events_user/);
+  const backupSql = await loadMigrationSql("0006_backup_snapshots.sql");
+  assert.match(backupSql, /CREATE TABLE IF NOT EXISTS backup_snapshots/);
+  assert.match(backupSql, /backup_snapshots_retention/);
 
   const memory = new MemoryPlatformDatabase();
   await applyAllMigrations(memory);
@@ -56,6 +59,8 @@ test("fresh migration and repeat migration succeed for memory and D1 adapters", 
   assert.equal(d1Binding.indexes.has("access_role_events_user"), true);
   assert.equal(d1Binding.indexes.has("access_role_events_role"), true);
   assert.equal(d1Binding.indexes.has("users_status"), true);
+  assert.equal(d1Binding.indexes.has("backup_snapshots_retention"), true);
+  assert.equal(d1Binding.indexes.has("backup_snapshots_created"), true);
   for (const migration of MIGRATIONS) {
     assert.equal(await d1.hasMigration(migration.id), true);
   }

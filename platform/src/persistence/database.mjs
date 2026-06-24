@@ -27,7 +27,10 @@ class TransactionContext {
     if (table === "audit_events") {
       return rows.sort((left, right) => Number(left.sequence) - Number(right.sequence));
     }
-    return rows.sort((left, right) => String(left.created_at || left.id).localeCompare(String(right.created_at || right.id)) || String(left.id).localeCompare(String(right.id)));
+    return rows.sort((left, right) =>
+      String(left.created_at || left.applied_at || left.id).localeCompare(String(right.created_at || right.applied_at || right.id)) ||
+      String(left.id).localeCompare(String(right.id))
+    );
   }
 
   insert(table, row) {
@@ -78,7 +81,7 @@ export class MemoryPlatformDatabase {
 }
 
 function quoteIdentifier(identifier) {
-  if (!/^[a-z_]+$/i.test(identifier)) {
+  if (!/^[a-z_][a-z0-9_]*$/i.test(identifier)) {
     throw new Error(`invalid_identifier:${identifier}`);
   }
   return `"${identifier}"`;
@@ -114,7 +117,9 @@ class D1TransactionContext {
   }
 
   async list(table) {
-    const orderBy = table === "audit_events" ? "sequence ASC" : "created_at ASC, id ASC";
+    const orderBy = table === "audit_events" ? "sequence ASC"
+      : table === "schema_migrations" ? "applied_at ASC, id ASC"
+        : "created_at ASC, id ASC";
     return unwrapAll(this.binding.prepare(`SELECT * FROM ${quoteIdentifier(table)} ORDER BY ${orderBy}`));
   }
 
@@ -275,13 +280,14 @@ export class MemoryD1Binding {
       return structuredClone(this.tables[match[1]].get(params[0]) ?? null);
     }
 
-    match = /^SELECT \* FROM "([a-z_]+)" ORDER BY (created_at ASC, id ASC|sequence ASC)$/i.exec(normalized);
+    match = /^SELECT \* FROM "([a-z_]+)" ORDER BY (created_at ASC, id ASC|applied_at ASC, id ASC|sequence ASC)$/i.exec(normalized);
     if (match) {
       const rows = [...this.tables[match[1]].values()].map((row) => structuredClone(row));
       if (match[2].toLowerCase() === "sequence asc") {
         return rows.sort((left, right) => Number(left.sequence) - Number(right.sequence));
       }
-      return rows.sort((left, right) => String(left.created_at || left.id).localeCompare(String(right.created_at || right.id)) || String(left.id).localeCompare(String(right.id)));
+      const timestampColumn = match[2].toLowerCase().startsWith("applied_at") ? "applied_at" : "created_at";
+      return rows.sort((left, right) => String(left[timestampColumn] || left.id).localeCompare(String(right[timestampColumn] || right.id)) || String(left.id).localeCompare(String(right.id)));
     }
 
     match = /^SELECT id FROM schema_migrations WHERE id = \?$/i.exec(normalized);
