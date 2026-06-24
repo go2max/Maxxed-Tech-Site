@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Maxxed Technical Systems</title>
+  <desc id="desc">Practical Android apps and focused software.</desc>
+  <rect width="1200" height="630" fill="#07131f"/>
+  <rect x="70" y="72" width="128" height="128" rx="24" fill="#b9ed45"/>
+  <path d="M91 171v-71h20l23 31 23-31h20v71h-20v-41l-23 31-23-31v41z" fill="#07131f"/>
+  <rect x="213" y="87" width="128" height="128" rx="24" fill="#25d0d8"/>
+  <text x="70" y="330" fill="#f4f7f8" font-family="Arial, sans-serif" font-size="64" font-weight="700">Maxxed Technical Systems</text>
+  <text x="70" y="410" fill="#a9b7be" font-family="Arial, sans-serif" font-size="35">Useful tools. Built to do the job.</text>
+  <g transform="translate(70 500)">
+    <rect width="180" height="54" rx="27" fill="none" stroke="#ffffff" stroke-opacity=".2"/>
+    <text x="90" y="35" text-anchor="middle" fill="#f4f7f8" font-family="Arial, sans-serif" font-size="18">ANDROID APPS</text>
+  </g>
+  <g transform="translate(268 500)">
+    <rect width="176" height="54" rx="27" fill="none" stroke="#ffffff" stroke-opacity=".2"/>
+    <text x="88" y="35" text-anchor="middle" fill="#f4f7f8" font-family="Arial, sans-serif" font-size="18">PRIVACY-AWARE</text>
+  </g>
+</svg>

@@ -1,0 +1,10 @@
+{
+  "name": "maxxed-technical-systems-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "validate": "node scripts/validate-site.mjs && node scripts/validate-artifact.mjs",
+    "check": "npm run build && npm run validate"
+  }
+}
