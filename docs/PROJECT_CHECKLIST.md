@@ -155,7 +155,7 @@ These are website display states, not final Play Console approvals.
 
 - [ ] Private identity provider integration.
 - [ ] Owner MFA enrollment and recovery process.
-- [ ] User and role administration mutations.
+- [x] Persistent user and role administration mutations with immediate authorization and last-Owner protection.
 - [ ] Google Play Developer Reporting API synchronization.
 - [ ] Uptime and certificate monitoring.
 - [ ] Dependency and secret-scanning integration.
