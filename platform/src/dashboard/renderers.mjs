@@ -33,7 +33,35 @@ export function renderAuditPage(events) {
   return renderRecordPage("Audit log", "Security events", events, (event) => `${escapeHtml(event.action_name)} on ${escapeHtml(event.target_type)} by ${escapeHtml(event.actor_email)}`);
 }
 
-export function renderTestingFunctionsPage() {
+function parseStoredJson(value, fallback) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+}
+
+export function renderTestingFunctionsPage({ jobs = [] } = {}) {
+  const recentJobs = [...jobs]
+    .sort((left, right) => String(right.updated_at).localeCompare(String(left.updated_at)))
+    .slice(0, 10);
+  const history = recentJobs.length
+    ? `<ul>${recentJobs.map((job) => {
+        const result = parseStoredJson(job.result_json, {});
+        const evidence = parseStoredJson(job.evidence_json, []);
+        const steps = Array.isArray(result.steps) ? result.steps : [];
+        const stepSummary = steps.length
+          ? `<span>${steps.map((step) => `${escapeHtml(step.stepId)}: ${escapeHtml(step.status)}`).join(" | ")}</span>`
+          : "<span>No step results yet.</span>";
+        return `<li>
+          <strong>${escapeHtml(job.lease_state)}</strong> <code>${escapeHtml(job.id)}</code><br>
+          <span>Runner: ${escapeHtml(job.runner_id)} | Device: ${escapeHtml(job.device_id)}</span><br>
+          ${stepSummary}<br>
+          <span>Evidence records: ${escapeHtml(evidence.length)} | Updated: ${escapeHtml(job.updated_at)}</span>
+        </li>`;
+      }).join("")}</ul>`
+    : '<p class="empty-state">No Maxxed Remote test jobs have been queued yet.</p>';
+
   return `<section class="grid">
     ${card("Maxxed Remote", `<p><strong>Full UX, discovery, and TV connection test</strong></p>
       <p>Approved steps: <code>artifact-verify</code>, <code>launch-smoke</code>, <code>full-ux-connection</code></p>
@@ -44,8 +72,8 @@ export function renderTestingFunctionsPage() {
       </form>
       <p id="remote-test-status" aria-live="polite"></p>
       <p>Real television pairing, power, reconnect, and response require operator observation.</p>
-      <p><a href="/automation">View sequential automation jobs</a></p>
       <script src="/testing-functions.js" defer></script>`)}
+    ${card("Recent Remote jobs", `${history}<p><a href="/testing-functions">Refresh results</a> | <a href="/automation">All automation jobs</a></p>`)}
     ${card("Runner boundary", `<p>The server owns the ordered step list. The browser cannot submit commands, executable paths, or shell arguments.</p>
       <p>The queued job waits for the isolated Windows runner and selected Android device.</p>`)}
   </section>`;
