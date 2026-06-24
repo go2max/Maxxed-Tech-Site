@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 
 import { inspectApk } from "../src/inspector.mjs";
 import { runSequentialJob } from "../src/runner.mjs";
+import { buildRemoteCliArgs, runAgent, validateAgentConfig } from "../agent.mjs";
 
 async function tempDir() {
   return mkdtemp(resolve(tmpdir(), "maxxed-runner-"));
@@ -159,4 +160,61 @@ test("corrupted state recovers from backup and production inspection requires an
   }), /android_sdk_inspection_required/);
 
   await rm(dir, { recursive: true, force: true });
+});
+
+
+test("agent configuration is bounded and requires HTTPS outside localhost", () => {
+  assert.throws(() => validateAgentConfig({
+    platform: "http://admin.techmaxxed.com",
+    apk: "app.apk",
+    products: "products.json",
+    manifest: "manifest.json",
+    stateDir: "state",
+    reportDir: "reports",
+    runnerId: "runner-1",
+    deviceId: "device-1",
+  }), /agent_platform_requires_https/);
+
+  const config = validateAgentConfig({
+    platform: "https://admin.techmaxxed.com",
+    apk: "app.apk",
+    products: "products.json",
+    manifest: "manifest.json",
+    stateDir: "state",
+    reportDir: "reports",
+    runnerId: "runner-1",
+    deviceId: "device-1",
+    pollSeconds: 5,
+    errorBackoffSeconds: 15,
+  }, resolve("."));
+
+  assert.equal(config.pollSeconds, 5);
+  assert.equal(config.errorBackoffSeconds, 15);
+  assert.equal(buildRemoteCliArgs(config).some((value) => /token|secret|authorization/i.test(value)), false);
+});
+
+test("agent executes one cycle at a time and applies bounded backoff", async () => {
+  let active = 0;
+  let maximumActive = 0;
+  let invocation = 0;
+  const sleeps = [];
+  const outcomes = [0, 1, 0];
+
+  const result = await runAgent({
+    maxCycles: outcomes.length,
+    pollMs: 1000,
+    errorBackoffMs: 5000,
+    sleep: async (milliseconds) => sleeps.push(milliseconds),
+    cycle: async () => {
+      active += 1;
+      maximumActive = Math.max(maximumActive, active);
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 5));
+      active -= 1;
+      return outcomes[invocation++];
+    },
+  });
+
+  assert.equal(result.cycles, 3);
+  assert.equal(maximumActive, 1);
+  assert.deepEqual(sleeps, [1000, 5000]);
 });
