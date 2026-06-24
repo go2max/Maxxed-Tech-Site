@@ -373,6 +373,57 @@ document.querySelectorAll("[data-job-action]").forEach((button) => {
   });
 });
 
+document.querySelector("#testing-schedule-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const productIds = [...form.querySelectorAll("[name=scheduleProductId]:checked")].map((input) => input.value);
+  const button = form.querySelector("[type=submit]");
+  button.disabled = true;
+  status.textContent = "Creating regression schedule...";
+  try {
+    await post("/testing-functions/schedules", {
+      name: form.elements.name.value,
+      runnerId: form.elements.runnerId.value,
+      deviceId: form.elements.deviceId.value,
+      cadenceMinutes: Number(form.elements.cadenceMinutes.value),
+      productIds,
+    });
+    status.textContent = "Schedule created. Refreshing...";
+    window.setTimeout(() => location.reload(), 500);
+  } catch (error) {
+    status.textContent = "Could not create schedule: " + error.message;
+    button.disabled = false;
+  }
+});
+
+document.querySelector("[data-run-due-schedules]")?.addEventListener("click", async (event) => {
+  event.currentTarget.disabled = true;
+  status.textContent = "Dispatching due schedules...";
+  try {
+    const result = await post("/testing-functions/schedules/run-due");
+    status.textContent = "Queued " + result.jobs.length + " scheduled job(s). Refreshing...";
+    window.setTimeout(() => location.reload(), 500);
+  } catch (error) {
+    status.textContent = "Schedule dispatch failed: " + error.message;
+    event.currentTarget.disabled = false;
+  }
+});
+
+document.querySelectorAll("[data-schedule-toggle]").forEach((button) => {
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    try {
+      await post("/testing-functions/schedules/" + encodeURIComponent(button.dataset.scheduleId) + "/toggle", {
+        enabled: button.dataset.scheduleEnabled === "true",
+      });
+      location.reload();
+    } catch (error) {
+      status.textContent = "Schedule update failed: " + error.message;
+      button.disabled = false;
+    }
+  });
+});
+
 function applyFilters() {
   const product = document.querySelector("[name=historyProduct]")?.value || "";
   const state = document.querySelector("[name=historyState]")?.value || "";
