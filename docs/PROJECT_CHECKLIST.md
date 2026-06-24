@@ -1,6 +1,6 @@
 # Maxxed Technical Systems Project Checklist
 
-Last updated: June 23, 2026
+Last updated: June 24, 2026
 
 This checklist is the current source of truth for the public website and the
 planned private Maxxed Platform. A checked item means the work exists and has
@@ -88,18 +88,18 @@ These are website display states, not final Play Console approvals.
 - [x] Separate consent for public tester credit.
 - [x] Beta credits page with no names published by default.
 - [x] Manual approval is required before tester enrollment.
+- [x] Document the manual application review procedure.
+- [x] Record invitation, approval, enrollment, removal, and consent events.
+- [x] Provide tester data correction and deletion workflows.
 
 ### Remaining
 
 - [ ] Activate the beta mailbox.
-- [ ] Document the manual application review procedure.
 - [ ] Create approved Google Groups for application-specific testing tracks.
 - [ ] Configure a Google Workspace service account with minimum required scope.
 - [ ] Build an authenticated approval queue for the Beta Manager.
 - [ ] Add approved testers to Google Groups only after explicit review.
 - [ ] Synchronize groups with supported Google Play testing tracks.
-- [ ] Record invitation, approval, enrollment, removal, and consent events.
-- [ ] Provide tester data correction and deletion workflows.
 - [ ] Publish opted-in credits after verification.
 
 ## Security-First Platform Specification
@@ -162,7 +162,7 @@ These are website display states, not final Play Console approvals.
 - [x] Encrypted backup automation and non-destructive restore verification.
 - [x] Internal knowledge base editing workflow.
 - [x] Product Readiness Score calculation and evidence gates in the dashboard.
-- [ ] Full beta enrollment workflow and adapters.
+- [x] Full beta enrollment workflow and adapters.
 - [x] Repository hardening and release-preparation runbooks.
 
 ## Sequential APK Test Environment
@@ -198,8 +198,8 @@ These are website display states, not final Play Console approvals.
 2. Deploy the validated public site and connect DNS.
 3. Activate the three public email addresses.
 4. Run live desktop, mobile, security-header, SEO, and accessibility checks.
-5. Complete the remaining beta, monitoring, and hardening phases.
-6. Keep beta enrollment manual until authenticated approval and audit logging exist.
+5. Complete the remaining Google Groups, Play track sync, runner evidence, and deployment gates.
+6. Keep beta enrollment manual until authenticated approval and audit logging are connected to live Google credentials.
 
 ## Reference Documents
 
@@ -207,5 +207,6 @@ These are website display states, not final Play Console approvals.
 - `docs/MAXXED_PLATFORM_V1_SPECIFICATION.md`: canonical platform requirements.
 - `docs/PRIVATE_OPERATIONS_PLATFORM.md`: private dashboard and APK runner design.
 - `docs/ADMIN_AND_BETA_AUTOMATION.md`: admin identity and beta automation plan.
+- `docs/BETA_ENROLLMENT_OPERATIONS.md`: beta review, Google group, Play track, credit, and privacy request runbook.
 - `docs/PLATFORM_ROLLBACK_STRATEGY.md`: migration and recovery posture.
 - `docs/WAVE1_RESTART_CHECKPOINT.md`: sanitized project state and restart instructions.
