@@ -892,7 +892,7 @@ async function handleSecurityAudit({ identity, csrfToken, state }) {
   });
 }
 
-async function handleSecurityMonitoring({ identity, csrfToken, state }) {
+async function handleSecurityMonitoring({ identity, csrfToken, state, config }) {
   const [findings, integrations, backups, auditEvents, accessEvents] = await Promise.all([
     snapshot(state, "security_findings"),
     snapshot(state, "integration_states"),
@@ -905,6 +905,8 @@ async function handleSecurityMonitoring({ identity, csrfToken, state }) {
     integrations,
     backups,
     auditValid: state.services.auditRepository.verifyIntegrity(auditEvents),
+    integrationStaleMs: config.monitorStaleHours * 3_600_000,
+    backupStaleMs: config.backupHealthStaleHours * 3_600_000,
   });
   return renderDashboardPage({
     title: "Security and Monitoring",
