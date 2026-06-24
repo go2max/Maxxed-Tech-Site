@@ -1,6 +1,8 @@
 {
   "app": "maxxed-remote",
-  "packageIds": ["com.maxxedtechnicalsystems.maxxedremote"],
+  "packageIds": [
+    "com.maxxedtechnicalsystems.maxxedremote"
+  ],
   "steps": [
     {
       "id": "artifact-verify",
@@ -12,7 +14,7 @@
       "id": "launch-smoke",
       "timeoutSeconds": 2,
       "continueOnFailure": false,
-      "commandRef": "runner/scripts/maxxed-remote/launch-smoke.mjs"
+      "commandRef": "runner/scripts/common/android-app-smoke.mjs"
     },
     {
       "id": "full-ux-connection",
