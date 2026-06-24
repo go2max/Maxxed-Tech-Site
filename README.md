@@ -70,3 +70,6 @@ documented in `docs/REGRESSION_SCHEDULING.md`.
 
 Automatic compatible-device routing and server-enforced per-device capacity are
 documented in `docs/AUTOMATIC_DEVICE_POOLS.md`.
+
+Persistent D1-backed user roles, bootstrap, last-Owner protection, and recovery
+are documented in `docs/ACCESS_DIRECTORY_OPERATIONS.md`.
