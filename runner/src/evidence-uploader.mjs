@@ -1,4 +1,4 @@
-import { readFile, readdir, stat } from "node:fs/promises";
+import { lstat, readFile, readdir } from "node:fs/promises";
 import { basename, extname, relative, resolve, sep } from "node:path";
 
 const CONTENT_TYPES = new Map([
@@ -27,7 +27,7 @@ async function evidenceFiles(report, reportDir) {
       if (!isInside(root, candidate)) continue;
       let details;
       try {
-        details = await stat(candidate);
+        details = await lstat(candidate);
       } catch {
         continue;
       }
@@ -35,7 +35,7 @@ async function evidenceFiles(report, reportDir) {
         candidates.push({ stepId: step.stepId, type: item.type, path: candidate });
       } else if (details.isDirectory()) {
         for (const entry of await readdir(candidate, { withFileTypes: true })) {
-          if (entry.isFile()) {
+          if (entry.isFile() && !entry.isSymbolicLink()) {
             candidates.push({ stepId: step.stepId, type: item.type, path: resolve(candidate, entry.name) });
           }
         }
@@ -63,7 +63,8 @@ export async function uploadEvidenceFiles({
 }) {
   const uploaded = [];
   for (const item of await evidenceFiles(report, reportDir)) {
-    const details = await stat(item.path);
+    const details = await lstat(item.path);
+    if (details.isSymbolicLink() || !details.isFile()) throw new Error("invalid_evidence_file");
     if (!details.size || details.size > maxBytes) {
       throw new Error(details.size > maxBytes ? "evidence_too_large" : "invalid_evidence_body");
     }
