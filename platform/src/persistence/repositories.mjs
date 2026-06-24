@@ -53,6 +53,8 @@ export function createRepositories() {
     integrationStates: new GenericRepository("integration_states"),
     knowledgeBaseEntries: new GenericRepository("knowledge_base_entries"),
     knowledgeBaseRevisions: new GenericRepository("knowledge_base_revisions"),
+    readinessEvidence: new GenericRepository("readiness_evidence"),
+    securityFindings: new GenericRepository("security_findings"),
     readinessSnapshots: new GenericRepository("readiness_snapshots"),
   };
 }
