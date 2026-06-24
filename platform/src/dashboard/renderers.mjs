@@ -29,6 +29,44 @@ export function renderRecordPage(title, eyebrow, records, renderRecord) {
   return `<section class="card"><p class="eyebrow">${escapeHtml(eyebrow)}</p><h2>${escapeHtml(title)}</h2>${list(records, renderRecord)}</section>`;
 }
 
+export function renderUserAdminPage({ users = [], roleAssignments = [], roleEvents = [], roles = [] }) {
+  const roleOptions = roles.map((role) => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`).join("");
+  const directory = users.length
+    ? `<ul>${users.map((user) => {
+        const states = new Map();
+        roleAssignments.filter((item) => item.user_id === user.id)
+          .forEach((item) => states.set(item.role_name, "grant"));
+        roleEvents.filter((item) => item.user_id === user.id)
+          .forEach((item) => states.set(item.role_name, item.action));
+        const activeRoles = [...states.entries()].filter(([, action]) => action === "grant").map(([role]) => role);
+        const roleButtons = activeRoles.length
+          ? activeRoles.map((role) => `<button type="button" data-role-revoke data-user-id="${escapeHtml(user.id)}" data-role-name="${escapeHtml(role)}">Remove ${escapeHtml(role)}</button>`).join(" ")
+          : "<span>No roles assigned</span>";
+        return `<li>
+          <strong>${escapeHtml(user.display_name)}</strong> | ${escapeHtml(user.status)}<br>
+          <code>${escapeHtml(user.email)}</code><br>
+          <span>Roles: ${activeRoles.map(escapeHtml).join(" | ") || "none"}</span>
+          <p>${roleButtons}</p>
+          <p>
+            <label>Grant role <select data-role-select="${escapeHtml(user.id)}">${roleOptions}</select></label>
+            <button type="button" data-role-grant data-user-id="${escapeHtml(user.id)}">Grant role</button>
+            <button type="button" data-user-status data-user-id="${escapeHtml(user.id)}" data-next-status="${user.status === "active" ? "inactive" : "active"}">${user.status === "active" ? "Deactivate user" : "Reactivate user"}</button>
+          </p>
+        </li>`;
+      }).join("")}</ul>`
+    : '<p class="empty-state">No persistent users exist. Create the bootstrap Owner first.</p>';
+  return `<section class="grid">
+    ${card("Create user", `<form id="access-user-form">
+      <label>Email <input type="email" name="email" required maxlength="254"></label>
+      <label>Display name <input name="displayName" required maxlength="100"></label>
+      <label>Status <select name="status"><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
+      <button type="submit">Create user</button>
+    </form><p id="access-status" aria-live="polite"></p><script src="/users.js" defer></script>`)}
+    ${card("Access directory", directory)}
+    ${card("Safety rules", "<p>Roles come from the persistent access directory on every request. The last active Owner cannot be removed or deactivated. Identity authentication remains with the configured identity provider.</p>")}
+  </section>`;
+}
+
 export function renderAuditPage(events) {
   return renderRecordPage("Audit log", "Security events", events, (event) => `${escapeHtml(event.action_name)} on ${escapeHtml(event.target_type)} by ${escapeHtml(event.actor_email)}`);
 }
