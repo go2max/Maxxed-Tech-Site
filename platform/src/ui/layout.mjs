@@ -28,6 +28,8 @@ export function renderShell({ title, identity, content, csrfToken }) {
     .grid { display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top:16px; }
     .card { background:var(--panel); border-radius:16px; padding:18px; box-shadow: 0 10px 24px rgba(18,32,51,0.06); }
     code { background:#e6eef4; padding:2px 6px; border-radius:6px; }
+    nav { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
+    nav a { color:var(--accent); font-weight:600; }
   </style>
 </head>
 <body>
@@ -37,7 +39,7 @@ export function renderShell({ title, identity, content, csrfToken }) {
       <p>Private Maxxed Operations Platform</p>
       <h1>${escapeHtml(title)}</h1>
       <p>Signed in as <strong>${escapeHtml(identity.displayName)}</strong> with trusted identity <code>${escapeHtml(identity.email)}</code>.</p>
-      <ul>${roles}</ul>
+      <ul>${roles}</ul>\n      <nav aria-label="Admin sections"><a href="/portfolio">Portfolio</a><a href="/testing-functions">Testing Functions</a><a href="/automation">Automation jobs</a></nav>
       <p>CSRF token issued for protected actions: <code data-csrf-token>${escapeHtml(csrfToken)}</code></p>
     </div>
   </header>
