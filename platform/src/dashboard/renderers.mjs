@@ -145,7 +145,7 @@ export function renderTestingFunctionsPage({ products = [], jobs = [], runners =
 }
 
 
-export function renderTestingJobPage({ product, job }) {
+export function renderTestingJobPage({ product, job, evidenceObjects = [] }) {
   const steps = Array.isArray(job.result?.steps) ? job.result.steps : [];
   const evidence = Array.isArray(job.evidence) ? job.evidence : [];
   const stepMarkup = steps.length
@@ -154,6 +154,9 @@ export function renderTestingJobPage({ product, job }) {
   const evidenceMarkup = evidence.length
     ? `<ul>${evidence.map((item) => `<li>${escapeHtml(item.stepId || "job")} | ${escapeHtml(item.type || "unknown")} | <code>${escapeHtml(item.ref || "")}</code></li>`).join("")}</ul>`
     : '<p class="empty-state">No evidence records are available.</p>';
+  const hostedMarkup = evidenceObjects.length
+    ? `<ul>${evidenceObjects.map((item) => `<li><a href="/testing-functions/jobs/${encodeURIComponent(job.id)}/evidence/${encodeURIComponent(item.id)}">${escapeHtml(item.artifact_name)}</a> | ${escapeHtml(item.step_id)} | ${escapeHtml(item.byte_size)} bytes | SHA-256 <code>${escapeHtml(item.sha256)}</code> | Retained until ${escapeHtml(item.retention_until)}</li>`).join("")}</ul>`
+    : '<p class="empty-state">No hosted evidence is available.</p>';
   return `<section class="grid">
     ${card("Job summary", `<p><strong>${escapeHtml(product?.name || job.productId)}</strong></p>
       <p><code>${escapeHtml(job.id)}</code></p>
@@ -164,6 +167,7 @@ export function renderTestingJobPage({ product, job }) {
     ${card("Approved steps", `<p>${job.orderedSteps.map(escapeHtml).join(" | ") || "No steps recorded."}</p>`)}
     ${card("Step results", stepMarkup)}
     ${card("Evidence index", evidenceMarkup)}
+    ${card("Hosted evidence", hostedMarkup)}
     ${card("Raw bounded result", `<pre><code>${escapeHtml(JSON.stringify(job.result, null, 2))}</code></pre>`)}
   </section>`;
 }
