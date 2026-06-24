@@ -1051,3 +1051,122 @@ test("runner evidence is private, integrity checked, bounded, and purged with au
   assert.equal(audit.some((event) => event.action_name === "test_evidence.create"), true);
   assert.equal(audit.some((event) => event.action_name === "test_evidence.delete"), true);
 });
+
+
+test("regression schedules dispatch once, remain controllable, and expose comparisons", async () => {
+  const state = await createSeededPlatformState();
+  const app = createPlatformApp({ env: identityEnv, state });
+  const email = "qa-lead@techmaxxed.com";
+  const boot = await bootstrap(email, "/testing-functions", app, state);
+  const browserHeaders = {
+    ...authHeaders(email),
+    cookie: boot.cookie,
+    origin: "https://admin.techmaxxed.com",
+    "content-type": "application/json",
+    "x-csrf-token": boot.csrfToken,
+  };
+  const create = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/schedules", {
+    method: "POST",
+    headers: browserHeaders,
+    body: JSON.stringify({
+      name: "Daily portfolio regression",
+      productIds: ["maxxed-remote", "rival-rush"],
+      runnerId: "schedule-runner",
+      deviceId: "schedule-device",
+      cadenceMinutes: 1440,
+      nextRunAt: new Date(0).toISOString(),
+    }),
+  }));
+  assert.equal(create.status, 200);
+  const schedule = (await create.json()).record;
+  assert.equal(schedule.enabled, 1);
+
+  const dispatched = await app.scheduled({}, identityEnv);
+  assert.equal(dispatched.schedules.length, 1);
+  assert.equal(dispatched.jobs.length, 2);
+  assert.deepEqual(dispatched.jobs.map((job) => job.product_id).sort(), ["maxxed-remote", "rival-rush"]);
+  assert.equal(JSON.parse(dispatched.jobs[0].result_json).scheduleId, schedule.id);
+
+  const duplicate = await app.scheduled({}, identityEnv);
+  assert.equal(duplicate.jobs.length, 0);
+
+  const page = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions", {
+    headers: authHeaders(email),
+  }));
+  const html = await page.text();
+  assert.match(html, /Regression schedules/);
+  assert.match(html, /Daily portfolio regression/);
+  assert.match(html, /Pause schedule/);
+
+  const toggle = await app.fetch(new Request(
+    `https://admin.techmaxxed.com/testing-functions/schedules/${schedule.id}/toggle`,
+    {
+      method: "POST",
+      headers: browserHeaders,
+      body: JSON.stringify({ enabled: false }),
+    },
+  ));
+  assert.equal(toggle.status, 200);
+  assert.equal((await toggle.json()).record.enabled, 0);
+
+  const invalid = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/schedules", {
+    method: "POST",
+    headers: browserHeaders,
+    body: JSON.stringify({
+      name: "Invalid duplicate",
+      productIds: ["maxxed-remote", "maxxed-remote"],
+      runnerId: "schedule-runner",
+      deviceId: "schedule-device",
+      cadenceMinutes: 10,
+    }),
+  }));
+  assert.equal(invalid.status, 400);
+
+  await state.database.transaction((tx) => {
+    tx.insert("automation_jobs", {
+      id: "job-regression-baseline",
+      product_id: "maxxed-remote",
+      ordered_steps_json: JSON.stringify(["launch-smoke"]),
+      device_id: "schedule-device",
+      runner_id: "schedule-runner",
+      lease_state: "completed",
+      result_json: JSON.stringify({
+        finalStatus: "pass",
+        steps: [{ stepId: "launch-smoke", status: "pass", exitCode: 0 }],
+      }),
+      evidence_json: "[]",
+      created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-01-01T00:00:00.000Z",
+    });
+    tx.insert("automation_jobs", {
+      id: "job-regression-current",
+      product_id: "maxxed-remote",
+      ordered_steps_json: JSON.stringify(["launch-smoke"]),
+      device_id: "schedule-device",
+      runner_id: "schedule-runner",
+      lease_state: "failed",
+      result_json: JSON.stringify({
+        finalStatus: "fail",
+        steps: [{ stepId: "launch-smoke", status: "fail", exitCode: 1 }],
+      }),
+      evidence_json: "[]",
+      created_at: "2026-02-01T00:00:00.000Z",
+      updated_at: "2026-02-01T00:00:00.000Z",
+    });
+  });
+  const comparison = await app.fetch(new Request(
+    "https://admin.techmaxxed.com/testing-functions/jobs/job-regression-current/comparison.json",
+    { headers: authHeaders(email) },
+  ));
+  assert.equal(comparison.status, 200);
+  const comparisonBody = await comparison.json();
+  assert.equal(comparisonBody.baselineJobId, "job-regression-baseline");
+  assert.equal(comparisonBody.summary.regressions, 1);
+  assert.equal(comparisonBody.regressions[0].stepId, "launch-smoke");
+
+  const audit = await state.database.transaction((tx) => tx.list("audit_events"));
+  assert.equal(audit.some((event) => event.action_name === "test_schedule.create"), true);
+  assert.equal(audit.some((event) => event.action_name === "test_schedule.dispatch"), true);
+  assert.equal(audit.filter((event) => event.action_name === "automation_job.create").length >= 2, true);
+  assert.equal(audit.some((event) => event.action_name === "test_schedule.update"), true);
+});
