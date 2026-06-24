@@ -161,7 +161,7 @@ These are website display states, not final Play Console approvals.
 - [x] Dependency and secret-scanning integration.
 - [x] Encrypted backup automation and non-destructive restore verification.
 - [x] Internal knowledge base editing workflow.
-- [ ] Product Readiness Score calculation and evidence gates in the dashboard.
+- [x] Product Readiness Score calculation and evidence gates in the dashboard.
 - [ ] Full beta enrollment workflow and adapters.
 - [x] Repository hardening and release-preparation runbooks.
 
