@@ -186,7 +186,7 @@ These are website display states, not final Play Console approvals.
 
 ### Later Phases
 
-- [ ] Phase 2: private read-only health and monitoring dashboard.
+- [x] Phase 2: private read-only health and monitoring dashboard.
 - [ ] Phase 3: hosted control plane, private artifact storage, and pull runners.
 - [ ] Phase 4: beta enrollment and controlled release automation.
 - [x] Phase 5: automatic compatible-device pools with one active lease per runner-device pair.
