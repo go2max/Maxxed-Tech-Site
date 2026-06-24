@@ -117,11 +117,18 @@ These are website display states, not final Play Console approvals.
 - [x] Backup, retention, secret-management, and incident requirements.
 - [x] Sequential APK automation architecture.
 
+### Foundation Complete
+
+- [x] Separate private Worker boundary and independent hosting configuration for the private platform.
+- [x] Trusted server-side identity extraction with an explicit development-only override gate.
+- [x] Deny-by-default representative route authorization with canonical role and permission mappings.
+- [x] Signed session-cookie model with expiry, origin checks, CSRF enforcement, and strict security headers.
+- [x] Focused tests proving unauthenticated rejection, role allow/deny behavior, role-header distrust, CSRF/origin rejection, and secret redaction.
+
 ### Not Yet Implemented
 
 - [ ] Private identity provider integration.
 - [ ] Owner MFA enrollment and recovery process.
-- [ ] Server-enforced RBAC permission checks.
 - [ ] User and role administration.
 - [ ] Append-only audit event store and integrity verification.
 - [ ] Product and release database.
@@ -167,7 +174,7 @@ These are website display states, not final Play Console approvals.
 2. Deploy the validated public site and connect DNS.
 3. Activate the three public email addresses.
 4. Run live desktop, mobile, security-header, SEO, and accessibility checks.
-5. Begin Phase 1 of the local sequential APK runner.
+5. Begin Phase 2 of the private platform data and audit implementation.
 6. Keep beta enrollment manual until authenticated approval and audit logging exist.
 
 ## Reference Documents
