@@ -42,7 +42,7 @@ export function loadPlatformConfig(env = {}) {
     trustedIdentityNameHeader: env.TRUSTED_IDENTITY_NAME_HEADER || "cf-access-authenticated-user-name",
     trustedIdentityIssuer: env.TRUSTED_IDENTITY_ISSUER || (env.CF_ACCESS_TEAM_DOMAIN ? `https://${env.CF_ACCESS_TEAM_DOMAIN}.cloudflareaccess.com` : null),
     trustedIdentityAudience: env.TRUSTED_IDENTITY_AUDIENCE || env.CF_ACCESS_AUD || null,
-    trustedIdentityJwtAlgorithm: env.TRUSTED_IDENTITY_JWT_ALGORITHM || "HS256",
+    trustedIdentityJwtAlgorithm: env.TRUSTED_IDENTITY_JWT_ALGORITHM || "RS256",
     trustedIdentityJwtKey: env.TRUSTED_IDENTITY_JWT_KEY || env.CF_ACCESS_JWT_PUBLIC_KEY || env.CF_ACCESS_JWT_SECRET || null,
     sessionSecret,
     sessionAbsoluteTtlMs: requirePositiveNumber(env.SESSION_ABSOLUTE_TTL_MS, DEFAULT_SESSION_ABSOLUTE_TTL_MS, "invalid_session_absolute_ttl"),
@@ -64,6 +64,9 @@ export function loadPlatformConfig(env = {}) {
   }
 
   if (isProduction) {
+    if (config.trustedIdentityJwtAlgorithm !== "RS256") {
+      throw new Error("production_identity_algorithm_must_be_rs256");
+    }
     requireString(config.trustedIdentityAudience, "missing_identity_audience");
     requireString(config.trustedIdentityIssuer, "missing_identity_issuer");
     requireString(config.trustedIdentityJwtKey, "missing_identity_jwt_key");
