@@ -29,7 +29,9 @@ function currentRoles(userId, legacyAssignments, roleEvents) {
   for (const assignment of legacyAssignments) {
     if (assignment.user_id === userId) states.set(assignment.role_name, "grant");
   }
-  for (const event of roleEvents) {
+  for (const event of [...roleEvents].sort((left, right) =>
+    Number(left.event_sequence || 0) - Number(right.event_sequence || 0)
+  )) {
     if (event.user_id === userId) states.set(event.role_name, event.action);
   }
   return [...states.entries()].filter(([, action]) => action === "grant").map(([role]) => role);
