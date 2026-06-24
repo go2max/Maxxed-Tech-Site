@@ -27,6 +27,11 @@ Upload the contents of `site/` to any static host. `index.html` must remain at
 the root of the uploaded files. The same build also creates a validated Sites
 Worker artifact under `dist/`.
 
+Current delivery status and remaining work are tracked in
+`docs/PROJECT_CHECKLIST.md`. The public site source is validated and present on
+GitHub, but production hosting, domain configuration, email activation, and the
+private operations platform remain separate unfinished work.
+
 Before production launch, purchase the domain and activate these company-wide
 mailboxes or aliases:
 
