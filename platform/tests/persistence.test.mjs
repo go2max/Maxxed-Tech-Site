@@ -41,6 +41,9 @@ test("fresh migration and repeat migration succeed for memory and D1 adapters", 
   const knowledgeSql = await loadMigrationSql("0007_knowledge_base_revisions.sql");
   assert.match(knowledgeSql, /CREATE TABLE IF NOT EXISTS knowledge_base_revisions/);
   assert.match(knowledgeSql, /knowledge_base_revisions_number/);
+  const monitoringSql = await loadMigrationSql("0008_readiness_security_monitoring.sql");
+  assert.match(monitoringSql, /CREATE TABLE IF NOT EXISTS readiness_evidence/);
+  assert.match(monitoringSql, /CREATE TABLE IF NOT EXISTS security_findings/);
 
   const memory = new MemoryPlatformDatabase();
   await applyAllMigrations(memory);
@@ -67,6 +70,10 @@ test("fresh migration and repeat migration succeed for memory and D1 adapters", 
   assert.equal(d1Binding.indexes.has("knowledge_base_revisions_number"), true);
   assert.equal(d1Binding.indexes.has("knowledge_base_revisions_state"), true);
   assert.equal(d1Binding.indexes.has("knowledge_base_revisions_entry"), true);
+  assert.equal(d1Binding.indexes.has("readiness_evidence_product"), true);
+  assert.equal(d1Binding.indexes.has("readiness_evidence_expiry"), true);
+  assert.equal(d1Binding.indexes.has("security_findings_status"), true);
+  assert.equal(d1Binding.indexes.has("security_findings_source"), true);
   for (const migration of MIGRATIONS) {
     assert.equal(await d1.hasMigration(migration.id), true);
   }

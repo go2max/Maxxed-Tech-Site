@@ -44,7 +44,7 @@ export function renderShell({ title, identity, content, csrfToken }) {
       <h1>${escapeHtml(title)}</h1>
       <p>Signed in as <strong>${escapeHtml(identity.displayName)}</strong> with trusted identity <code>${escapeHtml(identity.email)}</code>.</p>
       <ul>${roles}</ul>
-      <nav aria-label="Admin sections"><a href="/portfolio">Portfolio</a><a href="/testing-functions">Testing Functions</a><a href="/automation">Automation jobs</a><a href="/knowledge-base">Knowledge Base</a></nav>
+      <nav aria-label="Admin sections"><a href="/portfolio">Portfolio</a><a href="/testing-functions">Testing Functions</a><a href="/automation">Automation jobs</a><a href="/readiness">Readiness</a><a href="/security/monitoring">Security</a><a href="/knowledge-base">Knowledge Base</a></nav>
       <p>CSRF token issued for protected actions: <code data-csrf-token>${escapeHtml(csrfToken)}</code></p>
     </div>
   </header>

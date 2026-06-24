@@ -139,6 +139,90 @@ export function renderBackupPage({ backups = [] }) {
   </section>`;
 }
 
+export function renderReadinessPage({ products = [], evidence = [], snapshots = [], canWrite = false }) {
+  const productById = new Map(products.map((product) => [product.id, product]));
+  const productOptions = products.map((product) => `<option value="${escapeHtml(product.id)}">${escapeHtml(product.name)}</option>`).join("");
+  const latestSnapshots = new Map();
+  [...snapshots].sort((left, right) => String(left.created_at).localeCompare(String(right.created_at)))
+    .forEach((snapshot) => latestSnapshots.set(snapshot.product_id, snapshot));
+  const scores = [...latestSnapshots.values()].map((snapshot) => {
+    const gates = parseStoredJson(snapshot.mandatory_gates_json, {});
+    const categories = parseStoredJson(snapshot.evidence_json, {}).categories || {};
+    return `<li>
+      <strong>${escapeHtml(productById.get(snapshot.product_id)?.name || snapshot.product_id)}</strong>
+      <span> | Score ${escapeHtml(snapshot.score)} | ${escapeHtml(gates.releaseState || "unknown")} | Stage ${escapeHtml(gates.stage || "unknown")}</span><br>
+      <span>Threshold: ${escapeHtml(gates.threshold ?? "unknown")} | Met: ${escapeHtml(gates.thresholdMet ?? false)} | Failed gates: ${escapeHtml((gates.failedGates || []).join(", ") || "none")}</span><br>
+      <span>Categories: ${escapeHtml(Object.entries(categories).map(([key, value]) => `${key}=${value}`).join(" | "))}</span>
+    </li>`;
+  }).join("");
+  const evidenceRows = [...evidence].sort((left, right) => String(right.created_at).localeCompare(String(left.created_at))).slice(0, 100).map((item) => `<li>
+    <strong>${escapeHtml(productById.get(item.product_id)?.name || item.product_id)}</strong>
+    <span> | ${escapeHtml(item.category)}=${escapeHtml(item.result_state)} | ${escapeHtml(item.source)}</span><br>
+    <span>Gate: ${escapeHtml(item.gate_key || "none")} | Expires: ${escapeHtml(item.expires_at || "never")} | Ref: ${escapeHtml(item.reference)}</span>
+  </li>`).join("");
+  const controls = canWrite ? card("Record evidence", `<form id="readiness-evidence-form">
+      <label>Product <select name="productId" required>${productOptions}</select></label>
+      <label>Category <select name="category"><option>buildIntegrity</option><option>automatedTests</option><option>manualQa</option><option>securityPrivacy</option><option>storeCompliance</option><option>docsSupport</option><option>releasePrep</option><option>healthBlockers</option></select></label>
+      <label>Result <select name="resultState"><option>pass</option><option>partial</option><option>fail</option><option>blocked</option><option>not_run</option><option>not_applicable</option></select></label>
+      <label>Source <input name="source" required maxlength="100"></label>
+      <label>Evidence reference <input name="reference" required maxlength="500"></label>
+      <label><input type="checkbox" name="mandatoryGate"> Mandatory gate</label>
+      <label>Gate key <input name="gateKey" maxlength="100"></label>
+      <label>Expires at <input type="datetime-local" name="expiresAt"></label>
+      <button type="submit">Record evidence</button>
+    </form>
+    <form id="readiness-calculate-form">
+      <label>Product <select name="productId" required>${productOptions}</select></label>
+      <label>Target stage <select name="stage"><option>development</option><option>internal_qa</option><option>internal_beta</option><option>closed_beta</option><option>open_beta</option><option>production</option></select></label>
+      <button type="submit">Calculate readiness</button>
+    </form><p id="readiness-status" aria-live="polite"></p><script src="/readiness.js" defer></script>`) : "";
+  return `<section class="grid">
+    ${controls}
+    ${card("Current readiness", scores ? `<ul>${scores}</ul>` : '<p class="empty-state">No calculated snapshots exist.</p>')}
+    ${card("Evidence ledger", evidenceRows ? `<ul>${evidenceRows}</ul>` : '<p class="empty-state">No readiness evidence exists.</p>')}
+    ${card("Release rule", "<p>The percentage is advisory. Any failed mandatory gate blocks promotion even when the score exceeds the target threshold.</p>")}
+  </section>`;
+}
+
+export function renderSecurityMonitoringPage({ posture, findings = [], integrations = [], backups = [], accessEvents = [], canWrite = false }) {
+  const findingRows = findings.length ? `<ul>${[...findings].sort((left, right) => String(right.updated_at).localeCompare(String(left.updated_at))).map((finding) => `<li>
+      <strong>${escapeHtml(finding.severity)} | ${escapeHtml(finding.status)}</strong> ${escapeHtml(finding.title)}<br>
+      <span>${escapeHtml(finding.source)} / ${escapeHtml(finding.category)} | <code>${escapeHtml(finding.fingerprint)}</code></span>
+      ${canWrite && !["resolved", "ignored"].includes(finding.status) ? `<p><button type="button" data-finding-resolve data-finding-id="${escapeHtml(finding.id)}">Resolve finding</button></p>` : ""}
+    </li>`).join("")}</ul>` : '<p class="empty-state">No security findings are recorded.</p>';
+  const integrationRows = integrations.length ? `<ul>${[...integrations].sort((left, right) => String(right.updated_at).localeCompare(String(left.updated_at))).slice(0, 100).map((item) => `<li>
+      <strong>${escapeHtml(item.monitor_name)}</strong> | ${escapeHtml(item.freshness_state)} | ${escapeHtml(item.product_id)}<br>
+      <span>Updated ${escapeHtml(item.updated_at)}</span>
+    </li>`).join("")}</ul>` : '<p class="empty-state">No monitor results are recorded.</p>';
+  const controls = canWrite ? card("Monitoring ingestion", `<form id="monitoring-check-form">
+      <label>Monitor <select name="monitorName"><option>website_uptime</option><option>certificate_expiry</option><option>privacy_url</option><option>play_listing</option><option>dependency_scan</option><option>secret_scan</option><option>backup_restore</option><option>audit_integrity</option></select></label>
+      <label>State <select name="freshnessState"><option>current</option><option>healthy</option><option>pass</option><option>stale</option><option>failing</option><option>unavailable</option></select></label>
+      <label>Product ID <input name="productId" maxlength="100" value="portfolio"></label>
+      <label>Summary <input name="summary" maxlength="500"></label>
+      <button type="submit">Record monitor result</button>
+    </form>
+    <form id="security-finding-form">
+      <label>Fingerprint <input name="fingerprint" required maxlength="200"></label>
+      <label>Source <select name="source"><option>dependency_scan</option><option>secret_scan</option><option>certificate_monitor</option><option>uptime_monitor</option><option>play_reporting</option><option>manual</option></select></label>
+      <label>Category <select name="category"><option>dependency</option><option>secret</option><option>certificate</option><option>availability</option><option>privacy</option><option>artifact</option><option>access</option><option>other</option></select></label>
+      <label>Severity <select name="severity"><option>critical</option><option>high</option><option>medium</option><option>low</option><option>info</option></select></label>
+      <label>Title <input name="title" required maxlength="200"></label>
+      <button type="submit">Record finding</button>
+    </form><p id="security-monitoring-status" aria-live="polite"></p><script src="/security/monitoring.js" defer></script>`) : "";
+  const backup = posture.latestBackup;
+  return `<section class="grid">
+    ${card("Security posture", `<p><strong>${escapeHtml(posture.state)}</strong></p>
+      <p>Audit chain: ${escapeHtml(posture.auditValid)} | Open findings: ${escapeHtml(posture.openFindingCount)} | Critical: ${escapeHtml(posture.criticalFindingCount)} | High: ${escapeHtml(posture.highFindingCount)}</p>
+      <p>Unhealthy monitors: ${escapeHtml(posture.unhealthyIntegrationCount)} | Backup healthy: ${escapeHtml(posture.backupHealthy)}</p>
+      <p>Latest backup: ${backup ? `${escapeHtml(backup.storage_state)} at ${escapeHtml(backup.created_at)}` : "none"}</p>`)}
+    ${controls}
+    ${card("Security findings", findingRows)}
+    ${card("Monitor history", integrationRows)}
+    ${card("Recent access changes", accessEvents.length ? `<ul>${accessEvents.slice(-20).reverse().map((event) => `<li>${escapeHtml(event.action)} ${escapeHtml(event.role_name)} for ${escapeHtml(event.user_id)} by ${escapeHtml(event.assigned_by)}</li>`).join("")}</ul>` : '<p class="empty-state">No persistent role changes are recorded.</p>')}
+    ${card("Data boundary", "<p>Monitor and scanner systems push bounded results into this authenticated control plane. The platform does not fetch operator-provided URLs.</p>")}
+  </section>`;
+}
+
 export function renderAuditPage(events) {
   return renderRecordPage("Audit log", "Security events", events, (event) => `${escapeHtml(event.action_name)} on ${escapeHtml(event.target_type)} by ${escapeHtml(event.actor_email)}`);
 }

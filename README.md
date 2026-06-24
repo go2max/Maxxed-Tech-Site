@@ -79,3 +79,6 @@ and disaster recovery are documented in `docs/ENCRYPTED_BACKUP_OPERATIONS.md`.
 
 Versioned knowledge-base drafts, review approval, publication, archiving, and
 audit procedures are documented in `docs/KNOWLEDGE_BASE_OPERATIONS.md`.
+
+Evidence-based readiness scoring, mandatory release gates, security findings,
+and monitoring freshness are documented in `docs/READINESS_SECURITY_MONITORING.md`.
