@@ -460,7 +460,8 @@ test("runner API authenticates, claims one owned job, and records completion", a
     headers: runnerHeaders,
     body: JSON.stringify({ runnerId: "local-windows-runner", deviceId: "android-device-1" }),
   }));
-  assert.equal(duplicateClaim.status, 404);
+  assert.equal(duplicateClaim.status, 409);
+  assert.equal((await duplicateClaim.json()).error, "runner_capacity_conflict:device_busy");
 
   const wrongRunner = await app.fetch(new Request(`https://admin.techmaxxed.com/runner/jobs/${claimedJob.id}/complete`, {
     method: "POST",
