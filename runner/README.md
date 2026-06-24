@@ -71,3 +71,7 @@ the private platform store. Paths outside that directory are ignored; oversized
 files stop completion. Keep `evidenceMaxBytes` aligned with the hosted
 `EVIDENCE_MAX_BYTES` value. Storage and retention operations are documented in
 `docs/PRIVATE_TEST_EVIDENCE.md`.
+
+Automatic pool jobs are assigned by advertised product capability. The server
+allows one active lease per runner-device pair even if duplicate agent processes
+start. See `docs/AUTOMATIC_DEVICE_POOLS.md`.

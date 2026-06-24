@@ -265,3 +265,42 @@ test("D1 batch emulation rolls back every statement after an audit-head conflict
   assert.equal(products.results.length, 0);
   assert.equal(events.results.length, 0);
 });
+
+
+test("concurrent D1 pool claims enforce one active lease per device", async () => {
+  const binding = new MemoryD1Binding();
+  const databases = [new D1PlatformDatabase(binding), new D1PlatformDatabase(binding)];
+  await applyAllMigrations(databases[0]);
+  const services = databases.map((database) => createPlatformServices(database));
+  const qaLead = actor("qa-lead@techmaxxed.com", [ROLES.QA_LEAD]);
+  const runner = actor("pool-runner@runner.internal", [ROLES.QA_TESTER]);
+
+  for (let index = 0; index < 2; index += 1) {
+    await services[0].createAutomationJob({ actor: qaLead, requestId: `queue-${index}` }, {
+      productId: "maxxed-remote",
+      orderedSteps: ["artifact-verify"],
+      runnerId: "auto",
+      deviceId: "auto",
+      leaseState: "queued",
+      result: {},
+      evidence: [],
+    });
+  }
+
+  const outcomes = await Promise.allSettled(services.map((service, index) =>
+    service.claimAutomationJob({ actor: runner, requestId: `claim-${index}` }, {
+      runnerId: "pool-runner",
+      deviceId: "pool-device",
+      productIds: ["maxxed-remote"],
+    })
+  ));
+  assert.equal(outcomes.filter((outcome) => outcome.status === "fulfilled").length, 1);
+  const rejection = outcomes.find((outcome) => outcome.status === "rejected");
+  assert.match(rejection.reason.message, /runner_capacity_conflict:device_busy/);
+
+  const jobs = await listTable(databases[0], "automation_jobs");
+  assert.equal(jobs.filter((job) => job.lease_state === "running").length, 1);
+  assert.equal(jobs.filter((job) => job.lease_state === "queued").length, 1);
+  const audit = await listTable(databases[0], "audit_events");
+  assert.equal(audit.filter((event) => event.action_name === "automation_job.claim").length, 1);
+});

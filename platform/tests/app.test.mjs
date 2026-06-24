@@ -460,7 +460,8 @@ test("runner API authenticates, claims one owned job, and records completion", a
     headers: runnerHeaders,
     body: JSON.stringify({ runnerId: "local-windows-runner", deviceId: "android-device-1" }),
   }));
-  assert.equal(duplicateClaim.status, 404);
+  assert.equal(duplicateClaim.status, 409);
+  assert.equal((await duplicateClaim.json()).error, "runner_capacity_conflict:device_busy");
 
   const wrongRunner = await app.fetch(new Request(`https://admin.techmaxxed.com/runner/jobs/${claimedJob.id}/complete`, {
     method: "POST",
@@ -1169,4 +1170,125 @@ test("regression schedules dispatch once, remain controllable, and expose compar
   assert.equal(audit.some((event) => event.action_name === "test_schedule.dispatch"), true);
   assert.equal(audit.filter((event) => event.action_name === "automation_job.create").length >= 2, true);
   assert.equal(audit.some((event) => event.action_name === "test_schedule.update"), true);
+});
+
+
+test("automatic device pools assign compatible idle runners and preserve exact targets", async () => {
+  const state = await createSeededPlatformState();
+  const app = createPlatformApp({ env: identityEnv, state });
+  const email = "qa-lead@techmaxxed.com";
+  const boot = await bootstrap(email, "/testing-functions", app, state);
+  const browserHeaders = {
+    ...authHeaders(email),
+    cookie: boot.cookie,
+    origin: "https://admin.techmaxxed.com",
+    "content-type": "application/json",
+    "x-csrf-token": boot.csrfToken,
+  };
+  const queue = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/jobs/batch", {
+    method: "POST",
+    headers: browserHeaders,
+    body: JSON.stringify({
+      productIds: ["maxxed-remote", "maxxed-compass", "rival-rush"],
+      runnerId: "auto",
+      deviceId: "auto",
+    }),
+  }));
+  assert.equal(queue.status, 200);
+  const queued = (await queue.json()).records;
+  assert.equal(queued.every((job) => job.runner_id === "auto" && job.device_id === "auto"), true);
+  assert.equal(queued.every((job) => JSON.parse(job.result_json).targetMode === "pool"), true);
+
+  const claim = (runnerId, deviceId, productIds) => app.fetch(new Request(
+    "https://admin.techmaxxed.com/runner/jobs/claim",
+    {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${identityEnv.RUNNER_API_TOKEN}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ runnerId, deviceId, productIds, agentVersion: "2.2.0" }),
+    },
+  ));
+  const runnerAClaim = await claim("pool-runner-a", "pool-device-a", ["maxxed-remote", "maxxed-compass"]);
+  assert.equal(runnerAClaim.status, 200);
+  const runnerAJob = (await runnerAClaim.json()).record;
+  assert.equal(runnerAJob.product_id, "maxxed-remote");
+  assert.equal(runnerAJob.runner_id, "pool-runner-a");
+  assert.equal(runnerAJob.device_id, "pool-device-a");
+  assert.equal(JSON.parse(runnerAJob.result_json).targetMode, "pool");
+
+  const busyClaim = await claim("pool-runner-a", "pool-device-a", ["maxxed-remote", "maxxed-compass"]);
+  assert.equal(busyClaim.status, 409);
+  assert.equal((await busyClaim.json()).error, "runner_capacity_conflict:device_busy");
+
+  const runnerBClaim = await claim("pool-runner-b", "pool-device-b", ["rival-rush"]);
+  assert.equal(runnerBClaim.status, 200);
+  assert.equal((await runnerBClaim.json()).record.product_id, "rival-rush");
+
+  const completeA = await app.fetch(new Request(
+    `https://admin.techmaxxed.com/runner/jobs/${runnerAJob.id}/complete`,
+    {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${identityEnv.RUNNER_API_TOKEN}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        runnerId: "pool-runner-a",
+        deviceId: "pool-device-a",
+        productIds: ["maxxed-remote", "maxxed-compass"],
+        status: "completed",
+        result: { finalStatus: "pass", steps: [] },
+        evidence: [],
+      }),
+    },
+  ));
+  assert.equal(completeA.status, 200);
+  assert.equal(JSON.parse((await completeA.json()).record.result_json).targetMode, "pool");
+
+  const runnerASecond = await claim("pool-runner-a", "pool-device-a", ["maxxed-remote", "maxxed-compass"]);
+  assert.equal(runnerASecond.status, 200);
+  assert.equal((await runnerASecond.json()).record.product_id, "maxxed-compass");
+
+  const exactQueue = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/jobs/batch", {
+    method: "POST",
+    headers: browserHeaders,
+    body: JSON.stringify({
+      productIds: ["fishing-maxxed"],
+      runnerId: "exact-runner",
+      deviceId: "exact-device",
+    }),
+  }));
+  assert.equal(exactQueue.status, 200);
+  const wrongExactClaim = await claim("other-runner", "other-device", ["fishing-maxxed"]);
+  assert.equal(wrongExactClaim.status, 404);
+  const exactClaim = await claim("exact-runner", "exact-device", ["fishing-maxxed"]);
+  assert.equal(exactClaim.status, 200);
+  assert.equal((await exactClaim.json()).record.runner_id, "exact-runner");
+
+  const mixedTarget = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/jobs/batch", {
+    method: "POST",
+    headers: browserHeaders,
+    body: JSON.stringify({
+      productIds: ["maxxed-remote"],
+      runnerId: "auto",
+      deviceId: "specific-device",
+    }),
+  }));
+  assert.equal(mixedTarget.status, 400);
+
+  const completedPoolJob = (await state.database.transaction((tx) => tx.list("automation_jobs")))
+    .find((job) => job.id === runnerAJob.id);
+  const retry = await app.fetch(new Request(
+    `https://admin.techmaxxed.com/testing-functions/jobs/${completedPoolJob.id}/retry`,
+    { method: "POST", headers: browserHeaders, body: "{}" },
+  ));
+  assert.equal(retry.status, 200);
+  const retryRecord = (await retry.json()).record;
+  assert.equal(retryRecord.runner_id, "auto");
+  assert.equal(retryRecord.device_id, "auto");
+
+  const audit = await state.database.transaction((tx) => tx.list("audit_events"));
+  assert.equal(audit.filter((event) => event.action_name === "automation_job.claim").length, 4);
 });

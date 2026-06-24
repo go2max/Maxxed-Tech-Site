@@ -447,8 +447,8 @@ window.setInterval(() => {
 }
 
 async function createTestingJobs({ requestId, identity, state }, payload) {
-  const runnerId = String(payload.runnerId || "");
-  const deviceId = String(payload.deviceId || "");
+  const runnerId = String(payload.runnerId || "auto");
+  const deviceId = String(payload.deviceId || "auto");
   const safeId = /^[A-Za-z0-9._:-]{1,80}$/;
   if (!safeId.test(runnerId)) throw new Error("invalid_runner_id");
   if (!safeId.test(deviceId)) throw new Error("invalid_device_id");
@@ -938,8 +938,9 @@ export function createPlatformApp(options = {}) {
           logger.log({ requestId, route: url.pathname, actor: runnerId, outcome: "runner_request_failed", error: error.message });
           const status = error.message.startsWith("forbidden:") ? 403
             : error.message.startsWith("missing_row:") ? 404
-              : error.message.startsWith("invalid_") ? 400
-                : 500;
+              : error.message.startsWith("runner_capacity_conflict:") ? 409
+                : error.message.startsWith("invalid_") ? 400
+                  : 500;
           return appendSecurityHeaders(denied(requestId, status, error.message), requestId, url.protocol === "https:");
         }
       }
