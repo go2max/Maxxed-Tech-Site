@@ -26,5 +26,7 @@ The following values are required by the private platform or runner and should b
 - `RUNNER_FLEET_OFFLINE_MS`: runner fleet offline threshold; default 600000
 - `MAXXED_RUNNER_API_TOKEN`: local runner copy of `RUNNER_API_TOKEN`; never pass it on the command line
 - `ANDROID_AAPT_PATH`: local Android SDK `aapt` path when using production APK inspection mode
+- `MONITOR_STALE_HOURS`: maximum age for a healthy monitor result; default 24, maximum 720
+- `BACKUP_HEALTH_STALE_HOURS`: maximum age for a verified backup in the security posture; default 48, maximum 720
 
 Example values in this repository are non-secret placeholders only.
