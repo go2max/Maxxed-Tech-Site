@@ -85,6 +85,8 @@ export function loadPlatformConfig(env = {}) {
     backupIntervalHours: requirePositiveNumber(env.BACKUP_INTERVAL_HOURS, 24, "invalid_backup_interval_hours"),
     backupRetentionDays: requirePositiveNumber(env.BACKUP_RETENTION_DAYS, 30, "invalid_backup_retention_days"),
     backupMaxBytes: requirePositiveNumber(env.BACKUP_MAX_BYTES, 100 * 1024 * 1024, "invalid_backup_max_bytes"),
+    monitorStaleHours: requirePositiveNumber(env.MONITOR_STALE_HOURS, 24, "invalid_monitor_stale_hours"),
+    backupHealthStaleHours: requirePositiveNumber(env.BACKUP_HEALTH_STALE_HOURS, 48, "invalid_backup_health_stale_hours"),
     sessionAbsoluteTtlMs: requirePositiveNumber(env.SESSION_ABSOLUTE_TTL_MS, DEFAULT_SESSION_ABSOLUTE_TTL_MS, "invalid_session_absolute_ttl"),
     sessionIdleTtlMs: requirePositiveNumber(env.SESSION_IDLE_TTL_MS, DEFAULT_SESSION_IDLE_TTL_MS, "invalid_session_idle_ttl"),
     maxRequestBytes: requirePositiveNumber(env.MAX_REQUEST_BYTES, DEFAULT_MAX_REQUEST_BYTES, "invalid_max_request_bytes"),
@@ -107,7 +109,8 @@ export function loadPlatformConfig(env = {}) {
     throw new Error("invalid_evidence_limits");
   }
   if (config.backupIntervalHours > 168 || config.backupRetentionDays > 3650 ||
-      config.backupMaxBytes > 500 * 1024 * 1024) {
+      config.backupMaxBytes > 500 * 1024 * 1024 || config.monitorStaleHours > 720 ||
+      config.backupHealthStaleHours > 720) {
     throw new Error("invalid_backup_limits");
   }
 
