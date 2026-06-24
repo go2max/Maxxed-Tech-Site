@@ -20,6 +20,12 @@ function requireArray(value, code) {
   return value;
 }
 
+function optionalString(value, maximumLength, code) {
+  if (value == null || value === "") return "";
+  if (typeof value !== "string" || value.trim().length > maximumLength) throw new Error(code);
+  return value.trim();
+}
+
 function nowIso(now) {
   return new Date(now).toISOString();
 }
@@ -303,6 +309,70 @@ export function createPlatformServices(database) {
             evidence_json: JSON.stringify(payload.evidence ?? []),
           }), now),
         }),
+      });
+    },
+    cancelAutomationJob(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.QA_ASSIGN,
+        action: "automation_job.cancel",
+        targetType: "automation_job",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const jobId = requireString(payload.jobId, "invalid_job_id");
+          const productId = requireString(payload.productId, "invalid_product_id");
+          const before = await repositories.automationJobs.get(tx, jobId);
+          if (!before || before.product_id !== productId) throw new Error("missing_row:automation_job");
+          if (before.lease_state !== "queued") throw new Error("job_state_conflict:cancel_requires_queued");
+          const reason = optionalString(payload.reason, 240, "invalid_cancel_reason");
+          return {
+            before,
+            after: await repositories.automationJobs.update(tx, before.id, {
+              lease_state: "cancelled",
+              result_json: JSON.stringify({
+                finalStatus: "cancelled",
+                ...(reason ? { reason } : {}),
+              }),
+              evidence_json: "[]",
+            }, now),
+          };
+        },
+      });
+    },
+    retryAutomationJob(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.QA_ASSIGN,
+        action: "automation_job.retry",
+        targetType: "automation_job",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const jobId = requireString(payload.jobId, "invalid_job_id");
+          const productId = requireString(payload.productId, "invalid_product_id");
+          const before = await repositories.automationJobs.get(tx, jobId);
+          if (!before || before.product_id !== productId) throw new Error("missing_row:automation_job");
+          if (!["completed", "failed", "blocked", "interrupted", "cancelled"].includes(before.lease_state)) {
+            throw new Error("job_state_conflict:retry_requires_terminal");
+          }
+          let orderedSteps;
+          try {
+            orderedSteps = requireArray(JSON.parse(before.ordered_steps_json), "invalid_ordered_steps");
+          } catch {
+            throw new Error("invalid_ordered_steps");
+          }
+          return {
+            before,
+            after: await repositories.automationJobs.insert(tx, makeRecord("job", {
+              product_id: before.product_id,
+              ordered_steps_json: JSON.stringify(orderedSteps),
+              device_id: before.device_id,
+              runner_id: before.runner_id,
+              lease_state: "queued",
+              result_json: JSON.stringify({ retryOfJobId: before.id }),
+              evidence_json: "[]",
+            }), now),
+          };
+        },
       });
     },
     claimAutomationJob(context, payload) {
