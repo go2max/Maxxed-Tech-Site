@@ -58,3 +58,6 @@ admin-to-runner test are in `docs/MAXXED_REMOTE_OPERATIONS.md`.
 The six-app batch testing console, package inventory, runner capability model,
 and lease protocol are documented in
 `docs/PORTFOLIO_TESTING_CONTROL_PLANE.md`.
+
+Runner fleet identity, health monitoring, credential rotation, and result
+exports are documented in `docs/RUNNER_FLEET_OPERATIONS.md`.
