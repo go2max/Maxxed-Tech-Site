@@ -36,6 +36,15 @@ function parseObjectJson(value) {
   }
 }
 
+function executionTarget(payload) {
+  const runnerId = requireString(payload.runnerId, "invalid_runner_id");
+  const deviceId = requireString(payload.deviceId, "invalid_device_id");
+  const safeId = /^[A-Za-z0-9._:-]{1,80}$/;
+  if (!safeId.test(runnerId) || !safeId.test(deviceId)) throw new Error("invalid_execution_target");
+  if ((runnerId === "auto") !== (deviceId === "auto")) throw new Error("invalid_execution_target");
+  return { runnerId, deviceId, targetMode: runnerId === "auto" ? "pool" : "exact" };
+}
+
 function nowIso(now) {
   return new Date(now).toISOString();
 }
@@ -308,17 +317,20 @@ export function createPlatformServices(database) {
         action: "automation_job.create",
         targetType: "automation_job",
         requestId: context.requestId,
-        mutation: async (tx, now) => ({
-          after: await repositories.automationJobs.insert(tx, makeRecord("job", {
-            product_id: requireString(payload.productId, "invalid_product_id"),
-            ordered_steps_json: JSON.stringify(requireArray(payload.orderedSteps ?? [], "invalid_ordered_steps")),
-            device_id: requireString(payload.deviceId, "invalid_device_id"),
-            runner_id: requireString(payload.runnerId, "invalid_runner_id"),
-            lease_state: requireString(payload.leaseState, "invalid_lease_state"),
-            result_json: JSON.stringify(payload.result ?? {}),
-            evidence_json: JSON.stringify(payload.evidence ?? []),
-          }), now),
-        }),
+        mutation: async (tx, now) => {
+          const target = executionTarget(payload);
+          return {
+            after: await repositories.automationJobs.insert(tx, makeRecord("job", {
+              product_id: requireString(payload.productId, "invalid_product_id"),
+              ordered_steps_json: JSON.stringify(requireArray(payload.orderedSteps ?? [], "invalid_ordered_steps")),
+              device_id: target.deviceId,
+              runner_id: target.runnerId,
+              lease_state: requireString(payload.leaseState, "invalid_lease_state"),
+              result_json: JSON.stringify({ ...(payload.result ?? {}), targetMode: target.targetMode }),
+              evidence_json: JSON.stringify(payload.evidence ?? []),
+            }), now),
+          };
+        },
       });
     },
     cancelAutomationJob(context, payload) {
@@ -376,15 +388,17 @@ export function createPlatformServices(database) {
           } catch {
             throw new Error("invalid_ordered_steps");
           }
+          const previousResult = parseObjectJson(before.result_json);
+          const pooled = previousResult.targetMode === "pool";
           return {
             before,
             after: await repositories.automationJobs.insert(tx, makeRecord("job", {
               product_id: before.product_id,
               ordered_steps_json: JSON.stringify(orderedSteps),
-              device_id: before.device_id,
-              runner_id: before.runner_id,
+              device_id: pooled ? "auto" : before.device_id,
+              runner_id: pooled ? "auto" : before.runner_id,
               lease_state: "queued",
-              result_json: JSON.stringify({ retryOfJobId: before.id }),
+              result_json: JSON.stringify({ retryOfJobId: before.id, targetMode: pooled ? "pool" : "exact" }),
               evidence_json: "[]",
             }), now),
           };
@@ -508,18 +522,40 @@ export function createPlatformServices(database) {
             throw new Error("invalid_runner_products");
           }
           const supportedProducts = new Set(productIds);
+          if (supportedProducts.size !== productIds.length ||
+              [...supportedProducts].some((productId) => !getTestingProduct(productId))) {
+            throw new Error("invalid_runner_products");
+          }
           const jobs = await repositories.automationJobs.list(tx);
-          const before = jobs.find((job) =>
-            job.lease_state === "queued" &&
+          const active = jobs.find((job) =>
             job.runner_id === runnerId &&
             job.device_id === deviceId &&
-            supportedProducts.has(job.product_id)
+            ["running", "cancelling"].includes(job.lease_state)
           );
+          if (active) throw new Error("runner_capacity_conflict:device_busy");
+          const compatible = (job) => job.lease_state === "queued" && supportedProducts.has(job.product_id);
+          const exact = jobs.find((job) =>
+            compatible(job) && job.runner_id === runnerId && job.device_id === deviceId
+          );
+          const pooled = jobs.find((job) =>
+            compatible(job) && job.runner_id === "auto" && job.device_id === "auto"
+          );
+          const before = exact || pooled;
           if (!before) throw new Error("missing_row:automation_job");
+          const currentResult = parseObjectJson(before.result_json);
           return {
             before,
             after: await repositories.automationJobs.update(tx, before.id, {
+              runner_id: runnerId,
+              device_id: deviceId,
               lease_state: "running",
+              result_json: JSON.stringify({
+                ...currentResult,
+                targetMode: before.runner_id === "auto" ? "pool" : (currentResult.targetMode || "exact"),
+                assignedRunnerId: runnerId,
+                assignedDeviceId: deviceId,
+                assignedAt: now,
+              }),
             }, now),
           };
         },
@@ -656,10 +692,13 @@ export function createPlatformServices(database) {
               uniqueProductIds.some((productId) => !getTestingProduct(productId))) {
             throw new Error("invalid_schedule_products");
           }
-          const safeId = /^[A-Za-z0-9._:-]{1,80}$/;
-          const runnerId = requireString(payload.runnerId, "invalid_runner_id");
-          const deviceId = requireString(payload.deviceId, "invalid_device_id");
-          if (!safeId.test(runnerId) || !safeId.test(deviceId)) throw new Error("invalid_schedule_target");
+          let target;
+          try {
+            target = executionTarget(payload);
+          } catch {
+            throw new Error("invalid_schedule_target");
+          }
+          const { runnerId, deviceId } = target;
           const cadenceMinutes = Number(payload.cadenceMinutes);
           if (!Number.isSafeInteger(cadenceMinutes) || cadenceMinutes < 15 || cadenceMinutes > 10080) {
             throw new Error("invalid_schedule_cadence");
@@ -748,6 +787,7 @@ export function createPlatformServices(database) {
               lease_state: "queued",
               result_json: JSON.stringify({
                 packageId: product.packageId,
+                targetMode: before.runner_id === "auto" ? "pool" : "exact",
                 scheduleId: before.id,
                 scheduledAt: dispatchAt,
               }),
