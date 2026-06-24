@@ -68,6 +68,28 @@ export function renderUserAdminPage({ users = [], roleAssignments = [], roleEven
   </section>`;
 }
 
+export function renderBackupPage({ backups = [] }) {
+  const rows = backups.length
+    ? `<ul>${[...backups].sort((left, right) => right.created_at.localeCompare(left.created_at)).map((backup) => {
+        const counts = parseStoredJson(backup.table_counts_json, {});
+        const details = parseStoredJson(backup.verification_details_json, {});
+        return `<li>
+          <strong>${escapeHtml(backup.storage_state)}</strong> <code>${escapeHtml(backup.id)}</code><br>
+          <span>Created: ${escapeHtml(backup.created_at)} | Retained until: ${escapeHtml(backup.retention_until)}</span><br>
+          <span>Encrypted bytes: ${escapeHtml(backup.byte_size)} | Plaintext SHA-256: <code>${escapeHtml(backup.plaintext_sha256)}</code></span><br>
+          <span>Tables: ${escapeHtml(Object.keys(counts).length)} | Rows: ${escapeHtml(Object.values(counts).reduce((sum, count) => sum + Number(count), 0))} | Verified: ${escapeHtml(backup.verified_at || "not yet")}</span>
+          ${details.error ? `<br><span>Verification error: ${escapeHtml(details.error)}</span>` : ""}
+          <p><button type="button" data-backup-verify data-backup-id="${escapeHtml(backup.id)}">Run restore verification</button></p>
+        </li>`;
+      }).join("")}</ul>`
+    : '<p class="empty-state">No encrypted backup snapshots exist yet.</p>';
+  return `<section class="grid">
+    ${card("Backup controls", `<p><button type="button" data-backup-create>Create encrypted backup</button> <button type="button" data-backup-purge>Purge expired backups</button></p><p id="backup-status" aria-live="polite"></p><script src="/security/backups.js" defer></script>`)}
+    ${card("Encrypted snapshots", rows)}
+    ${card("Restore boundary", "<p>Verification decrypts into memory, checks table coverage, row counts, the plaintext digest, and the audit hash chain. It never writes snapshot data into the live database.</p>")}
+  </section>`;
+}
+
 export function renderAuditPage(events) {
   return renderRecordPage("Audit log", "Security events", events, (event) => `${escapeHtml(event.action_name)} on ${escapeHtml(event.target_type)} by ${escapeHtml(event.actor_email)}`);
 }
