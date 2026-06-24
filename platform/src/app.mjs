@@ -74,6 +74,8 @@ function routeTable() {
     ["GET", /^\/testing-functions$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctions }],
     ["GET", /^\/testing-functions\.js$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctionsScript }],
     ["POST", /^\/testing-functions\/maxxed-remote\/run$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: mutateRemoteTestJob }],
+    ["POST", /^\/testing-functions\/maxxed-remote\/jobs\/[^/]+\/cancel$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: cancelRemoteTestJob }],
+    ["POST", /^\/testing-functions\/maxxed-remote\/jobs\/[^/]+\/retry$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: retryRemoteTestJob }],
     ["GET", /^\/incidents$/, { permission: PERMISSIONS.INCIDENTS_READ, handler: handleIncidents }],
     ["GET", /^\/security\/audit$/, { permission: PERMISSIONS.AUDIT_READ, handler: handleSecurityAudit }],
     ["GET", /^\/knowledge-base$/, { permission: PERMISSIONS.DOCS_READ, handler: handleKnowledgeBase }],
@@ -208,8 +210,24 @@ async function handleTestingFunctions({ identity, csrfToken, state }) {
 }
 
 async function handleTestingFunctionsScript() {
-  return new Response(`const form = document.querySelector("#remote-test-form");
-const status = document.querySelector("#remote-test-status");
+  return new Response(`const status = document.querySelector("#remote-test-status");
+const csrfToken = () => document.querySelector("[data-csrf-token]")?.textContent || "";
+
+async function post(path, body = {}) {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-csrf-token": csrfToken(),
+    },
+    body: JSON.stringify(body),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || "request_failed");
+  return result.record;
+}
+
+const form = document.querySelector("#remote-test-form");
 form?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const button = form.querySelector("button");
@@ -217,26 +235,44 @@ form?.addEventListener("submit", async (event) => {
   status.textContent = "Queueing approved Remote test...";
   const data = new FormData(form);
   try {
-    const response = await fetch("/testing-functions/maxxed-remote/run", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-csrf-token": document.querySelector("[data-csrf-token]")?.textContent || "",
-      },
-      body: JSON.stringify({
-        runnerId: data.get("runnerId"),
-        deviceId: data.get("deviceId"),
-      }),
+    const record = await post("/testing-functions/maxxed-remote/run", {
+      runnerId: data.get("runnerId"),
+      deviceId: data.get("deviceId"),
     });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error || "queue_failed");
-    status.textContent = "Queued job " + result.record.id + ".";
+    status.textContent = "Queued job " + record.id + ". Refreshing...";
+    window.setTimeout(() => location.reload(), 500);
   } catch (error) {
     status.textContent = "Could not queue test: " + error.message;
-  } finally {
     button.disabled = false;
   }
-});`, {
+});
+
+document.querySelectorAll("[data-job-action]").forEach((button) => {
+  button.addEventListener("click", async () => {
+    const action = button.dataset.jobAction;
+    const jobId = button.dataset.jobId;
+    const verb = action === "cancel" ? "Cancel" : "Retry";
+    if (!window.confirm(verb + " job " + jobId + "?")) return;
+    button.disabled = true;
+    status.textContent = verb + " request in progress...";
+    try {
+      const record = await post(
+        "/testing-functions/maxxed-remote/jobs/" + encodeURIComponent(jobId) + "/" + action
+      );
+      status.textContent = verb + " succeeded for " + record.id + ". Refreshing...";
+      window.setTimeout(() => location.reload(), 500);
+    } catch (error) {
+      status.textContent = verb + " failed: " + error.message;
+      button.disabled = false;
+    }
+  });
+});
+
+window.setInterval(() => {
+  const editing = document.activeElement?.matches?.("input, button");
+  const busy = document.querySelector("button:disabled");
+  if (document.visibilityState === "visible" && !editing && !busy) location.reload();
+}, 30000);`, {
     headers: {
       "content-type": "application/javascript; charset=utf-8",
       "cache-control": "no-store",
@@ -260,6 +296,23 @@ async function mutateRemoteTestJob({ requestId, identity, payload, state }) {
     evidence: [],
   }));
 }
+async function cancelRemoteTestJob({ requestId, request, identity, payload, state }) {
+  const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  return ok(await state.services.cancelAutomationJob({ actor: identity, requestId }, {
+    jobId,
+    productId: "maxxed-remote",
+    reason: payload.reason,
+  }));
+}
+
+async function retryRemoteTestJob({ requestId, request, identity, state }) {
+  const jobId = decodeURIComponent(new URL(request.url).pathname.split("/").at(-2));
+  return ok(await state.services.retryAutomationJob({ actor: identity, requestId }, {
+    jobId,
+    productId: "maxxed-remote",
+  }));
+}
+
 async function handleIncidents({ identity, csrfToken, state }) {
   const incidentSection = hasPermission(identity, PERMISSIONS.INCIDENTS_READ)
     ? renderRecordPage("Incidents", "Severity", await snapshot(state, "incidents"), (row) => `${row.severity} => ${row.status}`)
@@ -546,7 +599,7 @@ export function createPlatformApp(options = {}) {
         logger.log({ requestId, route: url.pathname, actor: identity.email, outcome: "mutation_failed", error: error.message });
         const status = error.message.startsWith("forbidden:") ? 403
           : error.message.startsWith("missing_row:") ? 404
-            : error.message.startsWith("release_gate_failed:") ? 409
+            : error.message.startsWith("release_gate_failed:") || error.message.startsWith("job_state_conflict:") ? 409
               : error.message.startsWith("invalid_") ? 400
                 : 500;
         return appendSecurityHeaders(denied(requestId, status, error.message), requestId, url.protocol === "https:");

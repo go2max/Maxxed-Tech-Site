@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -36,6 +36,27 @@ export function validateAgentConfig(input, configDir = runnerRoot) {
     aaptPath: input.aaptPath ? resolve(configDir, input.aaptPath) : null,
     pollSeconds,
     errorBackoffSeconds,
+  };
+}
+
+export async function checkAgentReadiness(config, accessPath = access) {
+  const requiredFiles = {
+    apk: config.apk,
+    products: config.products,
+    manifest: config.manifest,
+    ...(config.aaptPath ? { aaptPath: config.aaptPath } : {}),
+  };
+  for (const [key, path] of Object.entries(requiredFiles)) {
+    try {
+      await accessPath(path);
+    } catch {
+      throw new Error(`agent_missing_file:${key}`);
+    }
+  }
+  return {
+    runnerId: config.runnerId,
+    deviceId: config.deviceId,
+    checkedFiles: Object.keys(requiredFiles),
   };
 }
 
@@ -109,12 +130,17 @@ function executeCycle(config, signal) {
 
 async function main() {
   const configArg = process.argv.slice(2).find((entry) => entry.startsWith("--config="));
-  if (!configArg) throw new Error("Usage: node runner/agent.mjs --config=PATH");
+  if (!configArg) throw new Error("Usage: node runner/agent.mjs --config=PATH [--check]");
   if (!process.env.MAXXED_RUNNER_API_TOKEN || process.env.MAXXED_RUNNER_API_TOKEN.length < 32) {
     throw new Error("MAXXED_RUNNER_API_TOKEN must be supplied through secret management.");
   }
   const configPath = resolve(configArg.slice("--config=".length));
   const config = validateAgentConfig(JSON.parse(await readFile(configPath, "utf8")), dirname(configPath));
+  const readiness = await checkAgentReadiness(config);
+  if (process.argv.includes("--check")) {
+    console.log(JSON.stringify({ event: "runner_agent_ready", ...readiness }));
+    return;
+  }
   const controller = new AbortController();
   process.once("SIGINT", () => controller.abort());
   process.once("SIGTERM", () => controller.abort());

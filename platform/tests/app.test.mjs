@@ -142,6 +142,7 @@ test("roles are denied representative actions they should not perform", async ()
     ["qa-lead@techmaxxed.com", "GET", "/users"],
     ["beta-manager@techmaxxed.com", "POST", "/products"],
     ["support@techmaxxed.com", "POST", "/docs/publish", "/"],
+    ["qa-tester@techmaxxed.com", "POST", "/testing-functions/maxxed-remote/jobs/job-example/cancel", "/qa"],
   ];
 
   for (const [email, method, path, bootstrapPath = "/"] of cases) {
@@ -498,4 +499,88 @@ test("runner API authenticates, claims one owned job, and records completion", a
   const audit = await state.database.transaction((tx) => tx.list("audit_events"));
   assert.equal(audit.some((event) => event.action_name === "automation_job.claim" && event.target_id === claimedJob.id), true);
   assert.equal(audit.some((event) => event.action_name === "automation_job.complete" && event.target_id === claimedJob.id), true);
+});
+
+
+test("Remote job cancellation and retry preserve history and enforce state transitions", async () => {
+  const email = "qa-lead@techmaxxed.com";
+  const { app, cookie, csrfToken, state } = await bootstrap(email, "/testing-functions");
+  const browserHeaders = {
+    ...authHeaders(email),
+    cookie,
+    origin: "https://admin.techmaxxed.com",
+    "content-type": "application/json",
+    "x-csrf-token": csrfToken,
+  };
+  const post = (path, body = {}) => app.fetch(new Request(`https://admin.techmaxxed.com${path}`, {
+    method: "POST",
+    headers: browserHeaders,
+    body: JSON.stringify(body),
+  }));
+
+  const queuedResponse = await post("/testing-functions/maxxed-remote/run", {
+    runnerId: "local-windows-runner",
+    deviceId: "android-device-1",
+  });
+  assert.equal(queuedResponse.status, 200);
+  const queuedJob = (await queuedResponse.json()).record;
+
+  const cancelResponse = await post(
+    `/testing-functions/maxxed-remote/jobs/${encodeURIComponent(queuedJob.id)}/cancel`,
+    { reason: "Hardware unavailable" }
+  );
+  assert.equal(cancelResponse.status, 200);
+  const cancelledJob = (await cancelResponse.json()).record;
+  assert.equal(cancelledJob.lease_state, "cancelled");
+  assert.equal(JSON.parse(cancelledJob.result_json).reason, "Hardware unavailable");
+
+  const duplicateCancel = await post(
+    `/testing-functions/maxxed-remote/jobs/${encodeURIComponent(queuedJob.id)}/cancel`
+  );
+  assert.equal(duplicateCancel.status, 409);
+  assert.equal((await duplicateCancel.json()).error, "job_state_conflict:cancel_requires_queued");
+
+  const retryResponse = await post(
+    `/testing-functions/maxxed-remote/jobs/${encodeURIComponent(queuedJob.id)}/retry`
+  );
+  assert.equal(retryResponse.status, 200);
+  const retryJob = (await retryResponse.json()).record;
+  assert.notEqual(retryJob.id, queuedJob.id);
+  assert.equal(retryJob.lease_state, "queued");
+  assert.equal(JSON.parse(retryJob.result_json).retryOfJobId, queuedJob.id);
+
+  const invalidRetry = await post(
+    `/testing-functions/maxxed-remote/jobs/${encodeURIComponent(retryJob.id)}/retry`
+  );
+  assert.equal(invalidRetry.status, 409);
+  assert.equal((await invalidRetry.json()).error, "job_state_conflict:retry_requires_terminal");
+
+  const jobs = await state.database.transaction((tx) => tx.list("automation_jobs"));
+  assert.equal(jobs.find((job) => job.id === queuedJob.id).lease_state, "cancelled");
+  assert.equal(jobs.find((job) => job.id === retryJob.id).lease_state, "queued");
+
+  const resultsPage = await bootstrap(email, "/testing-functions", app, state);
+  const resultsHtml = await resultsPage.response.text();
+  assert.match(resultsHtml, /Cancel queued job/);
+  assert.match(resultsHtml, /Retry as new job/);
+  assert.match(resultsHtml, /Retry of/);
+  assert.match(resultsHtml, /Cancelled: 1/);
+
+  const audit = await state.database.transaction((tx) => tx.list("audit_events"));
+  assert.equal(audit.some((event) => event.action_name === "automation_job.cancel" && event.target_id === queuedJob.id), true);
+  assert.equal(audit.some((event) => event.action_name === "automation_job.retry" && event.target_id === retryJob.id), true);
+});
+
+
+test("Testing Functions client script parses and exposes lifecycle actions", async () => {
+  const { app } = await bootstrap("qa-lead@techmaxxed.com", "/testing-functions");
+  const response = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions.js", {
+    headers: authHeaders("qa-lead@techmaxxed.com"),
+  }));
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type"), /application\/javascript/);
+  const source = await response.text();
+  assert.doesNotThrow(() => new Function(source));
+  assert.match(source, /data-job-action/);
+  assert.match(source, /encodeURIComponent\(jobId\)/);
 });
