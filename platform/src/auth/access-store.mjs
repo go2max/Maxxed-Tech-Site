@@ -10,7 +10,7 @@ export class InMemoryAccessStore {
   }
 }
 
-function effectiveRoles(userId, legacyAssignments, events) {
+export function resolveEffectiveRoles(userId, legacyAssignments, events) {
   const roles = new Map();
   for (const assignment of legacyAssignments) {
     if (assignment.user_id === userId) roles.set(assignment.role_name, "grant");
@@ -39,11 +39,11 @@ export class PersistentAccessStore {
     }));
     const activeUsers = directory.users.filter((user) => user.status === "active");
     const activeOwnerExists = activeUsers.some((user) =>
-      effectiveRoles(user.id, directory.legacyAssignments, directory.events).includes(ROLES.OWNER)
+      resolveEffectiveRoles(user.id, directory.legacyAssignments, directory.events).includes(ROLES.OWNER)
     );
     const user = directory.users.find((record) => record.email.toLowerCase() === normalized);
     if (user?.status === "active") {
-      const roles = effectiveRoles(user.id, directory.legacyAssignments, directory.events);
+      const roles = resolveEffectiveRoles(user.id, directory.legacyAssignments, directory.events);
       if (roles.length > 0) return roles;
     }
     if (activeOwnerExists || user?.status === "inactive") return [];
