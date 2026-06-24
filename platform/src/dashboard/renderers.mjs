@@ -37,6 +37,7 @@ export function renderUserAdminPage({ users = [], roleAssignments = [], roleEven
         roleAssignments.filter((item) => item.user_id === user.id)
           .forEach((item) => states.set(item.role_name, "grant"));
         roleEvents.filter((item) => item.user_id === user.id)
+          .sort((left, right) => Number(left.event_sequence || 0) - Number(right.event_sequence || 0))
           .forEach((item) => states.set(item.role_name, item.action));
         const activeRoles = [...states.entries()].filter(([, action]) => action === "grant").map(([role]) => role);
         const roleButtons = activeRoles.length
