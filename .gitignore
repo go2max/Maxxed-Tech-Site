@@ -1,3 +1,9 @@
 dist/
 node_modules/
-site.tar.gz\nlocal-artifacts/\nrunner/config/agent.local.json\nrunner/config/products.local.json\nrunner/state/\nrunner/reports/\n
+site.tar.gz
+local-artifacts/
+runner/config/agent.local.json
+runner/config/artifacts.local.json
+runner/config/products.local.json
+runner/state/
+runner/reports/
