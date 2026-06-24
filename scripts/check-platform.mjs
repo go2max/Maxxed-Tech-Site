@@ -9,6 +9,7 @@ for (const [command, args] of [
   ["node", ["--test", "./platform/tests/app.test.mjs"]],
   ["node", ["--test", "./platform/tests/access.test.mjs"]],
   ["node", ["--test", "./platform/tests/backups.test.mjs"]],
+  ["node", ["--test", "./platform/tests/knowledge-base.test.mjs"]],
   ["node", ["--test", "./platform/tests/persistence.test.mjs"]],
   ["node", ["--test", "./platform/tests/dashboard.test.mjs"]],
   ["node", ["--test", "./platform/tests/beta.test.mjs"]],
