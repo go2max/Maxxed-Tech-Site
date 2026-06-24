@@ -34,8 +34,11 @@ test("fresh migration and repeat migration succeed for memory and D1 adapters", 
   }
   await applyAllMigrations(memory);
 
-  const d1 = new D1PlatformDatabase(new MemoryD1Binding());
+  const d1Binding = new MemoryD1Binding();
+  const d1 = new D1PlatformDatabase(d1Binding);
   await applyAllMigrations(d1);
+  assert.equal(d1Binding.indexes.has("runner_nodes_identity"), true);
+  assert.equal(d1Binding.indexes.has("runner_nodes_last_seen"), true);
   for (const migration of MIGRATIONS) {
     assert.equal(await d1.hasMigration(migration.id), true);
   }
