@@ -70,6 +70,8 @@ function routeTable() {
     ["GET", /^\/beta\/applications$/, { permission: PERMISSIONS.BETA_READ, handler: handleBetaApplications }],
     ["GET", /^\/automation$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleAutomation }],
     ["GET", /^\/testing-functions$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctions }],
+    ["GET", /^\/testing-functions\.js$/, { permission: PERMISSIONS.QA_ASSIGN, handler: handleTestingFunctionsScript }],
+    ["POST", /^\/testing-functions\/maxxed-remote\/run$/, { permission: PERMISSIONS.QA_ASSIGN, csrf: true, handler: mutateRemoteTestJob }],
     ["GET", /^\/incidents$/, { permission: PERMISSIONS.INCIDENTS_READ, handler: handleIncidents }],
     ["GET", /^\/security\/audit$/, { permission: PERMISSIONS.AUDIT_READ, handler: handleSecurityAudit }],
     ["GET", /^\/knowledge-base$/, { permission: PERMISSIONS.DOCS_READ, handler: handleKnowledgeBase }],
@@ -171,6 +173,60 @@ async function handleTestingFunctions({ identity, csrfToken }) {
     csrfToken,
     content: renderTestingFunctionsPage(),
   });
+}
+
+async function handleTestingFunctionsScript() {
+  return new Response(`const form = document.querySelector("#remote-test-form");
+const status = document.querySelector("#remote-test-status");
+form?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const button = form.querySelector("button");
+  button.disabled = true;
+  status.textContent = "Queueing approved Remote test...";
+  const data = new FormData(form);
+  try {
+    const response = await fetch("/testing-functions/maxxed-remote/run", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-csrf-token": document.querySelector("[data-csrf-token]")?.textContent || "",
+      },
+      body: JSON.stringify({
+        runnerId: data.get("runnerId"),
+        deviceId: data.get("deviceId"),
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "queue_failed");
+    status.textContent = "Queued job " + result.record.id + ".";
+  } catch (error) {
+    status.textContent = "Could not queue test: " + error.message;
+  } finally {
+    button.disabled = false;
+  }
+});`, {
+    headers: {
+      "content-type": "application/javascript; charset=utf-8",
+      "cache-control": "no-store",
+    },
+  });
+}
+
+async function mutateRemoteTestJob({ requestId, identity, payload, state }) {
+  const runnerId = String(payload.runnerId || "");
+  const deviceId = String(payload.deviceId || "");
+  const safeId = /^[A-Za-z0-9._:-]{1,80}$/;
+  if (!safeId.test(runnerId)) throw new Error("invalid_runner_id");
+  if (!safeId.test(deviceId)) throw new Error("invalid_device_id");
+  return ok(await state.services.createAutomationJob({ actor: identity, requestId }, {
+    productId: "maxxed-remote",
+    orderedSteps: ["artifact-verify", "launch-smoke", "full-ux-connection"],
+    deviceId,
+    runnerId,
+    leaseState: "queued",
+    result: {},
+    evidence: [],
+  }));
 }
 async function handleIncidents({ identity, csrfToken, state }) {
   const incidentSection = hasPermission(identity, PERMISSIONS.INCIDENTS_READ)
