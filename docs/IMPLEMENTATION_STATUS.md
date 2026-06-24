@@ -4,10 +4,12 @@ Last updated: June 23, 2026
 
 ## Current State
 
-- Wave 1 repository implementation merged to `main` through PR #6 at merge commit `3ff97c2`.
+- Wave 1 repository implementation and post-merge hardening merged to `main` through PRs #6 and #7; the recorded checkpoint is `b6975f1`.
 - Public-site source remains independently deployable and its 23-page validation remains green.
 - Repository-controlled private platform, D1 adapter, audited services, runner, beta-adapter contracts, readiness scoring, security tests, and operational runbooks are implemented.
-- The complete Windows CI gate passed twice on the final PR head, including the tracked-file secret scan.
+- The complete Windows CI gate passed twice on the final PR #6 head, including the tracked-file secret scan.
+- The post-merge PR #7 CI gate also passed before merge.
+- A sanitized restart record is maintained in `docs/WAVE1_RESTART_CHECKPOINT.md`.
 - Production hosting, Cloudflare Access configuration, D1/R2 provisioning, Google credentials, physical-device validation, and release authorization remain explicit external gates.
 
 ## Validation Evidence
@@ -18,6 +20,8 @@ Last updated: June 23, 2026
 - GitHub Actions run `28074769428`, attempt 2
   - `npm run check`: passed
   - `node .\scripts\security-scan.mjs`: passed
+- GitHub Actions run `28075105202` for PR #7
+  - repository gate: passed
 - Verified coverage includes the public site, private platform security, D1 migration and concurrent audit integrity, mutation authorization and release gates, stored-XSS regression, beta and readiness contracts, runner manifest binding, hard child-process timeout, cross-job lease ownership, stale-job recovery, backup recovery, and secret scanning.
 
 ## Phase Log
