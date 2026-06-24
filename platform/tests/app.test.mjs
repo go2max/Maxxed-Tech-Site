@@ -377,3 +377,36 @@ test("sensitive values are absent from responses and logs", async () => {
   assert.doesNotMatch(JSON.stringify(logSink), /super-secret-token-value-with-length-32/);
   assert.doesNotMatch(JSON.stringify(logSink), /secret-token/);
 });
+
+
+test("Remote testing function queues only the server-approved step order", async () => {
+  const { app, cookie, csrfToken, state } = await bootstrap("qa-lead@techmaxxed.com", "/testing-functions");
+  const response = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/maxxed-remote/run", {
+    method: "POST",
+    headers: {
+      ...authHeaders("qa-lead@techmaxxed.com"),
+      cookie,
+      origin: "https://admin.techmaxxed.com",
+      "content-type": "application/json",
+      "x-csrf-token": csrfToken,
+    },
+    body: JSON.stringify({
+      runnerId: "local-windows-runner",
+      deviceId: "android-device-1",
+      orderedSteps: ["arbitrary-command"],
+    }),
+  }));
+
+  assert.equal(response.status, 200);
+  const jobs = await state.database.transaction((tx) => tx.list("automation_jobs"));
+  assert.equal(jobs.length, 1);
+  assert.deepEqual(JSON.parse(jobs[0].ordered_steps_json), [
+    "artifact-verify",
+    "launch-smoke",
+    "full-ux-connection",
+  ]);
+  assert.equal(jobs[0].lease_state, "queued");
+
+  const audit = await state.database.transaction((tx) => tx.list("audit_events"));
+  assert.equal(audit.some((event) => event.action_name === "automation_job.create"), true);
+});
