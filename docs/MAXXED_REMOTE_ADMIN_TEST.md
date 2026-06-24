@@ -35,3 +35,14 @@ connection and respond. Exit code `0` means passed, `1` means failed, and
 
 The browser never supplies commands or executable paths. The local runner loads
 only the version-controlled command reference from the approved manifest.
+
+
+## Admin Job Lifecycle
+
+The Testing Functions page shows the ten most recently updated Remote jobs and
+refreshes every 30 seconds while idle. QA Leads can cancel a job only while it
+is queued. Completed, failed, blocked, interrupted, or cancelled jobs can be
+retried as new audited jobs; the original result and evidence remain intact.
+
+See `docs/MAXXED_REMOTE_OPERATIONS.md` for the production checklist and
+recovery procedures.
