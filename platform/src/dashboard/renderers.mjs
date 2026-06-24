@@ -59,7 +59,8 @@ export function renderTestingFunctionsPage({ products = [], jobs = [], runners =
       const health = !Number.isFinite(ageMs) || ageMs > fleetOfflineMs
         ? "offline"
         : ageMs > fleetStaleMs ? "stale" : "online";
-      const capabilities = parseStoredJson(runner.product_ids_json, []);
+      const parsedCapabilities = parseStoredJson(runner.product_ids_json, []);
+      const capabilities = Array.isArray(parsedCapabilities) ? parsedCapabilities : [];
       const activeJob = jobs.find((job) =>
         job.runner_id === runner.runner_id &&
         job.device_id === runner.device_id &&
