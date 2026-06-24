@@ -31,12 +31,18 @@ function parseRunnerTokens(value) {
   }
   const entries = Object.entries(parsed);
   if (entries.length === 0 || entries.length > 100) throw new Error("invalid_runner_api_tokens");
-  for (const [runnerId, token] of entries) {
-    if (!/^[A-Za-z0-9._:-]{1,80}$/.test(runnerId) || typeof token !== "string" || token.length < 32) {
+  const normalized = {};
+  for (const [runnerId, value] of entries) {
+    const tokens = Array.isArray(value) ? value : [value];
+    if (!/^[A-Za-z0-9._:-]{1,80}$/.test(runnerId) ||
+        tokens.length === 0 || tokens.length > 2 ||
+        new Set(tokens).size !== tokens.length ||
+        tokens.some((token) => typeof token !== "string" || token.length < 32)) {
       throw new Error("invalid_runner_api_tokens");
     }
+    normalized[runnerId] = Object.freeze([...tokens]);
   }
-  return Object.freeze(Object.fromEntries(entries));
+  return Object.freeze(normalized);
 }
 
 function isStrongSessionSecret(secret) {
