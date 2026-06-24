@@ -640,6 +640,134 @@ export function createPlatformServices(database) {
         },
       });
     },
+    createTestSchedule(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.QA_ASSIGN,
+        action: "test_schedule.create",
+        targetType: "test_schedule",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const name = requireString(payload.name, "invalid_schedule_name");
+          if (name.length > 80) throw new Error("invalid_schedule_name");
+          const productIds = requireArray(payload.productIds, "invalid_schedule_products");
+          const uniqueProductIds = [...new Set(productIds)];
+          if (uniqueProductIds.length === 0 || uniqueProductIds.length !== productIds.length ||
+              uniqueProductIds.some((productId) => !getTestingProduct(productId))) {
+            throw new Error("invalid_schedule_products");
+          }
+          const safeId = /^[A-Za-z0-9._:-]{1,80}$/;
+          const runnerId = requireString(payload.runnerId, "invalid_runner_id");
+          const deviceId = requireString(payload.deviceId, "invalid_device_id");
+          if (!safeId.test(runnerId) || !safeId.test(deviceId)) throw new Error("invalid_schedule_target");
+          const cadenceMinutes = Number(payload.cadenceMinutes);
+          if (!Number.isSafeInteger(cadenceMinutes) || cadenceMinutes < 15 || cadenceMinutes > 10080) {
+            throw new Error("invalid_schedule_cadence");
+          }
+          const nextRunAt = requireString(payload.nextRunAt || now, "invalid_schedule_next_run");
+          if (!Number.isFinite(Date.parse(nextRunAt))) throw new Error("invalid_schedule_next_run");
+          return {
+            after: await repositories.testSchedules.insert(tx, makeRecord("schedule", {
+              name,
+              product_ids_json: JSON.stringify(uniqueProductIds),
+              runner_id: runnerId,
+              device_id: deviceId,
+              cadence_minutes: cadenceMinutes,
+              enabled: 1,
+              next_run_at: new Date(nextRunAt).toISOString(),
+              last_run_at: null,
+              created_by: context.actor.email,
+            }), now),
+          };
+        },
+      });
+    },
+    setTestScheduleEnabled(context, payload) {
+      return auditedMutation({
+        actor: context.actor,
+        permission: PERMISSIONS.QA_ASSIGN,
+        action: "test_schedule.update",
+        targetType: "test_schedule",
+        requestId: context.requestId,
+        mutation: async (tx, now) => {
+          const scheduleId = requireString(payload.scheduleId, "invalid_schedule_id");
+          const before = await repositories.testSchedules.get(tx, scheduleId);
+          if (!before) throw new Error("missing_row:test_schedule");
+          if (typeof payload.enabled !== "boolean") throw new Error("invalid_schedule_enabled");
+          return {
+            before,
+            after: await repositories.testSchedules.update(tx, scheduleId, {
+              enabled: payload.enabled ? 1 : 0,
+              ...(payload.enabled && before.next_run_at < now ? { next_run_at: now } : {}),
+            }, now),
+          };
+        },
+      });
+    },
+    dispatchDueTestSchedules(context, payload = {}) {
+      requirePermission(context.actor, PERMISSIONS.QA_ASSIGN);
+      const requestedNow = payload.now == null ? new Date().toISOString() : requireString(payload.now, "invalid_schedule_now");
+      if (!Number.isFinite(Date.parse(requestedNow))) throw new Error("invalid_schedule_now");
+      const dispatchAt = new Date(requestedNow).toISOString();
+      return database.transaction(async (tx) => {
+        const due = (await repositories.testSchedules.list(tx))
+          .filter((schedule) => Number(schedule.enabled) === 1 && schedule.next_run_at <= dispatchAt)
+          .sort((left, right) => left.next_run_at.localeCompare(right.next_run_at))
+          .slice(0, 20);
+        const schedules = [];
+        const jobs = [];
+        for (const before of due) {
+          const cadenceMs = Number(before.cadence_minutes) * 60_000;
+          let nextRunMs = Date.parse(before.next_run_at);
+          do {
+            nextRunMs += cadenceMs;
+          } while (nextRunMs <= Date.parse(dispatchAt));
+          const after = await repositories.testSchedules.update(tx, before.id, {
+            last_run_at: dispatchAt,
+            next_run_at: new Date(nextRunMs).toISOString(),
+          }, dispatchAt);
+          await appendAuditEvent(auditRepository, tx, {
+            actor: context.actor,
+            action: "test_schedule.dispatch",
+            targetType: "test_schedule",
+            requestId: context.requestId,
+            before,
+            after,
+            createdAt: dispatchAt,
+          });
+          schedules.push(after);
+          const productIds = JSON.parse(before.product_ids_json);
+          for (const productId of productIds) {
+            const product = getTestingProduct(productId);
+            if (!product) throw new Error("invalid_schedule_products");
+            const job = await repositories.automationJobs.insert(tx, makeRecord("job", {
+              product_id: product.id,
+              ordered_steps_json: JSON.stringify(product.orderedSteps),
+              device_id: before.device_id,
+              runner_id: before.runner_id,
+              lease_state: "queued",
+              result_json: JSON.stringify({
+                packageId: product.packageId,
+                scheduleId: before.id,
+                scheduledAt: dispatchAt,
+              }),
+              evidence_json: "[]",
+            }), dispatchAt);
+            await appendAuditEvent(auditRepository, tx, {
+              actor: context.actor,
+              action: "automation_job.create",
+              targetType: "automation_job",
+              requestId: context.requestId,
+              before: null,
+              after: job,
+              createdAt: dispatchAt,
+            });
+            jobs.push(job);
+          }
+        }
+        return { schedules, jobs, dispatchedAt: dispatchAt };
+      });
+    },
     createSupportCase(context, payload) {
       return auditedMutation({
         actor: context.actor,
