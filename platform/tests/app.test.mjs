@@ -6,6 +6,7 @@ import { createPlatformApp } from "../src/app.mjs";
 import { loadPlatformConfig } from "../src/config.mjs";
 import { createSeededPlatformState } from "../src/dashboard/state.mjs";
 import { MemoryEvidenceStore } from "../src/evidence/storage.mjs";
+import { MemoryBackupStore } from "../src/backups/storage.mjs";
 
 const identityEnv = {
   APP_ENV: "test",
@@ -1430,4 +1431,93 @@ test("persistent user administration changes authorization immediately and prote
   assert.equal(audit.some((event) => event.action_name === "user.create"), true);
   assert.equal(audit.some((event) => event.action_name === "role.assign"), true);
   assert.equal(audit.some((event) => event.action_name === "role.revoke"), true);
+});
+
+
+test("encrypted backups support Owner-only creation, restore verification, retention, and scheduling", async () => {
+  const state = await createSeededPlatformState();
+  const backupStore = new MemoryBackupStore();
+  const backupEnv = {
+    ...identityEnv,
+    BACKUP_ENCRYPTION_KEY: Buffer.alloc(32, 11).toString("base64url"),
+    BACKUP_RETENTION_DAYS: "30",
+    BACKUP_MAX_BYTES: String(10 * 1024 * 1024),
+  };
+  const app = createPlatformApp({ env: backupEnv, state, backupStore });
+  const owner = await bootstrap("owner@techmaxxed.com", "/security/backups", app, state);
+  const ownerHeaders = {
+    ...authHeaders("owner@techmaxxed.com"),
+    cookie: owner.cookie,
+    origin: "https://admin.techmaxxed.com",
+    "content-type": "application/json",
+    "x-csrf-token": owner.csrfToken,
+  };
+  const post = (path) => app.fetch(new Request(`https://admin.techmaxxed.com${path}`, {
+    method: "POST",
+    headers: ownerHeaders,
+    body: "{}",
+  }));
+
+  const anonymous = await app.fetch(new Request("https://admin.techmaxxed.com/security/backups"));
+  assert.equal(anonymous.status, 401);
+  const administrator = await app.fetch(new Request("https://admin.techmaxxed.com/security/backups", {
+    headers: authHeaders("admin@techmaxxed.com"),
+  }));
+  assert.equal(administrator.status, 403);
+
+  const createdResponse = await post("/security/backups");
+  assert.equal(createdResponse.status, 200);
+  const created = (await createdResponse.json()).record;
+  assert.match(created.plaintextSha256, /^[a-f0-9]{64}$/);
+  assert.equal(created.storageState, "available");
+  assert.equal("objectKey" in created, false);
+  assert.equal(created.tableCounts.audit_events > 0, true);
+
+  const metadata = (await state.database.transaction((tx) => tx.list("backup_snapshots")))[0];
+  const encrypted = await backupStore.get(metadata.object_key);
+  assert.ok(encrypted);
+  assert.doesNotMatch(Buffer.from(encrypted).toString("utf8"), /owner@techmaxxed\.com/);
+
+  const verifyResponse = await post(`/security/backups/${created.id}/verify`);
+  assert.equal(verifyResponse.status, 200);
+  const verified = await verifyResponse.json();
+  assert.equal(verified.record.storageState, "verified");
+  assert.equal(verified.details.tables > 10, true);
+  assert.equal(verified.details.auditEvents > 0, true);
+
+  await backupStore.put(metadata.object_key, new TextEncoder().encode("tampered"));
+  const tampered = await post(`/security/backups/${created.id}/verify`);
+  assert.equal(tampered.status, 409);
+  const failedMetadata = (await state.database.transaction((tx) => tx.list("backup_snapshots")))[0];
+  assert.equal(failedMetadata.storage_state, "verification_failed");
+  assert.match(failedMetadata.verification_details_json, /invalid_backup_envelope/);
+
+  await state.database.transaction((tx) => tx.update("backup_snapshots", created.id, (record) => ({
+    ...record,
+    retention_until: new Date(0).toISOString(),
+  })));
+  const purge = await post("/security/backups/purge");
+  assert.equal(purge.status, 200);
+  assert.equal((await purge.json()).purged, 1);
+  assert.equal(await backupStore.get(metadata.object_key), null);
+
+  const scheduled = await app.scheduled({}, { ...backupEnv, BACKUP_SCHEDULE_ENABLED: "true" });
+  assert.ok(scheduled.backup);
+  assert.equal(scheduled.backup.record.storage_state, "verified");
+  const duplicate = await app.scheduled({}, { ...backupEnv, BACKUP_SCHEDULE_ENABLED: "true" });
+  assert.equal(duplicate.backup, null);
+  const snapshots = await state.database.transaction((tx) => tx.list("backup_snapshots"));
+  assert.equal(snapshots.filter((record) => record.storage_state !== "deleted").length, 1);
+
+  const page = await app.fetch(new Request("https://admin.techmaxxed.com/security/backups", {
+    headers: authHeaders("owner@techmaxxed.com"),
+  }));
+  const html = await page.text();
+  assert.match(html, /Encrypted snapshots/);
+  assert.match(html, /Run restore verification/);
+
+  const audit = await state.database.transaction((tx) => tx.list("audit_events"));
+  assert.equal(audit.some((event) => event.action_name === "backup_snapshot.create"), true);
+  assert.equal(audit.some((event) => event.action_name === "backup_snapshot.verify"), true);
+  assert.equal(audit.some((event) => event.action_name === "backup_snapshot.delete"), true);
 });
