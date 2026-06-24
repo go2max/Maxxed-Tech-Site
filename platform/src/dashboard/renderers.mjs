@@ -112,6 +112,7 @@ export function renderTestingFunctionsPage({ products = [], jobs = [], runners =
         const result = parseStoredJson(job.result_json, {});
         const evidence = parseStoredJson(job.evidence_json, []);
         const steps = Array.isArray(result.steps) ? result.steps : [];
+        const targetLabel = result.targetMode === "pool" ? "automatic pool" : "exact device";
         const progress = result.progress?.stepId
           ? `<span>Current step: ${escapeHtml(result.progress.stepId)} | Completed steps: ${escapeHtml(result.progress.completedSteps || 0)}</span><br>`
           : "";
@@ -128,7 +129,7 @@ export function renderTestingFunctionsPage({ products = [], jobs = [], runners =
             : "";
         return `<li data-history-job data-product="${escapeHtml(job.product_id)}" data-state="${escapeHtml(job.lease_state)}">
           <strong>${escapeHtml(product?.name || job.product_id)}</strong> | <strong>${escapeHtml(job.lease_state)}</strong> <a href="/testing-functions/jobs/${encodeURIComponent(job.id)}"><code>${escapeHtml(job.id)}</code></a><br>
-          <span>Final result: ${escapeHtml(result.finalStatus || "pending")} | Runner: ${escapeHtml(job.runner_id)} | Device: ${escapeHtml(job.device_id)}</span><br>
+          <span>Final result: ${escapeHtml(result.finalStatus || "pending")} | Target: ${escapeHtml(targetLabel)} | Runner: ${escapeHtml(job.runner_id)} | Device: ${escapeHtml(job.device_id)}</span><br>
           ${progress}${stepSummary}${retrySource}<br>
           <span>Evidence records: ${escapeHtml(Array.isArray(evidence) ? evidence.length : 0)} | Updated: ${escapeHtml(job.updated_at)}</span>
           ${controls ? `<p>${controls}</p>` : ""}
@@ -138,18 +139,19 @@ export function renderTestingFunctionsPage({ products = [], jobs = [], runners =
 
   return `<section class="grid">
     ${card("Run portfolio tests", `<form id="portfolio-test-form">
-      <label>Runner ID <input name="runnerId" value="local-windows-runner" required maxlength="80"></label>
-      <label>Device ID <input name="deviceId" value="android-device-1" required maxlength="80"></label>
+      <label>Runner ID <input name="runnerId" value="auto" required maxlength="80"></label>
+      <label>Device ID <input name="deviceId" value="auto" required maxlength="80"></label>
       <fieldset><legend>Apps</legend>${productChoices}</fieldset>
       <button type="submit">Queue selected tests</button>
     </form>
     <p id="testing-status" aria-live="polite"></p>
+    <p>Use <code>auto</code> for both IDs to assign each job to the first compatible idle device. Exact runner and device IDs remain available for hardware-specific work.</p>
     <p>The server supplies each app's package-bound steps. Batch requests cannot add commands or paths.</p>
     <script src="/testing-functions.js" defer></script>`)}
     ${card("Regression schedules", `<form id="testing-schedule-form">
       <label>Schedule name <input name="name" required maxlength="80" placeholder="Nightly portfolio regression"></label>
-      <label>Runner ID <input name="runnerId" value="local-windows-runner" required maxlength="80"></label>
-      <label>Device ID <input name="deviceId" value="android-device-1" required maxlength="80"></label>
+      <label>Runner ID <input name="runnerId" value="auto" required maxlength="80"></label>
+      <label>Device ID <input name="deviceId" value="auto" required maxlength="80"></label>
       <label>Cadence
         <select name="cadenceMinutes">
           <option value="60">Hourly</option>
@@ -163,14 +165,14 @@ export function renderTestingFunctionsPage({ products = [], jobs = [], runners =
       <button type="button" data-run-due-schedules>Run due schedules now</button>
     </form>${scheduleMarkup}`)}
     ${card("Approved app tests", `<ul>${productCatalog}</ul>`)}
-    ${card("Runner fleet", `${fleetMarkup}<p>Online runners checked in within ${escapeHtml(Math.round(fleetStaleMs / 1000))} seconds; offline begins after ${escapeHtml(Math.round(fleetOfflineMs / 1000))} seconds.</p>`)}
+    ${card("Runner fleet", `${fleetMarkup}<p>Automatic jobs are claimed only by a runner advertising that app. Every runner-device pair can hold one active lease.</p><p>Online runners checked in within ${escapeHtml(Math.round(fleetStaleMs / 1000))} seconds; offline begins after ${escapeHtml(Math.round(fleetOfflineMs / 1000))} seconds.</p>`)}
     ${card("Portfolio job status", `<p>Queued: ${escapeHtml(counts.queued || 0)} | Running: ${escapeHtml(counts.running || 0)} | Cancelling: ${escapeHtml(counts.cancelling || 0)} | Completed: ${escapeHtml(counts.completed || 0)} | Needs attention: ${escapeHtml((counts.failed || 0) + (counts.blocked || 0) + (counts.interrupted || 0))} | Cancelled: ${escapeHtml(counts.cancelled || 0)}</p>
       <p>Runner heartbeats maintain active leases. Results refresh every 30 seconds while this page is idle.</p>`)}
     ${card("Recent test jobs", `<p>
       <label>App <select name="historyProduct"><option value="">All apps</option>${productFilterOptions}</select></label>
       <label>State <select name="historyState"><option value="">All states</option>${stateFilterOptions}</select></label>
     </p>${history}<p><a href="/testing-functions">Refresh results</a> | <a href="/automation">All automation jobs</a></p>`)}
-    ${card("Execution boundary", `<p>APK identity is verified before the package-bound manifest runs. Tests execute sequentially on one selected Android device.</p>
+    ${card("Execution boundary", `<p>APK identity is verified before the package-bound manifest runs. Automatic pooling selects a compatible idle device; exact targets remain pinned.</p>
       <p>Queued jobs cancel immediately. Running jobs enter <code>cancelling</code> until the runner stops the active child and reports completion.</p>`)}
   </section>`;
 }
