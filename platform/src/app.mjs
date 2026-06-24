@@ -1,6 +1,6 @@
 import { createSeededPlatformState } from "./dashboard/state.mjs";
 import { renderAuditPage, renderPortfolioPage, renderRecordPage, renderTestingFunctionsPage, renderTestingJobPage } from "./dashboard/renderers.mjs";
-import { defaultAccessStore } from "./auth/access-store.mjs";
+import { defaultAccessStore, PersistentAccessStore } from "./auth/access-store.mjs";
 import { extractTrustedIdentity } from "./auth/identity.mjs";
 import { createCsrfToken, createSession, readSession, sessionMatchesIdentity } from "./auth/session.mjs";
 import { hasPermission, PERMISSIONS } from "./auth/roles.mjs";
@@ -843,7 +843,7 @@ async function resolveState(options, env) {
 }
 
 export function createPlatformApp(options = {}) {
-  const accessStore = options.accessStore || defaultAccessStore;
+  const configuredAccessStore = options.accessStore || null;
   const logger = options.logger || createLogger(options.logSink);
   const routes = routeTable();
   let authRateLimiter = options.authRateLimiter || null;
@@ -952,9 +952,21 @@ export function createPlatformApp(options = {}) {
         return appendSecurityHeaders(denied(requestId, 429, "rate_limit_exceeded"), requestId, url.protocol === "https:");
       }
 
+      let state;
+      try {
+        state = await resolveState(options, { ...env, ...(options.env || {}) });
+      } catch (error) {
+        logger.log({ requestId, route: url.pathname, outcome: "misconfigured_state", error: error.message });
+        return appendSecurityHeaders(denied(requestId, 500, "misconfigured"), requestId, url.protocol === "https:");
+      }
+      const accessStore = configuredAccessStore || new PersistentAccessStore(state.database, {
+        bootstrapOwnerEmail: config.bootstrapOwnerEmail,
+        fallbackStore: config.isProduction ? null : defaultAccessStore,
+      });
+
       let identity;
       try {
-        identity = extractTrustedIdentity(request, config, accessStore);
+        identity = await extractTrustedIdentity(request, config, accessStore);
       } catch (error) {
         logger.log({ requestId, route: url.pathname, outcome: "invalid_identity", error: error.message });
         return appendSecurityHeaders(denied(requestId, 401, "authentication_required"), requestId, url.protocol === "https:");
@@ -974,13 +986,6 @@ export function createPlatformApp(options = {}) {
         return appendSecurityHeaders(denied(requestId, 403, "forbidden"), requestId, url.protocol === "https:");
       }
 
-      let state;
-      try {
-        state = await resolveState(options, { ...env, ...(options.env || {}) });
-      } catch (error) {
-        logger.log({ requestId, route: url.pathname, actor: identity.email, outcome: "misconfigured_state", error: error.message });
-        return appendSecurityHeaders(denied(requestId, 500, "misconfigured"), requestId, url.protocol === "https:");
-      }
       const presentedSession = readCookie(request, "__Host-maxxed-session");
       const existingSession = await readSession(presentedSession, config);
       const currentSession = existingSession && sessionMatchesIdentity(existingSession, identity) ? existingSession : null;
@@ -1033,6 +1038,8 @@ export function createPlatformApp(options = {}) {
             : error.message.startsWith("release_gate_failed:") ||
                 error.message.startsWith("job_state_conflict:") ||
                 error.message.startsWith("evidence_state_conflict:") ||
+                error.message.startsWith("access_state_conflict:") ||
+                error.message.startsWith("access_safety_conflict:") ||
                 error.message === "evidence_integrity_failed" ? 409
               : error.message === "evidence_store_unavailable" ? 503
                 : error.message.startsWith("invalid_") ? 400
