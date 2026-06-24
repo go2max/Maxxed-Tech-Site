@@ -371,15 +371,18 @@ async function resolveApprovedTestingJob(state, jobId) {
 }
 
 function testingJobExport(job) {
+  const orderedSteps = parseStoredJson(job.ordered_steps_json, []);
+  const result = parseStoredJson(job.result_json, {});
+  const evidence = parseStoredJson(job.evidence_json, []);
   return {
     id: job.id,
     productId: job.product_id,
     runnerId: job.runner_id,
     deviceId: job.device_id,
     state: job.lease_state,
-    orderedSteps: parseStoredJson(job.ordered_steps_json, []),
-    result: parseStoredJson(job.result_json, {}),
-    evidence: parseStoredJson(job.evidence_json, []),
+    orderedSteps: Array.isArray(orderedSteps) ? orderedSteps : [],
+    result: result && typeof result === "object" && !Array.isArray(result) ? result : {},
+    evidence: Array.isArray(evidence) ? evidence : [],
     createdAt: job.created_at,
     updatedAt: job.updated_at,
   };
@@ -413,7 +416,7 @@ async function handleTestingJobResult({ request, state }) {
   return json(testingJobExport(job), {
     headers: {
       "cache-control": "no-store",
-      "content-disposition": `attachment; filename="${job.id}-result.json"`,
+      "content-disposition": `attachment; filename="${job.id.replace(/[^A-Za-z0-9._-]/g, "_")}-result.json"`,
     },
   });
 }
