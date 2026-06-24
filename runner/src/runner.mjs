@@ -36,12 +36,14 @@ export async function runSequentialJob(options) {
   });
 
   const jobId = `job-${crypto.randomUUID()}`;
-  await recoverInterruptedJobs(store);
-  await acquireLeases(store, options.runnerId, options.deviceId, jobId, options.leaseDurationMs || 15 * 60 * 1000);
   const steps = [];
   let finalStatus = "pass";
+  let leaseAcquired = false;
 
   try {
+    await recoverInterruptedJobs(store);
+    await acquireLeases(store, options.runnerId, options.deviceId, jobId, options.leaseDurationMs || 15 * 60 * 1000);
+    leaseAcquired = true;
     for (const step of selectedSteps) {
       const result = redactStepResult(await executeStep(step, {
         rootDir: options.rootDir,
@@ -62,7 +64,9 @@ export async function runSequentialJob(options) {
     finalStatus = error.message === "lease_contention" ? "blocked" : error.message === "step_timeout" ? "fail" : "interrupted";
     steps.push({ stepId: "runtime", status: finalStatus, stdout: "", stderr: error.message, evidence: [] });
   } finally {
-    await releaseLeases(store, jobId, finalStatus);
+    if (leaseAcquired) {
+      await releaseLeases(store, jobId, finalStatus);
+    }
   }
 
   const report = {
