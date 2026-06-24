@@ -3,7 +3,7 @@ import { renderAuditPage, renderPortfolioPage, renderRecordPage, renderTestingFu
 import { defaultAccessStore, PersistentAccessStore } from "./auth/access-store.mjs";
 import { extractTrustedIdentity } from "./auth/identity.mjs";
 import { createCsrfToken, createSession, readSession, sessionMatchesIdentity } from "./auth/session.mjs";
-import { hasPermission, PERMISSIONS, ROLES } from "./auth/roles.mjs";
+import { hasPermission, permissionsForRoles, PERMISSIONS, ROLES } from "./auth/roles.mjs";
 import { loadPlatformConfig } from "./config.mjs";
 import { appendSecurityHeaders, html, json, readCookie } from "./http.mjs";
 import { createLogger } from "./logging.mjs";
@@ -1039,6 +1039,18 @@ export function createPlatformApp(options = {}) {
         return appendSecurityHeaders(denied(requestId, 429, "rate_limit_exceeded"), requestId, url.protocol === "https:");
       }
 
+      let principal;
+      try {
+        principal = await extractTrustedIdentity(request, config, { getRolesForEmail: async () => [] });
+      } catch (error) {
+        logger.log({ requestId, route: url.pathname, outcome: "invalid_identity", error: error.message });
+        return appendSecurityHeaders(denied(requestId, 401, "authentication_required"), requestId, url.protocol === "https:");
+      }
+      if (!principal) {
+        logger.log({ requestId, route: url.pathname, outcome: "unauthenticated" });
+        return appendSecurityHeaders(denied(requestId, 401, "authentication_required"), requestId, url.protocol === "https:");
+      }
+
       let state;
       try {
         state = await resolveState(options, { ...env, ...(options.env || {}) });
@@ -1050,17 +1062,13 @@ export function createPlatformApp(options = {}) {
         bootstrapOwnerEmail: config.bootstrapOwnerEmail,
         fallbackStore: config.isProduction ? null : defaultAccessStore,
       });
-
       let identity;
       try {
-        identity = await extractTrustedIdentity(request, config, accessStore);
+        const roles = await accessStore.getRolesForEmail(principal.email);
+        identity = { ...principal, roles, permissions: permissionsForRoles(roles) };
       } catch (error) {
-        logger.log({ requestId, route: url.pathname, outcome: "invalid_identity", error: error.message });
-        return appendSecurityHeaders(denied(requestId, 401, "authentication_required"), requestId, url.protocol === "https:");
-      }
-      if (!identity) {
-        logger.log({ requestId, route: url.pathname, outcome: "unauthenticated" });
-        return appendSecurityHeaders(denied(requestId, 401, "authentication_required"), requestId, url.protocol === "https:");
+        logger.log({ requestId, route: url.pathname, outcome: "authorization_directory_failed", error: error.message });
+        return appendSecurityHeaders(denied(requestId, 500, "authorization_unavailable"), requestId, url.protocol === "https:");
       }
 
       const browserRoleHeader = request.headers.get("x-maxxed-role") || request.headers.get("x-maxxed-roles");
