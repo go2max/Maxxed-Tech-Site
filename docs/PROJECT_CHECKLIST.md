@@ -157,8 +157,8 @@ These are website display states, not final Play Console approvals.
 - [ ] Owner MFA enrollment and recovery process.
 - [x] Persistent user and role administration mutations with immediate authorization and last-Owner protection.
 - [ ] Google Play Developer Reporting API synchronization.
-- [ ] Uptime and certificate monitoring.
-- [ ] Dependency and secret-scanning integration.
+- [x] Uptime and certificate monitoring.
+- [x] Dependency and secret-scanning integration.
 - [x] Encrypted backup automation and non-destructive restore verification.
 - [x] Internal knowledge base editing workflow.
 - [ ] Product Readiness Score calculation and evidence gates in the dashboard.
