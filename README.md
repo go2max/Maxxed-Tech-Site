@@ -82,3 +82,7 @@ audit procedures are documented in `docs/KNOWLEDGE_BASE_OPERATIONS.md`.
 
 Evidence-based readiness scoring, mandatory release gates, security findings,
 and monitoring freshness are documented in `docs/READINESS_SECURITY_MONITORING.md`.
+
+Beta approval, Google Groups and Play track sync boundaries, tester events,
+public credits, and privacy request handling are documented in
+`docs/BETA_ENROLLMENT_OPERATIONS.md`.
