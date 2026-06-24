@@ -172,6 +172,7 @@ These are website display states, not final Play Console approvals.
 
 ## Reference Documents
 
+- `docs/CODEX_MASTER_BUILD_TASK.md`: phased implementation task for Codex.
 - `docs/MAXXED_PLATFORM_V1_SPECIFICATION.md`: canonical platform requirements.
 - `docs/PRIVATE_OPERATIONS_PLATFORM.md`: private dashboard and APK runner design.
 - `docs/ADMIN_AND_BETA_AUTOMATION.md`: admin identity and beta automation plan.
