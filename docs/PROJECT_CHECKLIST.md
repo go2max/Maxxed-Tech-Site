@@ -15,7 +15,8 @@ implemented feature.
 - [ ] Public website is deployed to production hosting.
 - [ ] `techmaxxed.com` is purchased, connected, and serving the site.
 - [ ] Production support, privacy, and beta email addresses are active.
-- [ ] Private admin, monitoring, QA, beta automation, and APK runner are built.
+- [ ] Private admin, monitoring, QA, beta automation, and general APK runner are built.
+- [x] Maxxed Remote full UX/connection PowerShell script pack and admin catalog manifest are defined.
 
 ## Public Website
 
@@ -137,6 +138,11 @@ These are website display states, not final Play Console approvals.
 
 ## Sequential APK Test Environment
 
+- [x] Add main-page quick runs for each current app.
+- [x] Add individual app testing with single and multi-script selection.
+- [x] Restrict job creation to server-owned approved app and script IDs.
+- [x] Store immutable script order and job-creation audit events in D1.
+
 ### Phase 1: Next Engineering Milestone
 
 - [ ] Create a Windows-friendly local runner and operator interface.
@@ -144,8 +150,8 @@ These are website display states, not final Play Console approvals.
 - [ ] Calculate and record SHA-256.
 - [ ] Detect package name, version, and signing metadata.
 - [ ] Reject package and application mismatches.
-- [ ] Load only approved scripts for the detected application.
-- [ ] Allow the operator to order scripts before execution.
+- [x] Load only approved scripts for the selected application in the admin console.
+- [x] Preserve operator-selected script order in each queued job.
 - [ ] Execute exactly one job and one script step at a time.
 - [ ] Lock the selected emulator or physical device for the job.
 - [ ] Capture logcat, screenshots, video where enabled, performance, and failures.

@@ -1,0 +1,39 @@
+{
+  "id": "maxxed-remote-full-ux-connection",
+  "app": "maxxed-remote",
+  "packageId": "com.maxxedtechnicalsystems.maxxedremote",
+  "version": 1,
+  "label": "Full UX, discovery, and TV connection test",
+  "description": "Runs Maxxed Remote's emulator-safe UI controls in sequence, attempts discovery and an optional real-TV connection, and produces structured evidence without claiming unobserved hardware behavior.",
+  "runner": "powershell-adb",
+  "entrypoint": "maxxed-remote-full-test.ps1",
+  "timeoutSeconds": 1200,
+  "requires": [
+    "windows-powershell-7",
+    "android-platform-tools",
+    "android-device-or-emulator"
+  ],
+  "parameters": [
+    { "id": "ApkPath", "type": "apk-file", "required": true },
+    { "id": "DeviceSerial", "type": "adb-serial", "required": false },
+    { "id": "TvIp", "type": "ipv4", "required": false, "sensitive": true },
+    { "id": "TvPlatform", "type": "enum", "required": false, "default": "Auto", "values": ["Auto", "SamsungTizen", "LgWebOs", "Roku", "VizioSmartCast", "AndroidTv", "FireTv", "HisenseVidaa"] },
+    { "id": "TvMacAddress", "type": "mac-address", "required": false, "sensitive": true },
+    { "id": "HardwareObserved", "type": "boolean", "required": false, "default": false }
+  ],
+  "destructive": false,
+  "manualObservation": true,
+  "continueOnFailure": false,
+  "outputs": [
+    "result-json",
+    "logcat",
+    "screenshots",
+    "package-metadata",
+    "memory-snapshot"
+  ],
+  "exitCodes": {
+    "0": "pass",
+    "1": "fail",
+    "2": "blocked-or-manual-review"
+  }
+}

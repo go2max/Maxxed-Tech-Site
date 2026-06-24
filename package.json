@@ -5,6 +5,8 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "validate": "node scripts/validate-site.mjs && node scripts/validate-artifact.mjs",
-    "check": "npm run build && npm run validate"
+    "check:public": "npm run build && npm run validate",
+    "check:admin": "npm --prefix platform run check",
+    "check": "npm run check:public && npm run check:admin"
   }
 }
