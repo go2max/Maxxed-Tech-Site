@@ -182,7 +182,8 @@ CREATE TABLE IF NOT EXISTS audit_events (
   outcome TEXT NOT NULL,
   before_json TEXT NOT NULL,
   after_json TEXT NOT NULL,
-  previous_hash TEXT,
-  event_hash TEXT NOT NULL,
+  sequence INTEGER NOT NULL UNIQUE,
+  previous_hash TEXT NOT NULL UNIQUE,
+  event_hash TEXT NOT NULL UNIQUE,
   created_at TEXT NOT NULL
 );
