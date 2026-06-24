@@ -754,3 +754,140 @@ test("stale runner leases are interrupted and audited before the next claim", as
   const audit = await state.database.transaction((tx) => tx.list("audit_events"));
   assert.equal(audit.some((event) => event.action_name === "automation_job.expire" && event.target_id === staleJob.id), true);
 });
+
+
+test("per-runner credentials isolate fleet identities and expose authenticated result details", async () => {
+  const runnerAToken = `runner-a-${"a".repeat(40)}`;
+  const runnerBToken = `runner-b-${"b".repeat(40)}`;
+  const state = await createSeededPlatformState();
+  const env = {
+    ...identityEnv,
+    RUNNER_API_TOKENS_JSON: JSON.stringify({
+      "runner-a": runnerAToken,
+      "runner-b": runnerBToken,
+    }),
+  };
+  const app = createPlatformApp({ env, state });
+  const email = "qa-lead@techmaxxed.com";
+  const { cookie, csrfToken } = await bootstrap(email, "/testing-functions", app, state);
+  const queuedResponse = await app.fetch(new Request("https://admin.techmaxxed.com/testing-functions/jobs/batch", {
+    method: "POST",
+    headers: {
+      ...authHeaders(email),
+      cookie,
+      origin: "https://admin.techmaxxed.com",
+      "content-type": "application/json",
+      "x-csrf-token": csrfToken,
+    },
+    body: JSON.stringify({
+      productIds: ["maxxed-compass"],
+      runnerId: "runner-a",
+      deviceId: "device-a",
+    }),
+  }));
+  const queued = (await queuedResponse.json()).records[0];
+
+  const claimBody = JSON.stringify({
+    runnerId: "runner-a",
+    deviceId: "device-a",
+    productIds: ["maxxed-compass"],
+    agentVersion: "2.1.0",
+  });
+  const wrongIdentity = await app.fetch(new Request("https://admin.techmaxxed.com/runner/jobs/claim", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${runnerBToken}`,
+      "content-type": "application/json",
+    },
+    body: claimBody,
+  }));
+  assert.equal(wrongIdentity.status, 401);
+
+  const sharedTokenRejected = await app.fetch(new Request("https://admin.techmaxxed.com/runner/jobs/claim", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${identityEnv.RUNNER_API_TOKEN}`,
+      "content-type": "application/json",
+    },
+    body: claimBody,
+  }));
+  assert.equal(sharedTokenRejected.status, 401);
+
+  const claim = await app.fetch(new Request("https://admin.techmaxxed.com/runner/jobs/claim", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${runnerAToken}`,
+      "content-type": "application/json",
+    },
+    body: claimBody,
+  }));
+  assert.equal(claim.status, 200);
+  assert.equal((await claim.json()).record.id, queued.id);
+
+  const completed = await app.fetch(new Request(`https://admin.techmaxxed.com/runner/jobs/${queued.id}/complete`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${runnerAToken}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      runnerId: "runner-a",
+      deviceId: "device-a",
+      productIds: ["maxxed-compass"],
+      agentVersion: "2.1.0",
+      status: "completed",
+      result: {
+        finalStatus: "pass",
+        steps: [{ stepId: "launch-smoke", status: "pass", exitCode: 0 }],
+      },
+      evidence: [{ stepId: "launch-smoke", type: "screenshot", ref: "reports/screen.png" }],
+    }),
+  }));
+  assert.equal(completed.status, 200);
+
+  const fleetPage = await bootstrap(email, "/testing-functions", app, state);
+  const fleetHtml = await fleetPage.response.text();
+  assert.match(fleetHtml, /Runner fleet/);
+  assert.match(fleetHtml, /runner-a/);
+  assert.match(fleetHtml, /Agent: 2\.1\.0/);
+  assert.match(fleetHtml, /online/);
+
+  const detail = await app.fetch(new Request(`https://admin.techmaxxed.com/testing-functions/jobs/${queued.id}`, {
+    headers: authHeaders(email),
+  }));
+  assert.equal(detail.status, 200);
+  const detailHtml = await detail.text();
+  assert.match(detailHtml, /Test Job Detail/);
+  assert.match(detailHtml, /Download result JSON/);
+  assert.match(detailHtml, /launch-smoke/);
+  assert.match(detailHtml, /reports\/screen\.png/);
+
+  const result = await app.fetch(new Request(`https://admin.techmaxxed.com/testing-functions/jobs/${queued.id}/result.json`, {
+    headers: authHeaders(email),
+  }));
+  assert.equal(result.status, 200);
+  assert.match(result.headers.get("content-disposition"), /attachment/);
+  assert.equal((await result.json()).result.finalStatus, "pass");
+});
+
+test("runner token maps and fleet thresholds fail closed when malformed", () => {
+  assert.throws(
+    () => loadPlatformConfig({ ...identityEnv, RUNNER_API_TOKENS_JSON: "not-json" }),
+    /invalid_runner_api_tokens/
+  );
+  assert.throws(
+    () => loadPlatformConfig({
+      ...identityEnv,
+      RUNNER_API_TOKENS_JSON: JSON.stringify({ "runner-a": "short" }),
+    }),
+    /invalid_runner_api_tokens/
+  );
+  assert.throws(
+    () => loadPlatformConfig({
+      ...identityEnv,
+      RUNNER_FLEET_STALE_MS: "1000",
+      RUNNER_FLEET_OFFLINE_MS: "500",
+    }),
+    /invalid_runner_fleet_thresholds/
+  );
+});
