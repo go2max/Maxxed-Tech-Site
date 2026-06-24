@@ -473,12 +473,27 @@ test("runner API authenticates, claims one owned job, and records completion", a
     body: JSON.stringify({
       runnerId: "local-windows-runner",
       status: "completed",
-      result: { finalStatus: "pass" },
+      result: {
+        finalStatus: "pass",
+        steps: [
+          { stepId: "artifact-verify", status: "pass" },
+          { stepId: "launch-smoke", status: "pass" },
+          { stepId: "full-ux-connection", status: "blocked" },
+        ],
+      },
       evidence: [{ type: "result-json", ref: "reports/result.json" }],
     }),
   }));
   assert.equal(completed.status, 200);
   assert.equal((await completed.json()).record.lease_state, "completed");
+
+  const resultsPage = await bootstrap("qa-lead@techmaxxed.com", "/testing-functions", app, state);
+  assert.equal(resultsPage.response.status, 200);
+  const resultsHtml = await resultsPage.response.text();
+  assert.match(resultsHtml, new RegExp(claimedJob.id));
+  assert.match(resultsHtml, /completed/);
+  assert.match(resultsHtml, /full-ux-connection: blocked/);
+  assert.match(resultsHtml, /Evidence records: 1/);
 
   const audit = await state.database.transaction((tx) => tx.list("audit_events"));
   assert.equal(audit.some((event) => event.action_name === "automation_job.claim" && event.target_id === claimedJob.id), true);

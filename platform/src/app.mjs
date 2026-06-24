@@ -196,12 +196,14 @@ async function handleAutomation({ identity, csrfToken, state }) {
 }
 
 
-async function handleTestingFunctions({ identity, csrfToken }) {
+async function handleTestingFunctions({ identity, csrfToken, state }) {
+  const jobs = (await snapshot(state, "automation_jobs"))
+    .filter((job) => job.product_id === "maxxed-remote");
   return renderDashboardPage({
     title: "Testing Functions",
     identity,
     csrfToken,
-    content: renderTestingFunctionsPage(),
+    content: renderTestingFunctionsPage({ jobs }),
   });
 }
 
