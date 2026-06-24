@@ -36,10 +36,17 @@ export function renderAuditPage(events) {
 export function renderTestingFunctionsPage() {
   return `<section class="grid">
     ${card("Maxxed Remote", `<p><strong>Full UX, discovery, and TV connection test</strong></p>
-      <p>Approved runner step: <code>full-ux-connection</code></p>
-      <p>Automates application controls and evidence collection. Real television pairing, power, reconnect, and response require operator observation.</p>
-      <p><a href="/automation">View sequential automation jobs</a></p>`)}
-    ${card("Runner boundary", `<p>Commands and executable paths are fixed by the package-bound manifest. The browser cannot submit shell commands.</p>
-      <p>Run the approved step through the isolated Windows runner with an Android device or emulator attached.</p>`)}
+      <p>Approved steps: <code>artifact-verify</code>, <code>launch-smoke</code>, <code>full-ux-connection</code></p>
+      <form id="remote-test-form">
+        <label>Runner ID <input name="runnerId" value="local-windows-runner" required maxlength="80"></label>
+        <label>Device ID <input name="deviceId" value="android-device-1" required maxlength="80"></label>
+        <button type="submit">Queue full test</button>
+      </form>
+      <p id="remote-test-status" aria-live="polite"></p>
+      <p>Real television pairing, power, reconnect, and response require operator observation.</p>
+      <p><a href="/automation">View sequential automation jobs</a></p>
+      <script src="/testing-functions.js" defer></script>`)}
+    ${card("Runner boundary", `<p>The server owns the ordered step list. The browser cannot submit commands, executable paths, or shell arguments.</p>
+      <p>The queued job waits for the isolated Windows runner and selected Android device.</p>`)}
   </section>`;
 }
