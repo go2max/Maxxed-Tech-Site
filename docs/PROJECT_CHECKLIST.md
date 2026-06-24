@@ -189,7 +189,8 @@ These are website display states, not final Play Console approvals.
 - [ ] Phase 2: private read-only health and monitoring dashboard.
 - [ ] Phase 3: hosted control plane, private artifact storage, and pull runners.
 - [ ] Phase 4: beta enrollment and controlled release automation.
-- [ ] Phase 5: multiple device pools, regression comparison, and scheduled reports.
+- [ ] Phase 5: multiple device pools.
+- [x] Phase 5: deterministic prior-run regression comparison and scheduled portfolio reports.
 
 ## Immediate Next Actions
 
