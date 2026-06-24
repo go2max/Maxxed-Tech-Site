@@ -20,16 +20,30 @@ export async function executeStep(step, context) {
       stdio: ["ignore", "ignore", "ignore", "ipc"],
       windowsHide: true,
     });
-    const timeout = setTimeout(() => {
-      settled = true;
-      child.kill("SIGKILL");
-      reject(new Error("step_timeout"));
-    }, timeoutMs);
 
-    child.on("message", (message) => {
+    const finish = (work) => {
       if (settled) return;
       settled = true;
       clearTimeout(timeout);
+      context.signal?.removeEventListener("abort", abort);
+      work();
+    };
+    const abort = () => finish(() => {
+      child.kill("SIGKILL");
+      reject(new Error("job_cancelled"));
+    });
+    const timeout = setTimeout(() => finish(() => {
+      child.kill("SIGKILL");
+      reject(new Error("step_timeout"));
+    }), timeoutMs);
+
+    if (context.signal?.aborted) {
+      abort();
+      return;
+    }
+    context.signal?.addEventListener("abort", abort, { once: true });
+
+    child.on("message", (message) => finish(() => {
       child.kill();
       if (!message?.ok) {
         reject(new Error(message?.error || "step_failed"));
@@ -46,18 +60,10 @@ export async function executeStep(step, context) {
         startedAt: message.result.startedAt,
         endedAt: message.result.endedAt,
       });
-    });
+    }));
 
-    child.on("exit", (code) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timeout);
-      if (code !== 0) {
-        reject(new Error("step_child_exit"));
-        return;
-      }
-      reject(new Error("step_child_exit"));
-    });
+    child.on("error", (error) => finish(() => reject(error)));
+    child.on("exit", () => finish(() => reject(new Error("step_child_exit"))));
 
     child.send({
       modulePath,
@@ -65,6 +71,7 @@ export async function executeStep(step, context) {
       context: {
         reportDir: context.reportDir,
         inspection: context.inspection,
+        deviceId: context.deviceId,
       },
     });
   });
