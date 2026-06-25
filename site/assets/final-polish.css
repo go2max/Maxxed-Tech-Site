@@ -1,0 +1,10 @@
+.hero-shot { background: #07131f url("images/product-suite-hero.svg") center / cover no-repeat; }
+.hero-shot img { visibility: hidden; }
+.home-hero .eyebrow { color: #25d0d8; }
+.home-hero h1::after { content: "Real-world Android apps for control, field work, measuring, records, and local games."; }
+.app-card p, .truth-item p, .feature-item p { color: #c5d0d5; }
+.app-card { backdrop-filter: blur(12px); }
+.app-card .status { color: #edf7fa; }
+.product-visual { border-color: color-mix(in srgb, var(--accent), transparent 58%); }
+.feature-image { min-height: 360px; background: linear-gradient(145deg, rgba(37,208,216,.16), rgba(185,237,69,.07)), #0d1c28; }
+.contact-band h2 { letter-spacing: -0.04em; }

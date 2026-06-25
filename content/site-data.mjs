@@ -5,7 +5,7 @@ export const site = {
   email: "support@techmaxxed.com",
   privacyEmail: "privacy@techmaxxed.com",
   betaEmail: "beta@techmaxxed.com",
-  description: "Practical Android apps and focused software for TV control, field work, measuring, outdoor records, and local competition.",
+  description: "Android apps and practical software for TV control, navigation, camera measurement, outdoor records, visual estimating, and local party games.",
 };
 
 export const apps = [
@@ -20,7 +20,7 @@ export const apps = [
     accent: "#25d0d8",
     icon: "TV",
     tagline: "One clean remote for the TVs you already own.",
-    summary: "A focused Android TV remote for compatible Samsung Tizen and LG webOS televisions, built for local-network control, saved devices, keypad input, and fast everyday use.",
+    summary: "A focused Android TV remote for compatible Samsung Tizen and LG webOS televisions, with local-network control, saved TVs, keypad input, and app shortcuts.",
     description: "Control compatible televisions from one Android interface with discovery, pairing, saved devices, quick keypad input, app shortcuts, and local credential storage.",
     features: [
       ["Find compatible TVs", "Discover supported Samsung Tizen and LG webOS televisions on the same private network."],
@@ -51,7 +51,7 @@ export const apps = [
     accent: "#b9ed45",
     icon: "N",
     tagline: "Direction, distance, and sky tools without an account.",
-    summary: "An offline compass, true-north guide, trip tracker, and calculated sky scanner with local history, field-ready display modes, and no account requirement.",
+    summary: "An offline Android compass with true-north guidance, trip tracking, recovery state, night display, local history, and calculated sky tools without an account requirement.",
     description: "Use live sensor headings, true north, trip tracking, recovery after interruption, night display, and calculated sky guidance without creating an account or relying on a Maxxed cloud service.",
     features: [
       ["Use real sensor signals", "Read rotation-vector headings with accelerometer and magnetometer fallback where supported."],
@@ -75,7 +75,7 @@ export const apps = [
     accent: "#ff715b",
     icon: "↔",
     tagline: "Camera-assisted measuring with honest uncertainty.",
-    summary: "A reference-calibrated measuring workflow with draggable points, persistent ruler review, multiple units, confidence notes, saved history, and explicit export.",
+    summary: "A camera measurement app built around known-reference calibration, draggable endpoints, persistent ruler review, common units, confidence notes, saved history, and explicit export.",
     description: "Place a known-size reference in the same plane as the subject, calibrate the image, adjust measurement endpoints, and save or export an annotated estimate with visible uncertainty.",
     features: [
       ["Calibrate from a known reference", "Use a real object in the same image instead of pretending the camera can infer exact scale alone."],
@@ -99,7 +99,7 @@ export const apps = [
     accent: "#ffc44d",
     icon: "Au",
     tagline: "Conservative visual estimates, never assay claims.",
-    summary: "An offline visual material estimator with guided multi-angle capture, reference scale, mask correction, material review, saved batches, and CSV export.",
+    summary: "An offline visual material estimator with guided multi-angle capture, reference scale, mask correction, material review, conservative ranges, saved batches, and CSV export.",
     description: "Capture guided views, calibrate against a known reference, review the subject mask and visible material assignments, then produce conservative ranges and confidence notes on the device.",
     features: [
       ["Capture multiple angles", "Collect top, side, rear, and oblique views with coverage and image-quality checks."],
@@ -123,7 +123,7 @@ export const apps = [
     accent: "#47b7ff",
     icon: "FM",
     tagline: "A private catch journal built around evidence.",
-    summary: "An offline-first catch journal with guided photos, known-reference length measurement, uncertainty, manual species confirmation, local records, and privacy-minded exports.",
+    summary: "An offline-first fishing log with catch photos, known-reference length estimates, manual species confirmation, local records, private coordinates, and redacted exports.",
     description: "Photograph a catch, measure it against a real reference, adjust endpoints, confirm species yourself, and keep a local record without exposing exact coordinates by default.",
     features: [
       ["Measure against a reference", "Estimate length from a known object with draggable correction handles and visible uncertainty."],
@@ -147,7 +147,7 @@ export const apps = [
     accent: "#ff5fb7",
     icon: "RR",
     tagline: "Fast local competition for two.",
-    summary: "A colorful local party arcade with PickOff, RPS Arena, Tap Battle, and Word Rush, built for quick rounds, readable scores, profiles, and couch competition.",
+    summary: "A local Android party arcade with PickOff, RPS Arena, Tap Battle, and Word Rush, built for quick rounds, readable scores, player profiles, and couch competition.",
     description: "Jump between short competitive mini-games made for couples and friends on the same device, with quick resets, readable scores, player identity, and touch-first controls.",
     features: [
       ["PickOff", "Enter choices, run rapid eliminations, and keep a short winners history."],

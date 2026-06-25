@@ -1,0 +1,32 @@
+# Maxxed Technical Systems
+
+Maxxed Technical Systems builds Android apps and practical software for real-world tasks: TV control, compass/navigation, camera measurement, fishing records, visual material estimating, and local party games.
+
+Primary site: https://techmaxxed.com
+Support: support@techmaxxed.com
+Privacy: privacy@techmaxxed.com
+Beta testing: beta@techmaxxed.com
+
+## Public product pages
+
+- Maxxed Remote: Android TV remote for compatible Samsung Tizen and LG webOS televisions, local-network control, saved TVs, keypad input, app shortcuts, and privacy-conscious local pairing storage.
+- Maxxed Compass: offline Android compass with true-north guidance, trip tracking, recovery state, night display, local history, and calculated sky tools.
+- Maxxed Measure: camera measurement workflow using known-reference calibration, draggable endpoints, ruler review, confidence notes, saved history, and explicit export.
+- Maxxed Gold Estimator: offline visual material estimator with guided multi-angle capture, reference scale, correction workflow, conservative ranges, saved batches, and CSV export.
+- Fishing Maxxed: offline-first fishing log with catch photos, known-reference length estimates, private coordinates, manual species confirmation, local records, and redacted exports.
+- Rival Rush: local Android party arcade with PickOff, RPS Arena, Tap Battle, Word Rush, quick rounds, readable scores, and couch competition.
+
+## Important wording rules
+
+- Do not describe release-prep or internal-test products as publicly released.
+- Do not describe visual estimates as assays, appraisals, chemistry verification, or valuations.
+- Do not describe camera measurements as survey-grade, laboratory-grade, or exact.
+- Do not describe fishing regulation support as legal authorization to keep a catch.
+- Do not imply Maxxed apps upload local captures, coordinates, trips, pairing credentials, or histories unless a user explicitly exports, shares, screenshots, or emails data.
+
+## Best public landing pages
+
+- /apps/ for the product directory.
+- /portfolio/ for the broader product lineup and requestable tools.
+- /beta/ for Android beta testing.
+- /privacy/ for website and app privacy-policy links.
