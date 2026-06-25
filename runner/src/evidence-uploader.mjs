@@ -11,9 +11,9 @@ const CONTENT_TYPES = new Map([
   [".mp4", "video/mp4"],
 ]);
 
-function isInside(root, candidate) {
+function isInsideOrEqual(root, candidate) {
   const rel = relative(root, candidate);
-  return rel !== "" && rel !== ".." && !rel.startsWith(`..${sep}`) && !rel.startsWith("../") && !rel.startsWith("..\\");
+  return rel === "" || (rel !== ".." && !rel.startsWith(`..${sep}`) && !rel.startsWith("../") && !rel.startsWith("..\\"));
 }
 
 async function evidenceFiles(report, reportDir) {
@@ -24,19 +24,22 @@ async function evidenceFiles(report, reportDir) {
       const ref = String(item.ref || "");
       if (!ref || ref.includes("\0")) continue;
       const candidate = resolve(root, ref);
-      if (!isInside(root, candidate)) continue;
+      if (!isInsideOrEqual(root, candidate)) continue;
       let details;
       try {
         details = await lstat(candidate);
       } catch {
         continue;
       }
+      if (details.isSymbolicLink()) continue;
       if (details.isFile()) {
         candidates.push({ stepId: step.stepId, type: item.type, path: candidate });
       } else if (details.isDirectory()) {
-        for (const entry of await readdir(candidate, { withFileTypes: true })) {
-          if (entry.isFile() && !entry.isSymbolicLink()) {
-            candidates.push({ stepId: step.stepId, type: item.type, path: resolve(candidate, entry.name) });
+        const entries = await readdir(candidate, { withFileTypes: true });
+        for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name))) {
+          const nested = resolve(candidate, entry.name);
+          if (entry.isFile() && !entry.isSymbolicLink() && isInsideOrEqual(root, nested)) {
+            candidates.push({ stepId: step.stepId, type: item.type, path: nested });
           }
         }
       }
@@ -65,9 +68,8 @@ export async function uploadEvidenceFiles({
   for (const item of await evidenceFiles(report, reportDir)) {
     const details = await lstat(item.path);
     if (details.isSymbolicLink() || !details.isFile()) throw new Error("invalid_evidence_file");
-    if (!details.size || details.size > maxBytes) {
-      throw new Error(details.size > maxBytes ? "evidence_too_large" : "invalid_evidence_body");
-    }
+    if (!details.size) continue;
+    if (details.size > maxBytes) throw new Error("evidence_too_large");
     const bytes = await readFile(item.path);
     const artifactName = basename(item.path).replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 120);
     if (!/^[A-Za-z0-9]/.test(artifactName)) throw new Error("invalid_evidence_name");
