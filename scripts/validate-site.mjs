@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
-import { dirname, extname, join, relative, resolve, sep } from "node:path";
+import { extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -19,7 +19,7 @@ async function filesUnder(directory) {
 
 const files = await filesUnder(siteRoot);
 const htmlFiles = files.filter((file) => extname(file) === ".html");
-assert.equal(htmlFiles.length, 23, "Expected 22 indexed HTML pages and one 404 page");
+assert.equal(htmlFiles.length, 25, "Expected 24 indexed HTML pages and one 404 page");
 
 const existing = new Set(files.map((file) => `/${relative(siteRoot, file).split(sep).join("/")}`));
 const titles = new Set();
@@ -79,7 +79,7 @@ assert.match(await readFile(resolve(siteRoot, "terms/index.html"), "utf8"), /Bet
 assert.match(await readFile(resolve(siteRoot, "beta-credits/index.html"), "utf8"), /Public credit is recognition, not compensation/);
 
 const sitemap = await readFile(resolve(siteRoot, "sitemap.xml"), "utf8");
-assert.equal((sitemap.match(/<url>/g) || []).length, 22, "Sitemap should contain all 22 indexed pages");
+assert.equal((sitemap.match(/<url>/g) || []).length, 22, "Sitemap should contain all generated indexed pages");
 assert.match(await readFile(resolve(siteRoot, "robots.txt"), "utf8"), /Sitemap: https:\/\/techmaxxed\.com\/sitemap\.xml/);
 JSON.parse(await readFile(resolve(siteRoot, "site.webmanifest"), "utf8"));
 
