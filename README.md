@@ -86,3 +86,6 @@ and monitoring freshness are documented in `docs/READINESS_SECURITY_MONITORING.m
 Beta approval, Google Groups and Play track sync boundaries, tester events,
 public credits, and privacy request handling are documented in
 `docs/BETA_ENROLLMENT_OPERATIONS.md`.
+
+The final repository-owned completion audit and remaining external launch gates
+are documented in `docs/FINAL_REPOSITORY_AUDIT.md`.
