@@ -75,7 +75,7 @@ These are website display states, not final Play Console approvals.
 - [x] Fishing Maxxed: listed as Release verification.
 - [x] Rival Rush: listed as Internal testing.
 - [x] WordPress Bulk Content Cleanup: retained as the seventh planned product.
-- [x] Connect product status to verified release evidence instead of manual copy.
+- [ ] Connect product status to verified release evidence instead of manual copy.
 - [ ] Add Play Store URLs, current versions, and release notes as products launch.
 
 ## Beta Program
