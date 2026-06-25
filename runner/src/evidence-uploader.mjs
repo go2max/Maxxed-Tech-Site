@@ -68,9 +68,8 @@ export async function uploadEvidenceFiles({
   for (const item of await evidenceFiles(report, reportDir)) {
     const details = await lstat(item.path);
     if (details.isSymbolicLink() || !details.isFile()) throw new Error("invalid_evidence_file");
-    if (!details.size || details.size > maxBytes) {
-      throw new Error(details.size > maxBytes ? "evidence_too_large" : "invalid_evidence_body");
-    }
+    if (!details.size) continue;
+    if (details.size > maxBytes) throw new Error("evidence_too_large");
     const bytes = await readFile(item.path);
     const artifactName = basename(item.path).replace(/[^A-Za-z0-9._-]/g, "_").slice(0, 120);
     if (!/^[A-Za-z0-9]/.test(artifactName)) throw new Error("invalid_evidence_name");
