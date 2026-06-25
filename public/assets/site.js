@@ -1,3 +1,14 @@
+const scriptUrl = document.currentScript?.src;
+if (scriptUrl && !document.querySelector('link[data-ux-overhaul]')) {
+  const uxStylesheet = document.createElement("link");
+  uxStylesheet.rel = "stylesheet";
+  uxStylesheet.href = new URL("ux-overhaul.css", scriptUrl).href;
+  uxStylesheet.dataset.uxOverhaul = "true";
+  document.head.appendChild(uxStylesheet);
+}
+
+document.documentElement.classList.add("js-ready");
+
 const navToggle = document.querySelector("[data-nav-toggle]");
 const navLinks = document.querySelector("[data-nav-links]");
 
@@ -25,6 +36,11 @@ if (catalog) {
   const emptyState = document.querySelector("[data-empty-state]");
   const query = new URLSearchParams(window.location.search).get("q") || "";
   let activeFilter = "all";
+
+  cards.forEach((card) => {
+    const status = card.querySelector(".status")?.textContent?.trim();
+    if (status) card.dataset.statusLabel = status;
+  });
 
   if (search && query) search.value = query;
 
