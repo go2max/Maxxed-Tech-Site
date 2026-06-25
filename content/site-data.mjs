@@ -20,7 +20,7 @@ export const apps = [
     accent: "#25d0d8",
     icon: "TV",
     tagline: "One clean remote for the TVs you already own.",
-    summary: "A focused Android TV remote for compatible Samsung Tizen and LG webOS televisions, with local-network control, saved TVs, keypad input, app shortcuts, and quick everyday navigation.",
+    summary: "A focused Android TV remote for compatible Samsung Tizen and LG webOS televisions, with local-network control, saved TVs, keypad input, and app shortcuts.",
     description: "Control compatible televisions from one Android interface with discovery, pairing, saved devices, quick keypad input, app shortcuts, and local credential storage.",
     features: [
       ["Find compatible TVs", "Discover supported Samsung Tizen and LG webOS televisions on the same private network."],
@@ -123,7 +123,7 @@ export const apps = [
     accent: "#47b7ff",
     icon: "FM",
     tagline: "A private catch journal built around evidence.",
-    summary: "An offline-first fishing log with catch photos, known-reference length estimates, uncertainty, manual species confirmation, local records, private coordinates, and redacted exports.",
+    summary: "An offline-first fishing log with catch photos, known-reference length estimates, manual species confirmation, local records, private coordinates, and redacted exports.",
     description: "Photograph a catch, measure it against a real reference, adjust endpoints, confirm species yourself, and keep a local record without exposing exact coordinates by default.",
     features: [
       ["Measure against a reference", "Estimate length from a known object with draggable correction handles and visible uncertainty."],
