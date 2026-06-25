@@ -4,37 +4,47 @@ Date: June 25, 2026
 
 ## Repository status
 
-The public website source is ready for static deployment from the committed `site/` directory. CI validates the generated static site with `npm run check`.
+The public website source is ready for Hostinger Git auto update from the committed `site/` directory. CI validates the generated static site with `npm run check` before changes are merged.
 
-This pass adds `.github/workflows/pages.yml`, a GitHub Pages deployment workflow that:
+## Canonical production path
 
-- Runs on pushes to `main` and manual workflow dispatch.
-- Runs `npm run check` before deployment.
-- Uploads the validated `site/` directory as the Pages artifact.
-- Deploys with GitHub Pages actions.
+Hostinger is the production host. The expected configuration is:
 
-## Required GitHub setting
+- Repository: `go2max/Maxxed-Tech-Site`
+- Branch: `main`
+- Public directory: `site`
+- Entry file: `site/index.html`
+- Auto update: enabled for pushes or merges to `main`
 
-Before the workflow can publish, enable GitHub Pages for the repository and set the source to GitHub Actions.
+A merge to `main` should update Hostinger automatically as long as Hostinger continues to pull from `main` and serves the contents of `site/` as the document root.
 
-Suggested path:
+## GitHub Actions note
 
-1. Open repository Settings.
-2. Open Pages.
-3. Set Build and deployment source to GitHub Actions.
-4. Save.
-5. Run the `deploy-pages` workflow manually or merge this workflow and let the next `main` push trigger it.
+GitHub Actions remains responsible for validation only. The workflow file `.github/workflows/pages.yml` is intentionally a manual note workflow and does not deploy GitHub Pages. This avoids creating a second production path while Hostinger is the canonical host.
+
+## Live verification after each merge
+
+After a merge to `main`, verify the Hostinger refresh by checking at least one recently changed page or asset:
+
+- `https://techmaxxed.com/`
+- `https://techmaxxed.com/apps/`
+- `https://techmaxxed.com/portfolio/`
+- `https://techmaxxed.com/llms.txt`
+- `https://techmaxxed.com/sitemap.xml`
+- `https://techmaxxed.com/robots.txt`
+
+If content looks stale, check Hostinger deployment logs first, then confirm it is pulling `main` and serving `site/` rather than the repository root.
 
 ## DNS and domain
 
-The repository cannot purchase or connect DNS by itself. After Pages is publishing, connect the custom domain:
+Hostinger should serve:
 
 - `techmaxxed.com`
-- `www.techmaxxed.com` if desired
+- `www.techmaxxed.com` if configured
 
-Then verify:
+Verify:
 
-- HTTPS certificate is issued.
+- HTTPS certificate is active.
 - `https://techmaxxed.com/` serves the current home page.
 - `https://techmaxxed.com/apps/` serves the product directory.
 - `https://techmaxxed.com/portfolio/` serves the Product Lineup page.
@@ -49,7 +59,7 @@ Activate or alias these inboxes before public launch:
 - `privacy@techmaxxed.com`
 - `beta@techmaxxed.com`
 
-## Post-deploy verification
+## Post-update verification
 
 After DNS is live, run a manual pass on desktop and mobile:
 
