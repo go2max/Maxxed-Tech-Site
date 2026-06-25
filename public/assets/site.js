@@ -12,6 +12,33 @@ document.documentElement.classList.add("js-ready");
 const navToggle = document.querySelector("[data-nav-toggle]");
 const navLinks = document.querySelector("[data-nav-links]");
 
+function addProductLineupLinks() {
+  const depth = (document.querySelector('link[rel="stylesheet"]')?.getAttribute("href") || "assets/site.css").startsWith("../") ? "../" : "";
+  const isPortfolio = window.location.pathname.includes("/portfolio");
+
+  if (navLinks && !navLinks.querySelector('a[href$="portfolio/"]')) {
+    const appsLink = [...navLinks.querySelectorAll("a")].find((link) => link.textContent.trim() === "Apps");
+    const lineup = document.createElement("a");
+    lineup.href = `${depth}portfolio/`;
+    lineup.textContent = "Product Lineup";
+    if (isPortfolio) lineup.setAttribute("aria-current", "page");
+    appsLink?.after(lineup);
+  }
+
+  document.querySelectorAll(".footer-grid ul").forEach((list) => {
+    const heading = list.closest("div")?.querySelector("h2")?.textContent?.trim();
+    if (heading !== "Products" || list.querySelector('a[href$="portfolio/"]')) return;
+    const item = document.createElement("li");
+    const link = document.createElement("a");
+    link.href = `${depth}portfolio/`;
+    link.textContent = "Product Lineup";
+    item.appendChild(link);
+    list.insertBefore(item, list.children[1] || null);
+  });
+}
+
+addProductLineupLinks();
+
 if (navToggle && navLinks) {
   navToggle.addEventListener("click", () => {
     const isOpen = navLinks.dataset.open === "true";
