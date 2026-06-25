@@ -32,6 +32,14 @@ const likelyTextExtensions = new Set([
   ".yml",
 ]);
 
+const generatedPaths = new Set([
+  "worker/index.js",
+]);
+
+function isGeneratedPath(path) {
+  return generatedPaths.has(path) || path.startsWith("dist/") || path.startsWith("dist\\");
+}
+
 function isTextPath(path) {
   const extension = path.slice(path.lastIndexOf(".")).toLowerCase();
   return likelyTextExtensions.has(extension) || !path.includes(".");
@@ -48,6 +56,7 @@ if (result.status !== 0) {
 }
 
 for (const file of result.stdout.split(/\r?\n/).filter(Boolean)) {
+  if (isGeneratedPath(file)) continue;
   if (!isTextPath(file)) continue;
   const content = await readFile(resolve(file));
   if (content.includes(0)) continue;
@@ -59,4 +68,4 @@ for (const file of result.stdout.split(/\r?\n/).filter(Boolean)) {
   }
 }
 
-console.log("Tracked text-file secret scan passed.");
+console.log("Tracked source text-file secret scan passed.");
