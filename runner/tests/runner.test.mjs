@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 
@@ -9,6 +9,7 @@ import { runSequentialJob } from "../src/runner.mjs";
 import { loadArtifactCatalog, selectArtifact } from "../src/artifacts.mjs";
 import { loadScriptPackManifest } from "../src/catalog.mjs";
 import { runHeartbeatLoop } from "../src/control-loop.mjs";
+import { uploadEvidenceFiles } from "../src/evidence-uploader.mjs";
 import { buildRemoteCliArgs, checkAgentReadiness, runAgent, validateAgentConfig } from "../agent.mjs";
 import { RUNNER_AGENT_VERSION, runRemoteCycle } from "../remote-cli.mjs";
 
@@ -419,4 +420,50 @@ test("idle runner claims publish fleet version and exact product capabilities", 
   assert.deepEqual(requests[0].body.productIds, ["maxxed-remote"]);
   assert.equal(requests[0].body.agentVersion, RUNNER_AGENT_VERSION);
   assert.equal("token" in requests[0].body, false);
+});
+
+test("runner uploads report-directory evidence without exposing credentials", async () => {
+  const dir = await tempDir();
+  const reportDir = resolve(dir, "reports");
+  await mkdir(reportDir, { recursive: true });
+  await writeFile(resolve(reportDir, "logcat.txt"), "fatal-free logcat");
+  await writeFile(resolve(reportDir, "screen.png"), new Uint8Array([137, 80, 78, 71]));
+  await writeFile(resolve(reportDir, "result.json"), JSON.stringify({ status: "pass" }));
+  await writeFile(resolve(reportDir, "empty.txt"), "");
+  const requests = [];
+  const uploaded = await uploadEvidenceFiles({
+    report: {
+      steps: [{
+        stepId: "full-ux-connection",
+        evidence: [
+          { type: "screenshots", ref: reportDir },
+          { type: "ignored", ref: "../outside.txt" },
+        ],
+      }],
+    },
+    reportDir,
+    platformUrl: new URL("https://admin.techmaxxed.com"),
+    platformJobId: "job-platform",
+    runnerId: "runner-1",
+    token: `runner-token-${"x".repeat(32)}`,
+    fetchImpl: async (url, init) => {
+      requests.push({ url: String(url), headers: init.headers, bytes: init.body.byteLength });
+      return new Response(JSON.stringify({
+        record: {
+          id: `evidence-${requests.length}`,
+          stepId: init.headers["x-maxxed-step-id"],
+          ref: `evidence:evidence-${requests.length}`,
+          artifactName: String(url).split("/").at(-1),
+          byteSize: init.body.byteLength,
+          sha256: "0".repeat(64),
+        },
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    },
+  });
+
+  assert.deepEqual(uploaded.map((item) => item.artifactName).sort(), ["logcat.txt", "result.json", "screen.png"]);
+  assert.equal(requests.length, 3);
+  assert.equal(requests.every((request) => request.headers.authorization.startsWith("Bearer runner-token-")), true);
+  assert.equal(JSON.stringify(uploaded).includes("runner-token"), false);
+  await rm(dir, { recursive: true, force: true });
 });
