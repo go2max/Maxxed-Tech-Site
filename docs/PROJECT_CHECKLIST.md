@@ -14,6 +14,7 @@ implemented feature.
 - [x] Wave 1 platform foundation and post-merge hardening are merged on GitHub `main` through PRs #6 and #7 at commit `b6975f1`.
 - [x] The final Wave 1 Windows CI gate and tracked-file secret scan passed.
 - [x] A sanitized Wave 1 restart checkpoint is stored in `docs/WAVE1_RESTART_CHECKPOINT.md`.
+- [x] Repository-owned platform, runner, evidence, readiness, security, backup, knowledge-base, beta, and audit code paths are complete through the final audit PR.
 - [ ] Public website is deployed to production hosting.
 - [ ] `techmaxxed.com` is purchased, connected, and serving the site.
 - [ ] Production support, privacy, and beta email addresses are active.
@@ -58,8 +59,8 @@ implemented feature.
 
 - [ ] Add final Play Store links only after each listing is public.
 - [ ] Add approved screenshots and store artwork for the remaining applications.
-- [ ] Replace email-preparation beta intake with a secure server-side workflow.
-- [ ] Add an uptime monitor for the public website.
+- [x] Replace email-preparation beta intake with a secure server-side workflow foundation.
+- [x] Add an uptime monitor for the public website.
 - [ ] Add privacy-respecting analytics only after the disclosure and consent model
       is approved.
 
@@ -74,7 +75,7 @@ These are website display states, not final Play Console approvals.
 - [x] Fishing Maxxed: listed as Release verification.
 - [x] Rival Rush: listed as Internal testing.
 - [x] WordPress Bulk Content Cleanup: retained as the seventh planned product.
-- [ ] Connect product status to verified release evidence instead of manual copy.
+- [x] Connect product status to verified release evidence instead of manual copy.
 - [ ] Add Play Store URLs, current versions, and release notes as products launch.
 
 ## Beta Program
@@ -178,7 +179,7 @@ These are website display states, not final Play Console approvals.
 - [x] Allow the operator to order scripts before execution.
 - [x] Execute exactly one job and one script step at a time.
 - [x] Lock the selected emulator or physical device for the job.
-- [ ] Capture logcat, screenshots, video where enabled, performance, and failures.
+- [x] Capture logcat, screenshots, video where enabled, performance, and failures.
 - [x] Apply per-step timeouts and hard child-process termination.
 - [x] Produce local HTML and JSON reports.
 - [x] Recover safely after stale runner or device interruption.
@@ -187,7 +188,7 @@ These are website display states, not final Play Console approvals.
 ### Later Phases
 
 - [x] Phase 2: private read-only health and monitoring dashboard.
-- [ ] Phase 3: hosted control plane, private artifact storage, and pull runners.
+- [x] Phase 3: hosted control plane, private artifact storage, and pull runners.
 - [ ] Phase 4: beta enrollment and controlled release automation.
 - [x] Phase 5: automatic compatible-device pools with one active lease per runner-device pair.
 - [x] Phase 5: deterministic prior-run regression comparison and scheduled portfolio reports.
@@ -197,9 +198,9 @@ These are website display states, not final Play Console approvals.
 1. Purchase or recover `techmaxxed.com`.
 2. Deploy the validated public site and connect DNS.
 3. Activate the three public email addresses.
-4. Run live desktop, mobile, security-header, SEO, and accessibility checks.
-5. Complete the remaining Google Groups, Play track sync, runner evidence, and deployment gates.
-6. Keep beta enrollment manual until authenticated approval and audit logging are connected to live Google credentials.
+4. Configure production identity, MFA/recovery, D1/R2 bindings, and secret management.
+5. Configure Google Groups, Workspace service account, Play service account, and Play Console tracks.
+6. Run live desktop, mobile, security-header, SEO, accessibility, Android-device, TV-hardware, and Play Console validation.
 
 ## Reference Documents
 
@@ -208,5 +209,6 @@ These are website display states, not final Play Console approvals.
 - `docs/PRIVATE_OPERATIONS_PLATFORM.md`: private dashboard and APK runner design.
 - `docs/ADMIN_AND_BETA_AUTOMATION.md`: admin identity and beta automation plan.
 - `docs/BETA_ENROLLMENT_OPERATIONS.md`: beta review, Google group, Play track, credit, and privacy request runbook.
+- `docs/FINAL_REPOSITORY_AUDIT.md`: final code-side completion audit and external gate list.
 - `docs/PLATFORM_ROLLBACK_STRATEGY.md`: migration and recovery posture.
 - `docs/WAVE1_RESTART_CHECKPOINT.md`: sanitized project state and restart instructions.
