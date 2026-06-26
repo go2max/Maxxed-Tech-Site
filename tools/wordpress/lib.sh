@@ -8,11 +8,22 @@ wp_repo_root() {
   git rev-parse --show-toplevel 2>/dev/null || pwd
 }
 
+wp_cd_root() {
+  cd "$(wp_repo_root)"
+}
+
 wp_ensure_env() {
   if [[ ! -f "$WP_ENV_FILE" ]]; then
     cp .env.wordpress.example "$WP_ENV_FILE"
   fi
-  mkdir -p wordpress/plugins wordpress/themes wordpress/uploads wordpress/mu-plugins wordpress/reports local-artifacts/wordpress
+
+  mkdir -p \
+    local-artifacts/wordpress \
+    wordpress/mu-plugins \
+    wordpress/plugins \
+    wordpress/reports \
+    wordpress/themes \
+    wordpress/uploads
 }
 
 wp_load_env() {
@@ -37,4 +48,20 @@ wp_url() {
 
 wp_admin_url() {
   echo "$(wp_url)/wp-admin"
+}
+
+wp_public_health_url() {
+  echo "$(wp_url)/wp-json/maxxed/v1/health"
+}
+
+wp_require_artifact() {
+  local artifact="$1"
+  if [[ -z "$artifact" ]]; then
+    echo "Artifact path is required." >&2
+    return 2
+  fi
+  if [[ ! -f "$artifact" ]]; then
+    echo "Artifact not found: $artifact" >&2
+    return 2
+  fi
 }
