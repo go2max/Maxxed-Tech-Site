@@ -10,6 +10,8 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const output = resolve(root, "site");
 const dist = resolve(root, "dist");
 const generatedWorker = resolve(root, "worker/index.js");
+const googleTagId = "G-FPG9XJHGHK";
+const contentSecurityPolicy = "default-src 'self'; img-src 'self' data: https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com; base-uri 'none'; frame-ancestors 'none'; form-action 'self' mailto:";
 
 const escapeHtml = (value) => String(value)
   .replaceAll("&", "&amp;")
@@ -20,6 +22,17 @@ const escapeHtml = (value) => String(value)
 const link = (depth, path = "") => `${"../".repeat(depth)}${path}`;
 const canonical = (path = "") => `${site.url}/${path}`;
 const jsonLd = (value) => JSON.stringify(value).replaceAll("<", "\\u003c");
+
+function googleTag() {
+  return `<script async src="https://www.googletagmanager.com/gtag/js?id=${googleTagId}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', '${googleTagId}');
+  </script>`;
+}
 
 function appCard(app, depth, featured = false) {
   return `<a class="app-card${featured ? " featured" : ""}" data-app-card data-category="${app.categoryKey}" style="--accent:${app.accent}" href="${link(depth, `apps/${app.slug}/`)}">
@@ -101,6 +114,7 @@ function layout({ title, description, path = "", depth = 0, current = "", body, 
   <link rel="icon" href="${link(depth, "assets/images/favicon.svg")}" type="image/svg+xml">
   <link rel="manifest" href="${link(depth, "site.webmanifest")}">
   <link rel="stylesheet" href="${link(depth, "assets/site.css")}">
+  ${googleTag()}
   ${schemas.map((item) => `<script type="application/ld+json">${jsonLd(item)}</script>`).join("\n  ")}
 </head>
 <body data-support-email="${site.email}" data-beta-email="${site.betaEmail}">
@@ -196,7 +210,7 @@ function supportPage() {
 
 function privacyPage() {
   const policyLinks = apps.map((app) => `<li><a href="../apps/${app.slug}/privacy/">${escapeHtml(app.name)} privacy policy</a></li>`).join("");
-  const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">Company policy</p><h1>Website privacy</h1><p class="lede">TechMaxxed.com provides product information without website accounts, advertising trackers, or analytics scripts.</p><p class="fine-print">Effective June 23, 2026</p></div></section><section class="shell section"><div class="copy-grid"><aside><p>This policy covers TechMaxxed.com. Every active app also has a detailed policy specific to its permissions and data behavior.</p><ul>${policyLinks}</ul></aside><article><h2>Website data</h2><p>The website does not set advertising or analytics cookies and does not include advertising pixels. The hosting provider may process standard request information such as IP address, browser type, requested page, timestamp, and security events to deliver and protect the site.</p><h2>Email and beta applications</h2><p>Support and beta forms open the visitor's email application. The website does not store the form contents. Emails sent to Maxxed Technical Systems may contain the applicant's email address, selected apps, device details, testing notes, and optional public credit name. This information is used to review the request, communicate about selected tests, maintain tester eligibility, and publish credit only when the tester expressly opts in.</p><h2>Beta retention and removal</h2><p>Beta application and participation records are retained while needed to manage testing, document consent, prevent abuse, and maintain credits. A tester may request removal from future contact, testing groups, or public credits by emailing <a href="mailto:${site.betaEmail}?subject=Beta%20removal%20request">${site.betaEmail}</a>.</p><h2>App privacy</h2><p>Each app policy explains on-device data, permissions, exports, deletion, third-party services, and any release-stage limitations. The final policy and Play Data safety declaration are reviewed against the signed build before public release.</p><h2>Children</h2><p>The website and beta program are not directed to children. Beta applicants must be at least 18 years old or have a parent or legal guardian apply and supervise participation.</p><h2>Changes</h2><p>This policy may be updated as products launch or website functionality changes. The effective date will be revised when material changes are published.</p><h2>Contact</h2><p>Privacy questions may be sent to <a href="mailto:${site.privacyEmail}?subject=Privacy%20question">${site.privacyEmail}</a>.</p></article></div></section>`;
+  const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">Company policy</p><h1>Website privacy</h1><p class="lede">TechMaxxed.com provides product information without website accounts or advertising trackers. Google Analytics is used to understand basic website traffic.</p><p class="fine-print">Effective June 23, 2026</p></div></section><section class="shell section"><div class="copy-grid"><aside><p>This policy covers TechMaxxed.com. Every active app also has a detailed policy specific to its permissions and data behavior.</p><ul>${policyLinks}</ul></aside><article><h2>Website data</h2><p>The website uses Google Analytics to measure page views and basic traffic patterns. Google may process information such as page URL, browser and device details, approximate location derived from network information, referrer, timestamp, and related diagnostic signals under Google's terms. The website does not create visitor accounts or include advertising pixels. The hosting provider may also process standard request information such as IP address, browser type, requested page, timestamp, and security events to deliver and protect the site.</p><h2>Email and beta applications</h2><p>Support and beta forms open the visitor's email application. The website does not store the form contents. Emails sent to Maxxed Technical Systems may contain the applicant's email address, selected apps, device details, testing notes, and optional public credit name. This information is used to review the request, communicate about selected tests, maintain tester eligibility, and publish credit only when the tester expressly opts in.</p><h2>Beta retention and removal</h2><p>Beta application and participation records are retained while needed to manage testing, document consent, prevent abuse, and maintain credits. A tester may request removal from future contact, testing groups, or public credits by emailing <a href="mailto:${site.betaEmail}?subject=Beta%20removal%20request">${site.betaEmail}</a>.</p><h2>App privacy</h2><p>Each app policy explains on-device data, permissions, exports, deletion, third-party services, and any release-stage limitations. The final policy and Play Data safety declaration are reviewed against the signed build before public release.</p><h2>Children</h2><p>The website and beta program are not directed to children. Beta applicants must be at least 18 years old or have a parent or legal guardian apply and supervise participation.</p><h2>Changes</h2><p>This policy may be updated as products launch or website functionality changes. The effective date will be revised when material changes are published.</p><h2>Contact</h2><p>Privacy questions may be sent to <a href="mailto:${site.privacyEmail}?subject=Privacy%20question">${site.privacyEmail}</a>.</p></article></div></section>`;
   return layout({ title: "Privacy", description: "Read the Maxxed Technical Systems website privacy policy and learn how product support, local app data, and user-directed exports are handled.", path: "privacy/", depth: 1, body });
 }
 
@@ -265,7 +279,7 @@ const indexedPaths = ["", "apps/", ...apps.flatMap((app) => [`apps/${app.slug}/`
 await writePage("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexedPaths.map((path) => `  <url><loc>${canonical(path)}</loc></url>`).join("\n")}\n</urlset>\n`);
 await writePage("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${canonical("sitemap.xml")}\n`);
 await writePage("site.webmanifest", JSON.stringify({ name: site.name, short_name: site.shortName, start_url: "/", display: "standalone", background_color: "#07131f", theme_color: "#07131f", icons: [{ src: "/assets/images/favicon.svg", sizes: "any", type: "image/svg+xml" }] }, null, 2));
-await writePage("_headers", `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'self' mailto:\n`);
+await writePage("_headers", `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Content-Security-Policy: ${contentSecurityPolicy}\n`);
 
 async function filesUnder(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -287,7 +301,7 @@ for (const file of await filesUnder(output)) {
 
 const workerSource = `const assets=${JSON.stringify(assets)};
 const decode=(value)=>Uint8Array.from(atob(value),character=>character.charCodeAt(0));
-const security={"x-content-type-options":"nosniff","referrer-policy":"strict-origin-when-cross-origin","permissions-policy":"camera=(), microphone=(), geolocation=()","content-security-policy":"default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'self' mailto:"};
+const security={"x-content-type-options":"nosniff","referrer-policy":"strict-origin-when-cross-origin","permissions-policy":"camera=(), microphone=(), geolocation=()","content-security-policy":${JSON.stringify(contentSecurityPolicy)}};
 export default {async fetch(request){const url=new URL(request.url);let path=decodeURIComponent(url.pathname);if(path==="/")path="/index.html";else if(path.endsWith("/"))path+="index.html";else if(!path.split("/").at(-1).includes(".")&&assets[path+"/index.html"]){return Response.redirect(url.origin+path+"/"+url.search,308);}const asset=assets[path];if(!asset){const missing=assets["/404.html"];return new Response(decode(missing.data),{status:404,headers:{"content-type":missing.type,...security}});}return new Response(decode(asset.data),{headers:{"content-type":asset.type,...security}});}};\n`;
 
 await mkdir(resolve(root, "worker"), { recursive: true });
