@@ -40,6 +40,7 @@ services:
       - maxxed_wp_site_data:/var/www/html
       - ./wordpress/plugins:/var/www/html/wp-content/plugins/maxxed-local
       - ./wordpress/themes:/var/www/html/wp-content/themes/maxxed-local
+      - ./wordpress/mu-plugins:/var/www/html/wp-content/mu-plugins
       - ./wordpress/uploads:/var/www/html/wp-content/uploads
 
   wpcli:
@@ -58,8 +59,10 @@ services:
       WORDPRESS_DB_PASSWORD: ${WP_DB_PASSWORD:-wordpress}
     volumes:
       - maxxed_wp_site_data:/var/www/html
+      - ./:/workspace:ro
       - ./wordpress/plugins:/var/www/html/wp-content/plugins/maxxed-local
       - ./wordpress/themes:/var/www/html/wp-content/themes/maxxed-local
+      - ./wordpress/mu-plugins:/var/www/html/wp-content/mu-plugins
       - ./wordpress/uploads:/var/www/html/wp-content/uploads
     entrypoint: ["wp"]
 
