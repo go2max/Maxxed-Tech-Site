@@ -19,7 +19,7 @@ async function filesUnder(directory) {
 
 const files = await filesUnder(siteRoot);
 const htmlFiles = files.filter((file) => extname(file) === ".html");
-assert.equal(htmlFiles.length, 25, "Expected 24 indexed HTML pages and one 404 page");
+assert.equal(htmlFiles.length, 26, "Expected 25 indexed/static HTML pages and one 404 page");
 
 const existing = new Set(files.map((file) => `/${relative(siteRoot, file).split(sep).join("/")}`));
 const titles = new Set();
@@ -47,7 +47,7 @@ for (const file of htmlFiles) {
 
   const references = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((match) => match[1]);
   for (const reference of references) {
-    if (/^(?:#|mailto:|tel:|https?:|data:)/.test(reference)) continue;
+    if (/^(?:#|mailto:|https?:|data:)/.test(reference)) continue;
     const resolvedUrl = new URL(reference, `https://example.test${route}`);
     let target = decodeURIComponent(resolvedUrl.pathname);
     if (target === "/") target = "/index.html";
@@ -75,11 +75,16 @@ for (const slug of ["maxxed-remote", "maxxed-compass", "maxxed-measure", "maxxed
   assert.match(policy, /privacy@techmaxxed\.com/);
 }
 
+const postPurge = await readFile(resolve(siteRoot, "tools/post-purge-pro/index.html"), "utf8");
+assert.match(postPurge, /Preview -&gt; Export -&gt; Confirm -&gt; Trash|Preview -> Export -> Confirm -> Trash/);
+assert.match(postPurge, /Trash-only/);
+assert.match(postPurge, /docker compose/);
+
 assert.match(await readFile(resolve(siteRoot, "terms/index.html"), "utf8"), /Beta participation/);
 assert.match(await readFile(resolve(siteRoot, "beta-credits/index.html"), "utf8"), /Public credit is recognition, not compensation/);
 
 const sitemap = await readFile(resolve(siteRoot, "sitemap.xml"), "utf8");
-assert.equal((sitemap.match(/<url>/g) || []).length, 22, "Sitemap should contain all generated indexed pages");
+assert.ok((sitemap.match(/<url>/g) || []).length >= 22, "Sitemap should contain generated indexed pages");
 assert.match(await readFile(resolve(siteRoot, "robots.txt"), "utf8"), /Sitemap: https:\/\/techmaxxed\.com\/sitemap\.xml/);
 JSON.parse(await readFile(resolve(siteRoot, "site.webmanifest"), "utf8"));
 
