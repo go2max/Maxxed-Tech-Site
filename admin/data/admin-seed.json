@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-26T15:17:28.622Z",
+  "generatedAt": "2026-06-26T17:08:01.104Z",
   "products": [
     {
       "id": "prod_maxxed-remote",
@@ -200,7 +200,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-remote_privacy_policy_present",
@@ -211,7 +211,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-remote_play_listing_url_present",
@@ -222,7 +222,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-remote_signed_release_artifact_recorded",
@@ -233,7 +233,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-remote_signing_fingerprint_verified",
@@ -244,7 +244,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-remote_debuggable_false",
@@ -255,7 +255,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-remote_permissions_reviewed",
@@ -266,7 +266,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-remote_store_copy_reviewed",
@@ -277,7 +277,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-remote_data_safety_reviewed",
@@ -288,7 +288,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-remote_beta_feedback_reviewed",
@@ -299,7 +299,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-remote_support_path_verified",
@@ -310,7 +310,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-remote_known_blockers_closed",
@@ -321,7 +321,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-remote_crash_anr_data_reviewed",
@@ -332,7 +332,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_public_site_validation",
@@ -343,7 +343,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_privacy_policy_present",
@@ -354,7 +354,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_play_listing_url_present",
@@ -365,7 +365,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_signed_release_artifact_recorded",
@@ -376,7 +376,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_signing_fingerprint_verified",
@@ -387,7 +387,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_debuggable_false",
@@ -398,7 +398,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_permissions_reviewed",
@@ -409,7 +409,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_store_copy_reviewed",
@@ -420,7 +420,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_data_safety_reviewed",
@@ -431,7 +431,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_beta_feedback_reviewed",
@@ -442,7 +442,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_support_path_verified",
@@ -453,7 +453,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_known_blockers_closed",
@@ -464,7 +464,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-compass_crash_anr_data_reviewed",
@@ -475,7 +475,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_public_site_validation",
@@ -486,7 +486,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_privacy_policy_present",
@@ -497,7 +497,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_play_listing_url_present",
@@ -508,7 +508,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_signed_release_artifact_recorded",
@@ -519,7 +519,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_signing_fingerprint_verified",
@@ -530,7 +530,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_debuggable_false",
@@ -541,7 +541,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_permissions_reviewed",
@@ -552,7 +552,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_store_copy_reviewed",
@@ -563,7 +563,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_data_safety_reviewed",
@@ -574,7 +574,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_beta_feedback_reviewed",
@@ -585,7 +585,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_support_path_verified",
@@ -596,7 +596,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_known_blockers_closed",
@@ -607,7 +607,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-measure_crash_anr_data_reviewed",
@@ -618,7 +618,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_public_site_validation",
@@ -629,7 +629,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_privacy_policy_present",
@@ -640,7 +640,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_play_listing_url_present",
@@ -651,7 +651,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_signed_release_artifact_recorded",
@@ -662,7 +662,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_signing_fingerprint_verified",
@@ -673,7 +673,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_debuggable_false",
@@ -684,7 +684,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_permissions_reviewed",
@@ -695,7 +695,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_store_copy_reviewed",
@@ -706,7 +706,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_data_safety_reviewed",
@@ -717,7 +717,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_beta_feedback_reviewed",
@@ -728,7 +728,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_support_path_verified",
@@ -739,7 +739,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_known_blockers_closed",
@@ -750,7 +750,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_crash_anr_data_reviewed",
@@ -761,7 +761,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_public_site_validation",
@@ -772,7 +772,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_privacy_policy_present",
@@ -783,7 +783,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_play_listing_url_present",
@@ -794,7 +794,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_signed_release_artifact_recorded",
@@ -805,7 +805,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_signing_fingerprint_verified",
@@ -816,7 +816,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_debuggable_false",
@@ -827,7 +827,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_permissions_reviewed",
@@ -838,7 +838,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_store_copy_reviewed",
@@ -849,7 +849,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_data_safety_reviewed",
@@ -860,7 +860,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_beta_feedback_reviewed",
@@ -871,7 +871,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_support_path_verified",
@@ -882,7 +882,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_known_blockers_closed",
@@ -893,7 +893,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_fishing-maxxed_crash_anr_data_reviewed",
@@ -904,7 +904,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_public_site_validation",
@@ -915,7 +915,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_privacy_policy_present",
@@ -926,7 +926,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_play_listing_url_present",
@@ -937,7 +937,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_signed_release_artifact_recorded",
@@ -948,7 +948,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_signing_fingerprint_verified",
@@ -959,7 +959,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_debuggable_false",
@@ -970,7 +970,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_permissions_reviewed",
@@ -981,7 +981,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_store_copy_reviewed",
@@ -992,7 +992,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_data_safety_reviewed",
@@ -1003,7 +1003,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_beta_feedback_reviewed",
@@ -1014,7 +1014,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_support_path_verified",
@@ -1025,7 +1025,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_known_blockers_closed",
@@ -1036,7 +1036,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_rival-rush_crash_anr_data_reviewed",
@@ -1047,7 +1047,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_public_site_validation",
@@ -1058,7 +1058,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_privacy_policy_present",
@@ -1069,7 +1069,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_play_listing_url_present",
@@ -1080,7 +1080,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_signed_release_artifact_recorded",
@@ -1091,7 +1091,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_signing_fingerprint_verified",
@@ -1102,7 +1102,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_debuggable_false",
@@ -1113,7 +1113,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_permissions_reviewed",
@@ -1124,7 +1124,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_store_copy_reviewed",
@@ -1135,7 +1135,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_data_safety_reviewed",
@@ -1146,7 +1146,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_beta_feedback_reviewed",
@@ -1157,7 +1157,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_support_path_verified",
@@ -1168,7 +1168,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_known_blockers_closed",
@@ -1179,7 +1179,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_crash_anr_data_reviewed",
@@ -1190,7 +1190,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     }
   ],
   "integrations": [
@@ -1206,7 +1206,7 @@
         "ADMIN_HOSTNAME"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "int_cloudflare_d1",
@@ -1220,7 +1220,7 @@
         "ADMIN_D1_BINDING"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "int_cloudflare_r2_evidence",
@@ -1234,7 +1234,7 @@
         "ADMIN_R2_EVIDENCE_BUCKET"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "int_google_play_developer_api",
@@ -1248,7 +1248,7 @@
         "ADMIN_GOOGLE_PLAY_PROJECT_ID"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "int_google_play_reporting_api",
@@ -1262,7 +1262,7 @@
         "ADMIN_GOOGLE_PLAY_PROJECT_ID"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "int_google_workspace_groups",
@@ -1276,7 +1276,7 @@
         "ADMIN_GOOGLE_WORKSPACE_CUSTOMER_ID"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "int_mailbox_domain_health",
@@ -1292,7 +1292,7 @@
         "ADMIN_PRIVACY_MAILBOX"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "int_android_runner_fleet",
@@ -1306,7 +1306,7 @@
         "ADMIN_RUNNER_REGISTRY"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "int_github_actions",
@@ -1318,7 +1318,7 @@
       "credentialSourceName": null,
       "requiredEnv": [],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     },
     {
       "id": "int_uptime_monitoring",
@@ -1330,7 +1330,7 @@
       "credentialSourceName": null,
       "requiredEnv": [],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T15:17:28.622Z"
+      "updatedAt": "2026-06-26T17:08:01.104Z"
     }
   ],
   "auditEvents": []
