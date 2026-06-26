@@ -9,6 +9,11 @@
     "check": "node ./scripts/check.mjs",
     "validate": "node scripts/validate-site.mjs && node scripts/validate-artifact.mjs",
     "platform:check": "node ./scripts/check-platform.mjs",
-    "runner:check": "node ./scripts/check-runner.mjs"
+    "runner:check": "node ./scripts/check-runner.mjs",
+    "admin:seed": "node admin/src/seed-admin-data.mjs",
+    "admin:build": "node admin/src/build-admin.mjs",
+    "admin:test": "node admin/tests/admin.test.mjs",
+    "admin:check": "node admin/src/seed-admin-data.mjs && node admin/src/build-admin.mjs && node admin/tests/admin.test.mjs",
+    "check:admin-boundary": "node scripts/validate-admin-boundary.mjs"
   }
 }

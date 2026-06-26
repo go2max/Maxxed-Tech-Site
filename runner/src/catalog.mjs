@@ -29,9 +29,7 @@ export async function loadScriptPackManifest({ rootDir, product, requestedManife
 
   if (requestedManifestPath) {
     const resolvedRequested = resolve(requestedManifestPath);
-    if (allowTestManifest) {
-      ensureRelativePath(rootDir, resolvedRequested, "invalid_manifest_path");
-    } else if (resolvedRequested !== resolvedApproved) {
+    if (!allowTestManifest && resolvedRequested !== resolvedApproved) {
       throw new Error("unapproved_manifest_path");
     }
   }
