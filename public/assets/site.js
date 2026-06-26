@@ -70,6 +70,50 @@ function addWordPressFilter(filters) {
   group.appendChild(button);
 }
 
+function relativePrefix() {
+  const stylesheet = document.querySelector('link[rel="stylesheet"]')?.getAttribute("href") || "assets/site.css";
+  return stylesheet.startsWith("../") ? "../" : "";
+}
+
+function addPluginsNavigation() {
+  const prefix = relativePrefix();
+  if (navLinks && !navLinks.querySelector('a[href$="plugins/"]')) {
+    const appsLink = [...navLinks.querySelectorAll("a")].find((link) => link.textContent.trim() === "Apps");
+    const pluginLink = document.createElement("a");
+    pluginLink.href = `${prefix}plugins/`;
+    pluginLink.textContent = "Plugins";
+    if (location.pathname.includes("/plugins/")) pluginLink.setAttribute("aria-current", "page");
+    appsLink?.after(pluginLink);
+  }
+
+  document.querySelectorAll(".footer-grid ul").forEach((list) => {
+    const heading = list.closest("div")?.querySelector("h2")?.textContent?.trim();
+    if (heading !== "Products" || list.querySelector('a[href$="plugins/"]')) return;
+    const item = document.createElement("li");
+    const link = document.createElement("a");
+    link.href = `${prefix}plugins/`;
+    link.textContent = "WordPress plugins";
+    item.appendChild(link);
+    list.insertBefore(item, list.children[1] || null);
+  });
+}
+
+function addHomePluginSummary() {
+  if (location.pathname !== "/" || document.querySelector("[data-plugin-summary]")) return;
+  const productSection = document.querySelector(".app-grid")?.closest("section");
+  if (!productSection) return;
+  const prefix = relativePrefix();
+  const section = document.createElement("section");
+  section.className = "band";
+  section.dataset.pluginSummary = "";
+  const highlights = wordpressPluginListings.slice(0, 6).map(([icon, name, summary], index) => `<article class="app-card" data-category="utility wordpress" style="--accent:${pluginAccents[index % pluginAccents.length]}"><div class="app-card-top"><span class="app-icon" aria-hidden="true">${escapeText(icon)}</span><span class="status">Plugin lab candidate</span></div><h3>${escapeText(name)}</h3><p>${escapeText(summary)}</p><div class="fact-row"><span>Editable profile</span><span>Zip package</span></div><span class="app-meta">WordPress plugin package</span></article>`).join("");
+  section.innerHTML = `<div class="shell section"><div class="section-head"><div><p class="eyebrow">WordPress plugin lab</p><h2>${wordpressPluginListings.length} plugins prepared for testing</h2></div><p>The homepage shows a small sample. The dedicated plugin catalog keeps the full list searchable and organized.</p></div><div class="app-grid">${highlights}</div><div class="hero-actions"><a class="button secondary" href="${prefix}plugins/">View all ${wordpressPluginListings.length} WordPress plugins</a><a class="button secondary" href="${prefix}apps/">Open full product catalog</a></div></div>`;
+  productSection.after(section);
+}
+
+addPluginsNavigation();
+addHomePluginSummary();
+
 if (navToggle && navLinks) {
   navToggle.addEventListener("click", () => {
     const isOpen = navLinks.dataset.open === "true";
