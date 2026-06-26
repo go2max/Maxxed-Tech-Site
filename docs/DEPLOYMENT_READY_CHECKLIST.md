@@ -6,6 +6,13 @@ Date: June 25, 2026
 
 The public website source is ready for Hostinger Git auto update from the committed `site/` directory. CI validates the generated static site with `npm run check` before changes are merged.
 
+Current repository cleanup status:
+
+- `go2max/Maxxed-Tech-Site` remote branch cleanup is complete. The only remote branches should be `origin/HEAD -> origin/main` and `origin/main`.
+- `go2max/Post-Purge-Pro` PR #3 (`Import generated Post Purge Pro release`) was merged by the owner after CI passed.
+- `go2max/Post-Purge-Pro` branch cleanup should leave only `origin/HEAD -> origin/main` and `origin/main` after `codex/complete-safe-mvp` and any stale `import-generated-release` ref are pruned/deleted.
+- Chat archive for the Maxxed Remote/admin testing control-plane build and branch cleanup is recorded in `docs/CHAT_ARCHIVE_2026-06-25_REMOTE_ADMIN_BRANCH_CLEANUP.md`.
+
 ## Canonical production path
 
 Hostinger is the production host. The expected configuration is:
