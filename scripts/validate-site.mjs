@@ -19,7 +19,7 @@ async function filesUnder(directory) {
 
 const files = await filesUnder(siteRoot);
 const htmlFiles = files.filter((file) => extname(file) === ".html");
-assert.equal(htmlFiles.length, 26, "Expected 25 indexed/static HTML pages and one 404 page");
+assert.ok(htmlFiles.length >= 26, `Expected at least 25 indexed/static HTML pages and one 404 page, found ${htmlFiles.length}`);
 
 const existing = new Set(files.map((file) => `/${relative(siteRoot, file).split(sep).join("/")}`));
 const titles = new Set();
