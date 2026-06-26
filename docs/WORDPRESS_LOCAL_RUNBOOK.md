@@ -1,63 +1,73 @@
-# WordPress Local Runbook
+# WordPress Plugin Lab Runbook
 
-## Clean start
+This repo contains a local WordPress lab for uploading plugin and theme ZIP artifacts, installing them in Docker WordPress, and recording repeatable validation evidence.
 
-```bash
-npm run wordpress:reset
-npm run wordpress:bootstrap
+The public TechMaxxed subsite is documentation only:
+
+```text
+https://techmaxxed.com/tools/wordpress-plugin-lab/
 ```
 
-## Smoke test
+Actual plugin execution happens locally in Docker.
 
-```bash
-npm run wordpress:smoke
+## Windows start
+
+```powershell
+npm run wordpress:lab
 ```
 
-## Status and report
+To reset the lab completely:
 
-```bash
-npm run wordpress:status
-npm run wordpress:report
+```powershell
+powershell -ExecutionPolicy Bypass -File ./tools/wordpress/lab.ps1 -Reset
 ```
 
-## Test a plugin ZIP
+## Artifact upload folder
 
-```bash
-mkdir -p local-artifacts/wordpress
-cp /path/to/plugin.zip local-artifacts/wordpress/plugin.zip
-./tools/wordpress/install-plugin-zip.sh local-artifacts/wordpress/plugin.zip --activate
-npm run wordpress:smoke
+Copy plugin and theme ZIPs into:
+
+```text
+local-artifacts/wordpress/
 ```
 
-## Test a theme ZIP
+Use stable filenames that match `wordpress/products.example.json`, for example:
 
-```bash
-mkdir -p local-artifacts/wordpress
-cp /path/to/theme.zip local-artifacts/wordpress/theme.zip
-./tools/wordpress/install-theme-zip.sh local-artifacts/wordpress/theme.zip --activate
-npm run wordpress:smoke
+```text
+local-artifacts/wordpress/post-purge-pro.zip
+local-artifacts/wordpress/wordpress-role-auditor.zip
+local-artifacts/wordpress/broken-shortcode-finder.zip
 ```
 
-## Run the product manifest
+## Install one artifact
 
-```bash
-cp wordpress/products.example.json local-artifacts/wordpress/products.local.json
-# Edit artifact paths in local-artifacts/wordpress/products.local.json.
-npm run wordpress:manifest -- local-artifacts/wordpress/products.local.json
+```powershell
+npm run wordpress:install -- plugin local-artifacts/wordpress/example-plugin.zip --activate
+npm run wordpress:install -- theme local-artifacts/wordpress/example-theme.zip
 ```
 
-Missing ZIP artifacts are reported as skipped so the example manifest can stay committed safely.
+## Run the manifest queue
+
+```powershell
+npm run wordpress:manifest -- wordpress/products.example.json
+```
+
+Missing ZIP artifacts are reported as skipped. Failed installs return a non-zero status.
 
 ## Manual admin check
 
-1. Open `http://localhost:8080/wp-admin`.
-2. Visit Plugins, Themes, Pages, Settings, and any product admin pages.
-3. Open `http://localhost:8080/wp-json/maxxed/v1/health`.
+1. Open the local lab admin URL printed by `npm run wordpress:lab`.
+2. Visit Plugins, Themes, Pages, Settings, and each product admin page.
+3. Open `/wp-json/maxxed/v1/health` on the local lab URL.
 4. Record artifact name, install result, activation result, admin result, and public result.
 
-## Recovery
+## Mac/Linux helper scripts
+
+The original bash wrappers remain available for shells that support bash:
 
 ```bash
-npm run wordpress:reset
 npm run wordpress:bootstrap
+npm run wordpress:smoke
+npm run wordpress:status
+npm run wordpress:report
+npm run wordpress:reset
 ```
