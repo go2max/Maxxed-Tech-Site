@@ -10,7 +10,7 @@ Expected local artifact path:
 local-artifacts/wordpress/post-purge-pro.zip
 ```
 
-The committed product manifest already points at this path through `wordpress/products.example.json`.
+The committed product manifest points at this path through `wordpress/products.example.json`.
 
 ## Plugin-side validation
 
@@ -46,9 +46,10 @@ npm run wordpress:report
 - Tools > Post Purge Pro loads for an administrator.
 - Preview does not mutate posts.
 - CSV backup downloads before cleanup.
-- CSV export hardens formula-looking title, excerpt, and content cells.
+- Formula-looking title, excerpt, and content cells are hardened in CSV export.
 - Cleanup requires typed `PURGE` and moves posts to Trash only.
+- Test posts can be restored from Trash.
 
 ## Current workspace note
 
-The first product polish pass rebuilt the ZIP and verified archive integrity. PHP and Docker were unavailable in that workspace, so the PHP tests and Docker WordPress harness remain the final machine-level validation step.
+The product polish pass rebuilt the ZIP and verified archive integrity. The plugin repo now includes a computer run checklist, expanded rule fixtures, export-safety fixtures, admin safety copy, and a next-product lane contract. PHP and Docker were unavailable in that workspace, so PHP execution and Docker WordPress activation remain the final machine-level validation step.
