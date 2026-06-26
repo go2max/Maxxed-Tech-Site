@@ -21,6 +21,7 @@
     "wordpress:report": "bash ./tools/wordpress/report.sh",
     "wordpress:manifest": "node ./tools/wordpress/run-manifest.mjs",
     "wordpress:reset": "bash ./tools/wordpress/reset.sh",
-    "admin:deployment:check": "node scripts/validate-admin-production-config.mjs && node --test admin/tests/deployment.test.mjs"
+    "admin:deployment:check": "node scripts/validate-admin-production-config.mjs && node --test admin/tests/deployment.test.mjs",
+    "admin:d1:check": "node scripts/admin-d1-migrate.mjs && node --test admin/tests/d1-migrations.test.mjs"
   }
 }
