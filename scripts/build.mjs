@@ -57,6 +57,7 @@ function pluginCard(plugin) {
 function header(depth, current, makeLink = link) {
   const nav = [
     ["apps", "Apps", "apps/"],
+    ["plugins", "Plugins", "plugins/"],
     ["beta", "Beta Testers", "beta/"],
     ["roadmap", "Roadmap", "roadmap/"],
     ["admin", "Admin", "admin/"],
@@ -79,7 +80,7 @@ function footer(depth, makeLink = link) {
   return `<footer class="site-footer">
     <div class="shell footer-grid">
       <div><a class="brand" href="${makeLink(depth)}"><span class="brand-mark" aria-hidden="true">MTS</span><span>Maxxed Technical Systems</span></a><p>${escapeHtml(site.description)}</p></div>
-      <div><h2>Products</h2><ul><li><a href="${makeLink(depth, "apps/")}">All apps</a></li><li><a href="${makeLink(depth, "admin/")}">Admin hub</a></li><li><a href="${makeLink(depth, "apps/maxxed-remote/")}">Maxxed Remote</a></li><li><a href="${makeLink(depth, "apps/maxxed-compass/")}">Maxxed Compass</a></li><li><a href="${makeLink(depth, "apps/rival-rush/")}">Rival Rush</a></li></ul></div>
+      <div><h2>Products</h2><ul><li><a href="${makeLink(depth, "apps/")}">All apps</a></li><li><a href="${makeLink(depth, "plugins/")}">WordPress plugins</a></li><li><a href="${makeLink(depth, "admin/")}">Admin hub</a></li><li><a href="${makeLink(depth, "apps/maxxed-remote/")}">Maxxed Remote</a></li><li><a href="${makeLink(depth, "apps/maxxed-compass/")}">Maxxed Compass</a></li><li><a href="${makeLink(depth, "apps/rival-rush/")}">Rival Rush</a></li></ul></div>
       <div><h2>Community</h2><ul><li><a href="${makeLink(depth, "beta/")}">Become a beta tester</a></li><li><a href="${makeLink(depth, "beta-credits/")}">Beta tester credits</a></li><li><a href="${makeLink(depth, "support/")}">Support</a></li></ul></div>
       <div><h2>Policies</h2><ul><li><a href="${makeLink(depth, "privacy/")}">Privacy</a></li><li><a href="${makeLink(depth, "terms/")}">Terms</a></li><li><a href="${makeLink(depth, "accessibility/")}">Accessibility</a></li><li><a href="mailto:${site.email}">Email us</a></li></ul></div>
     </div>
@@ -236,6 +237,12 @@ function appsPage() {
   return layout({ title: "Apps", description: "Browse Maxxed Technical Systems Android apps, WordPress plugins, and focused software for TV control, navigation, measurement, content audits, field records, and party games.", path: "apps/", depth: 1, current: "apps", body });
 }
 
+function pluginsPage() {
+  const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">WordPress plugin lab</p><h1>WordPress plugins</h1><p class="lede">Browse every checked Maxxed WordPress plugin package prepared for lab testing, editable profiles, and organized plugin-site review.</p><div class="proof-row"><span>${wordpressPlugins.length} plugin packages</span><span>Editable test profiles</span><span>Installed artifact ready</span><span>Public catalog cards</span></div></div></section>
+  <section class="shell section"><div class="catalog-tools"><label class="search-box"><span class="skip-link">Search plugins</span><input type="search" data-app-search placeholder="Search plugins by name or capability" autocomplete="off"></label><div class="filters" role="group" aria-label="Filter plugins"><button class="filter" data-filter="all" aria-pressed="true">All</button><button class="filter" data-filter="wordpress" aria-pressed="false">WordPress</button></div></div><p class="fine-print" data-result-count aria-live="polite"></p><div class="app-grid" data-catalog>${wordpressPlugins.map((plugin) => pluginCard(plugin)).join("")}</div><p class="empty-state" data-empty-state hidden>No plugins match that search. Try a plugin name or a broader capability.</p></section>${contactBand(1, "Need help with a WordPress plugin?")}`;
+  return layout({ title: "WordPress Plugins", description: "Browse Maxxed Technical Systems WordPress plugin packages for audits, cleanup, maintenance, commerce, schema, content, and operations.", path: "plugins/", depth: 1, current: "plugins", body });
+}
+
 function productPage(app) {
   const featureVisual = app.featureImage
     ? `<div class="feature-image"><img src="../../assets/images/${app.featureImage}" alt="${escapeHtml(app.name)} feature graphic" width="1024" height="500"></div>`
@@ -339,6 +346,7 @@ await cp(resolve(root, "public"), output, { recursive: true });
 
 await writePage("index.html", homePage());
 await writePage("apps/index.html", appsPage());
+await writePage("plugins/index.html", pluginsPage());
 for (const app of apps) {
   await writePage(`apps/${app.slug}/index.html`, productPage(app));
   await writePage(`apps/${app.slug}/privacy/index.html`, appPrivacyPage(app));
@@ -355,7 +363,7 @@ await writePage("beta-credits/index.html", betaCreditsPage());
 await writePage("terms/index.html", termsPage());
 await writePage("404.html", notFoundPage());
 
-const indexedPaths = ["", "apps/", ...apps.flatMap((app) => [`apps/${app.slug}/`, `apps/${app.slug}/privacy/`]), "roadmap/", "about/", "support/", "privacy/", "accessibility/", "beta/", "beta-credits/", "terms/"];
+const indexedPaths = ["", "apps/", "plugins/", ...apps.flatMap((app) => [`apps/${app.slug}/`, `apps/${app.slug}/privacy/`]), "roadmap/", "about/", "support/", "privacy/", "accessibility/", "beta/", "beta-credits/", "terms/"];
 await writePage("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexedPaths.map((path) => `  <url><loc>${canonical(path)}</loc></url>`).join("\n")}\n</urlset>\n`);
 await writePage("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${canonical("sitemap.xml")}\n`);
 await writePage("site.webmanifest", JSON.stringify({ name: site.name, short_name: site.shortName, start_url: "/", display: "standalone", background_color: "#07131f", theme_color: "#07131f", icons: [{ src: "/assets/images/favicon.svg", sizes: "any", type: "image/svg+xml" }] }, null, 2));

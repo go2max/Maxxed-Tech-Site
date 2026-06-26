@@ -19,7 +19,7 @@ async function filesUnder(directory) {
 
 const files = await filesUnder(siteRoot);
 const htmlFiles = files.filter((file) => extname(file) === ".html");
-assert.equal(htmlFiles.length, 25, "Expected 22 indexed HTML pages, two admin pages, and one 404 page");
+assert.equal(htmlFiles.length, 26, "Expected 23 indexed HTML pages, two admin pages, and one 404 page");
 
 const existing = new Set(files.map((file) => `/${relative(siteRoot, file).split(sep).join("/")}`));
 const titles = new Set();
@@ -79,9 +79,12 @@ assert.match(await readFile(resolve(siteRoot, "terms/index.html"), "utf8"), /Bet
 assert.match(await readFile(resolve(siteRoot, "beta-credits/index.html"), "utf8"), /Public credit is recognition, not compensation/);
 assert.match(await readFile(resolve(siteRoot, "admin/index.html"), "utf8"), /Maxxed admin routing/);
 assert.match(await readFile(resolve(siteRoot, "admin/plugins/index.html"), "utf8"), /WordPress plugin admin/);
+assert.match(await readFile(resolve(siteRoot, "plugins/index.html"), "utf8"), /WordPress plugins/);
+assert.equal(((await readFile(resolve(siteRoot, "apps/index.html"), "utf8")).match(/data-app-card/g) || []).length, 42, "Apps page should show six Android apps and 36 WordPress plugins");
+assert.equal(((await readFile(resolve(siteRoot, "plugins/index.html"), "utf8")).match(/data-app-card/g) || []).length, 36, "Plugins page should show all 36 WordPress plugins");
 
 const sitemap = await readFile(resolve(siteRoot, "sitemap.xml"), "utf8");
-assert.equal((sitemap.match(/<url>/g) || []).length, 22, "Sitemap should contain all 22 indexed pages");
+assert.equal((sitemap.match(/<url>/g) || []).length, 23, "Sitemap should contain all 23 indexed pages");
 assert.match(await readFile(resolve(siteRoot, "robots.txt"), "utf8"), /Sitemap: https:\/\/techmaxxed\.com\/sitemap\.xml/);
 JSON.parse(await readFile(resolve(siteRoot, "site.webmanifest"), "utf8"));
 
