@@ -29,6 +29,37 @@ npm run check
 
 The command uses Node only. Bash and WSL are not required.
 
+<!-- ADMIN_ACCESS_START -->
+## Admin Access
+
+The public website does not expose an admin login or admin routes. Admin work is handled through the separate private admin application.
+
+Production admin URL:
+
+- `https://admin.techmaxxed.com`
+
+Access requirements:
+
+- The admin hostname must be protected by Cloudflare Access or an equivalent identity-aware proxy.
+- The signed-in identity must be included in the `ADMIN_ALLOWED_EMAILS` environment allowlist.
+- Missing identity headers, missing allowlist configuration, or an email outside the allowlist must fail closed.
+- Admin code, private data, release controls, beta review tools, and monitoring views must stay out of the public `site/` build.
+
+Validation commands:
+
+- `npm run admin:deployment:check`
+- `npm run admin:check`
+- `npm run check:admin-boundary`
+- `npm run check`
+
+Related docs:
+
+- `docs/ADMIN_DEPLOYMENT_HARDENING.md`
+- `docs/ADMIN_D1_MIGRATIONS.md`
+- `docs/ADMIN_IDENTITY_GATE.md`
+- `docs/ADMIN_AND_BETA_AUTOMATION.md`
+- `docs/PRIVATE_OPERATIONS_PLATFORM.md`
+<!-- ADMIN_ACCESS_END -->
 ## Deployment
 
 Upload the contents of `site/` to any static host. `index.html` must remain at the root of the uploaded files. The same build also creates a validated Sites Worker artifact under `dist/`.
@@ -67,3 +98,4 @@ The proposed private monitoring, release, help, and strictly sequential APK test
 ## Launch Gate
 
 Mark the public website ready only after `npm run check` passes on the launch commit, the deployed site is live on the production domain, company mailboxes work, policy/support links resolve correctly, and `docs/FINAL_REPOSITORY_AUDIT.md` has no unresolved repository-owned blockers.
+
