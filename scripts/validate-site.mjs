@@ -63,6 +63,24 @@ for (const file of htmlFiles) {
 const clientScript = await readFile(resolve(siteRoot, "assets/site.js"), "utf8");
 new Function(clientScript);
 
+const appsPage = await readFile(resolve(siteRoot, "apps/index.html"), "utf8");
+assert.equal((appsPage.match(/data-app-card/g) || []).length, 42, "Products page should show 6 Android apps plus 36 WordPress plugins");
+assert.match(appsPage, /WordPress/);
+assert.match(appsPage, /Post Purge Pro/);
+
+const pluginsPage = await readFile(resolve(siteRoot, "plugins/index.html"), "utf8");
+assert.equal((pluginsPage.match(/data-app-card/g) || []).length, 36, "Plugins page should show all 36 WordPress plugin candidates");
+assert.match(pluginsPage, /Editable profile|editable profile/i);
+assert.match(pluginsPage, /Post Purge Pro/);
+
+const adminPage = await readFile(resolve(siteRoot, "admin/index.html"), "utf8");
+assert.match(adminPage, /Admin routing/);
+assert.match(adminPage, /WordPress plugins/);
+
+const adminPluginsPage = await readFile(resolve(siteRoot, "admin/plugins/index.html"), "utf8");
+assert.match(adminPluginsPage, /WordPress plugin admin inventory/);
+assert.equal((adminPluginsPage.match(/data-app-card/g) || []).length, 36, "Admin plugin inventory should show all 36 plugins");
+
 const betaPage = await readFile(resolve(siteRoot, "beta/index.html"), "utf8");
 assert.equal((betaPage.match(/name="apps"/g) || []).length, 6, "Beta page should offer all six active apps");
 assert.match(betaPage, /beta@techmaxxed\.com/);
@@ -88,8 +106,10 @@ assert.match(await readFile(resolve(siteRoot, "beta-credits/index.html"), "utf8"
 
 const sitemap = await readFile(resolve(siteRoot, "sitemap.xml"), "utf8");
 assert.ok((sitemap.match(/<url>/g) || []).length >= 22, "Sitemap should contain generated indexed pages");
+assert.match(sitemap, /https:\/\/techmaxxed\.com\/plugins\//);
+assert.match(sitemap, /https:\/\/techmaxxed\.com\/admin\//);
 assert.doesNotMatch(sitemap, /tools\/wordpress-plugin-lab\//);
 assert.match(await readFile(resolve(siteRoot, "robots.txt"), "utf8"), /Sitemap: https:\/\/techmaxxed\.com\/sitemap\.xml/);
 JSON.parse(await readFile(resolve(siteRoot, "site.webmanifest"), "utf8"));
 
-console.log(`Validated ${htmlFiles.length} HTML pages, ${checkedReferences} local references, unique metadata, sitemap, manifest, and client JavaScript.`);
+console.log(`Validated ${htmlFiles.length} HTML pages, ${checkedReferences} local references, full product catalog, plugin catalog, admin routing, sitemap, manifest, and client JavaScript.`);
