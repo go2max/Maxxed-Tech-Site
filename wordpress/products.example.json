@@ -1,0 +1,31 @@
+{
+  "schema": "maxxed.wordpress-products.v1",
+  "updated": "2026-06-25",
+  "products": [
+    {
+      "id": "post-purge-pro",
+      "name": "Post Purge Pro",
+      "type": "plugin",
+      "source": "local-artifacts/wordpress/post-purge-pro.zip",
+      "activate": true,
+      "acceptance": [
+        "Installs from ZIP",
+        "Activates cleanly",
+        "Admin remains usable",
+        "Public site remains usable"
+      ]
+    },
+    {
+      "id": "maxxed-site-theme",
+      "name": "Maxxed Site Theme Preview",
+      "type": "theme",
+      "source": "local-artifacts/wordpress/maxxed-site-theme.zip",
+      "activate": false,
+      "acceptance": [
+        "Installs from ZIP",
+        "Can be activated manually",
+        "Core templates render"
+      ]
+    }
+  ]
+}
