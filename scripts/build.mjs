@@ -59,6 +59,7 @@ function header(depth, current, makeLink = link) {
     ["apps", "Apps", "apps/"],
     ["beta", "Beta Testers", "beta/"],
     ["roadmap", "Roadmap", "roadmap/"],
+    ["admin", "Admin", "admin/"],
     ["about", "About", "about/"],
     ["support", "Help", "support/"],
   ];
@@ -78,7 +79,7 @@ function footer(depth, makeLink = link) {
   return `<footer class="site-footer">
     <div class="shell footer-grid">
       <div><a class="brand" href="${makeLink(depth)}"><span class="brand-mark" aria-hidden="true">MTS</span><span>Maxxed Technical Systems</span></a><p>${escapeHtml(site.description)}</p></div>
-      <div><h2>Products</h2><ul><li><a href="${makeLink(depth, "apps/")}">All apps</a></li><li><a href="${makeLink(depth, "apps/maxxed-remote/")}">Maxxed Remote</a></li><li><a href="${makeLink(depth, "apps/maxxed-compass/")}">Maxxed Compass</a></li><li><a href="${makeLink(depth, "apps/rival-rush/")}">Rival Rush</a></li></ul></div>
+      <div><h2>Products</h2><ul><li><a href="${makeLink(depth, "apps/")}">All apps</a></li><li><a href="${makeLink(depth, "admin/")}">Admin hub</a></li><li><a href="${makeLink(depth, "apps/maxxed-remote/")}">Maxxed Remote</a></li><li><a href="${makeLink(depth, "apps/maxxed-compass/")}">Maxxed Compass</a></li><li><a href="${makeLink(depth, "apps/rival-rush/")}">Rival Rush</a></li></ul></div>
       <div><h2>Community</h2><ul><li><a href="${makeLink(depth, "beta/")}">Become a beta tester</a></li><li><a href="${makeLink(depth, "beta-credits/")}">Beta tester credits</a></li><li><a href="${makeLink(depth, "support/")}">Support</a></li></ul></div>
       <div><h2>Policies</h2><ul><li><a href="${makeLink(depth, "privacy/")}">Privacy</a></li><li><a href="${makeLink(depth, "terms/")}">Terms</a></li><li><a href="${makeLink(depth, "accessibility/")}">Accessibility</a></li><li><a href="mailto:${site.email}">Email us</a></li></ul></div>
     </div>
@@ -141,6 +142,69 @@ function layout({ title, description, path = "", depth = 0, current = "", body, 
 
 function contactBand(depth, heading = "Questions, support, or a product idea?") {
   return `<section class="shell contact-band"><div><h2>${heading}</h2><p>Talk directly with Maxxed Technical Systems.</p></div><a class="button" href="${link(depth, "support/")}">Visit support</a></section>`;
+}
+
+const pluginAdminItems = [
+  "Accessibility Task Tracker",
+  "Affiliate Disclosure Manager",
+  "Broken Shortcode Finder",
+  "Bulk Price Update Planner",
+  "Client Content Approval",
+  "Client Maintenance Portal",
+  "Contractor Before After Gallery",
+  "Database Cleanup Planner",
+  "Duplicate Media Finder",
+  "Form Delivery Checker",
+  "Fraud Review Checklist",
+  "Image Alt Text Audit",
+  "Legal Page Update Reminder",
+  "Local Business Schema Manager",
+  "Low Stock Digest",
+  "NAP Consistency Checker",
+  "Order Export Builder",
+  "Orphan Page Finder",
+  "Plugin License Inventory",
+  "Post Purge Pro",
+  "Product Compliance Expiration",
+  "Product Data Cleanup",
+  "Product Image Audit",
+  "Redirect Manager Pro",
+  "Returns Request Portal",
+  "Scheduled Content Expiration",
+  "Security Header Audit",
+  "Service Area Page Builder",
+  "Shipping Rule Auditor",
+  "Stale Content Detector",
+  "Stale Inventory Reporter",
+  "Supplier Tracker for WooCommerce",
+  "Uptime Digest Plugin",
+  "Website Maintenance Reporter",
+  "WooCommerce Margin Calculator",
+  "WordPress Role Auditor",
+];
+
+function adminRouteCard(title, text, href, action) {
+  return `<article class="admin-route-card"><div><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div><a class="button small" href="${href}">${escapeHtml(action)}</a></article>`;
+}
+
+function adminPage() {
+  const body = `<section class="band admin-hero"><div class="shell section compact"><p class="eyebrow">Admin travel</p><h1>Maxxed admin routing</h1><p class="lede">A direct control hub for jumping between the product catalog, plugin sub-site checks, beta flow, support, and release planning.</p><div class="proof-row"><span>${pluginAdminItems.length} plugin repos checked</span><span>Editable test profiles added</span><span>Plugin install artifact prepared</span><span>Noindex admin route</span></div></div></section>
+  <section class="shell section"><div class="section-head"><div><p class="eyebrow">Fast paths</p><h2>Travel from one place</h2></div><p>Use these admin routes when testing packages, reviewing listings, checking tester intake, or sending someone to the right public page.</p></div><div class="admin-route-grid">
+    ${adminRouteCard("Plugin sub-site", "Review every checked WordPress plugin repo and its editable profile page target.", "plugins/", "Open plugins")}
+    ${adminRouteCard("Public catalog", "Open the public product directory with Android apps and current WordPress plugin listings.", "../apps/", "Open apps")}
+    ${adminRouteCard("Beta tester flow", "Jump to the public beta application and tester routing pages.", "../beta/", "Open beta")}
+    ${adminRouteCard("Support routing", "Go directly to the support page and product-specific contact flows.", "../support/", "Open support")}
+    ${adminRouteCard("Release roadmap", "Review the active public release queue and current product priorities.", "../roadmap/", "Open roadmap")}
+    ${adminRouteCard("Policies", "Check privacy, terms, accessibility, and product disclosure pages.", "../privacy/", "Open policies")}
+  </div></section>`;
+  return layout({ title: "Admin Routing", description: "Admin routing hub for Maxxed Technical Systems product catalog, plugin sub-site, beta, support, roadmap, and policy travel.", path: "admin/", depth: 1, current: "admin", body, noIndex: true });
+}
+
+function adminPluginsPage() {
+  const plugins = pluginAdminItems.map((name) => `<article class="plugin-admin-item"><h3>${escapeHtml(name)}</h3><p>Editable profile: Settings -> ${escapeHtml(name)} Profile.</p><span>Installed package checked</span></article>`).join("");
+  const body = `<section class="band admin-hero"><div class="shell section compact"><p class="eyebrow">Plugin sub-site</p><h1>WordPress plugin admin</h1><p class="lede">Every local WordPress plugin repo has been checked, packaged, installed into the plugin sub-site artifact, and given an editable profile page for test names, owners, and notes.</p><div class="proof-row"><span>${pluginAdminItems.length} plugin folders</span><span>${pluginAdminItems.length} zip packages</span><span>Settings profile route</span><span>Ready for activation testing</span></div><div class="hero-actions"><a class="button" href="../">Back to admin hub</a><a class="button secondary" href="../../apps/">Open public catalog</a></div></div></section>
+  <section class="shell section"><div class="section-head"><div><p class="eyebrow">Installed plugins</p><h2>Checked repo list</h2></div><p>Use each plugin's WordPress settings profile page to label builds during testing and keep the lab organized.</p></div><div class="plugin-admin-grid">${plugins}</div></section>`;
+  return layout({ title: "WordPress Plugin Admin", description: "Admin view of checked WordPress plugins installed into the plugin sub-site artifact with editable profile settings pages.", path: "admin/plugins/", depth: 2, current: "admin", body, noIndex: true });
 }
 
 function homePage() {
@@ -280,6 +344,8 @@ for (const app of apps) {
 await writePage("roadmap/index.html", roadmapPage());
 await writePage("about/index.html", aboutPage());
 await writePage("support/index.html", supportPage());
+await writePage("admin/index.html", adminPage());
+await writePage("admin/plugins/index.html", adminPluginsPage());
 await writePage("privacy/index.html", privacyPage());
 await writePage("accessibility/index.html", accessibilityPage());
 await writePage("beta/index.html", betaPage());

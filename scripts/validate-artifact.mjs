@@ -38,6 +38,14 @@ const beta = await workerModule.default.fetch(new Request("https://example.test/
 assert.equal(beta.status, 200);
 assert.match(await beta.text(), /<h1>Become a beta tester<\/h1>/);
 
+const admin = await workerModule.default.fetch(new Request("https://example.test/admin/"));
+assert.equal(admin.status, 200);
+assert.match(await admin.text(), /<h1>Maxxed admin routing<\/h1>/);
+
+const adminPlugins = await workerModule.default.fetch(new Request("https://example.test/admin/plugins/"));
+assert.equal(adminPlugins.status, 200);
+assert.match(await adminPlugins.text(), /<h1>WordPress plugin admin<\/h1>/);
+
 const redirect = await workerModule.default.fetch(new Request("https://example.test/apps"));
 assert.equal(redirect.status, 308);
 assert.equal(redirect.headers.get("location"), "https://example.test/apps/");

@@ -117,6 +117,12 @@ p { margin-bottom: 18px; }
 .button.secondary { border-color: var(--line); background: transparent; color: var(--ink); }
 .button.small { min-height: 38px; padding-inline: 14px; font-size: 13px; }
 .button:hover { filter: brightness(1.06); }
+.nav-links a[href$="admin/"] {
+  padding: 7px 10px;
+  border: 1px solid rgba(185, 237, 69, 0.45);
+  border-radius: 7px;
+  color: var(--lime);
+}
 
 .shell { width: min(calc(100% - 32px), var(--max)); margin-inline: auto; }
 .band { border-bottom: 1px solid var(--line); }
@@ -351,6 +357,51 @@ p { margin-bottom: 18px; }
   color: var(--ink);
 }
 
+.admin-hero {
+  background:
+    linear-gradient(135deg, rgba(185, 237, 69, 0.16), rgba(37, 208, 216, 0.08) 45%, transparent 78%),
+    var(--bg);
+}
+.admin-route-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.admin-route-card {
+  min-height: 230px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  background: var(--surface);
+}
+.admin-route-card p,
+.plugin-admin-item p { color: var(--muted); }
+.plugin-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.plugin-admin-item {
+  min-height: 170px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--lime);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.plugin-admin-item h3 { font-size: 20px; }
+.plugin-admin-item span {
+  color: var(--lime);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .form-shell { max-width: 880px; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .field { display: grid; gap: 7px; }
@@ -451,6 +502,8 @@ p { margin-bottom: 18px; }
   .home-hero-grid { padding-top: 62px; }
   .hero-products { width: min(100%, 620px); margin-inline: auto; }
   .app-card, .app-card.featured { grid-column: span 6; }
+  .admin-route-grid { grid-template-columns: repeat(2, 1fr); }
+  .plugin-admin-grid { grid-template-columns: repeat(3, 1fr); }
   .truth-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
@@ -488,6 +541,7 @@ p { margin-bottom: 18px; }
   .road-item { grid-template-columns: 36px 1fr; }
   .road-item .kind { grid-column: 2; }
   .support-grid { grid-template-columns: 1fr; }
+  .admin-route-grid, .plugin-admin-grid { grid-template-columns: 1fr; }
   .form-grid, .check-grid, .credit-grid, .policy-summary { grid-template-columns: 1fr; }
   .field.full, .fieldset, .consent-list, .form-actions { grid-column: auto; }
   .contact-band { padding: 34px 24px; grid-template-columns: 1fr; }
