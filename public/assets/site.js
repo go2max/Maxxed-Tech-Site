@@ -1,14 +1,3 @@
-const scriptUrl = document.currentScript?.src;
-if (scriptUrl && !document.querySelector('link[data-ux-overhaul]')) {
-  const uxStylesheet = document.createElement("link");
-  uxStylesheet.rel = "stylesheet";
-  uxStylesheet.href = new URL("ux-overhaul.css", scriptUrl).href;
-  uxStylesheet.dataset.uxOverhaul = "true";
-  document.head.appendChild(uxStylesheet);
-}
-
-document.documentElement.classList.add("js-ready");
-
 const navToggle = document.querySelector("[data-nav-toggle]");
 const navLinks = document.querySelector("[data-nav-links]");
 
@@ -81,33 +70,6 @@ function addWordPressFilter(filters) {
   group.appendChild(button);
 }
 
-function addProductLineupLinks() {
-  const depth = (document.querySelector('link[rel="stylesheet"]')?.getAttribute("href") || "assets/site.css").startsWith("../") ? "../" : "";
-  const isPortfolio = window.location.pathname.includes("/portfolio");
-
-  if (navLinks && !navLinks.querySelector('a[href$="portfolio/"]')) {
-    const appsLink = [...navLinks.querySelectorAll("a")].find((link) => link.textContent.trim() === "Apps");
-    const lineup = document.createElement("a");
-    lineup.href = `${depth}portfolio/`;
-    lineup.textContent = "Product Lineup";
-    if (isPortfolio) lineup.setAttribute("aria-current", "page");
-    appsLink?.after(lineup);
-  }
-
-  document.querySelectorAll(".footer-grid ul").forEach((list) => {
-    const heading = list.closest("div")?.querySelector("h2")?.textContent?.trim();
-    if (heading !== "Products" || list.querySelector('a[href$="portfolio/"]')) return;
-    const item = document.createElement("li");
-    const link = document.createElement("a");
-    link.href = `${depth}portfolio/`;
-    link.textContent = "Product Lineup";
-    item.appendChild(link);
-    list.insertBefore(item, list.children[1] || null);
-  });
-}
-
-addProductLineupLinks();
-
 if (navToggle && navLinks) {
   navToggle.addEventListener("click", () => {
     const isOpen = navLinks.dataset.open === "true";
@@ -135,11 +97,6 @@ if (catalog) {
   const emptyState = document.querySelector("[data-empty-state]");
   const query = new URLSearchParams(window.location.search).get("q") || "";
   let activeFilter = "all";
-
-  cards.forEach((card) => {
-    const status = card.querySelector(".status")?.textContent?.trim();
-    if (status) card.dataset.statusLabel = status;
-  });
 
   if (search && query) search.value = query;
 
