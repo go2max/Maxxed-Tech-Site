@@ -1,6 +1,6 @@
 {
   "schema": "maxxed.wordpress-products.v1",
-  "updated": "2026-06-25",
+  "updated": "2026-06-26",
   "products": [
     {
       "id": "post-purge-pro",
@@ -12,7 +12,12 @@
         "Installs from ZIP",
         "Activates cleanly",
         "Admin remains usable",
-        "Public site remains usable"
+        "Public site remains usable",
+        "Tools > Post Purge Pro loads for an administrator",
+        "Preview does not mutate posts",
+        "CSV backup downloads before cleanup",
+        "Formula-looking CSV cells are hardened",
+        "Cleanup requires typed PURGE and moves posts to Trash only"
       ]
     },
     {
@@ -24,7 +29,8 @@
       "acceptance": [
         "Installs from ZIP",
         "Can be activated manually",
-        "Core templates render"
+        "Core templates render",
+        "Public site remains usable after activation test"
       ]
     }
   ]
