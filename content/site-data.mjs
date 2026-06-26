@@ -5,7 +5,7 @@ export const site = {
   email: "support@techmaxxed.com",
   privacyEmail: "privacy@techmaxxed.com",
   betaEmail: "beta@techmaxxed.com",
-  description: "Android apps and practical software for TV control, navigation, camera measurement, outdoor records, visual estimating, and local party games.",
+  description: "Android apps, WordPress tools, and practical software for TV control, navigation, camera measurement, outdoor records, visual estimating, content maintenance, and local party games.",
 };
 
 export const apps = [
@@ -160,6 +160,30 @@ export const apps = [
     limitation: "Features, art, and balance can change during internal testing.",
     availability: "The Android build is in Google Play internal testing while UX, credits, navigation, and Word Rush receive final polish.",
   },
+  {
+    slug: "post-purge-pro",
+    name: "Post Purge Pro",
+    short: "Post Purge Pro",
+    category: "WordPress plugin",
+    categoryKey: "utility",
+    status: "Release candidate",
+    statusTone: "candidate",
+    accent: "#7dd3fc",
+    icon: "WP",
+    tagline: "Preview, back up, then trash stale WordPress posts.",
+    summary: "A safety-first WordPress maintenance plugin for finding stale, low-content posts, exporting a CSV backup, and moving reviewed batches to Trash.",
+    description: "Review old or thin WordPress posts with filters for type, status, age, word count, and missing featured image before exporting a backup and moving a confirmed batch to Trash.",
+    features: [
+      ["Preview before action", "Filter by post type, post status, age, maximum word count, and missing featured image before any cleanup is available."],
+      ["Back up reviewed content", "Download a CSV backup of reviewed fields and original content before moving anything."],
+      ["Use layered safety checks", "Administrator capability, nonces, current preview state, server-side revalidation, typed PURGE confirmation, and browser confirmation protect the workflow."],
+      ["Trash, never permanent delete", "Version 1.0.0 moves reviewed posts to WordPress Trash only so test content can be restored after validation."],
+    ],
+    facts: ["WordPress 6.2+", "PHP 7.4+", "CSV backup", "Trash-only"],
+    privacy: "The plugin runs inside the site owner's WordPress install and does not send post content or cleanup data to Maxxed Technical Systems.",
+    limitation: "The plugin is a maintenance aid for administrators. Site owners must review backups and test on staging before using it on production content.",
+    availability: "The ZIP artifact is a release candidate that passed package integrity checks and is moving through local WordPress harness validation before public distribution.",
+  },
 ];
 
 export const roadmap = [
@@ -169,5 +193,5 @@ export const roadmap = [
   ["Maxxed Gold Estimator", "Release prep", "Run automated checks, signed builds, physical sample validation, and final privacy/store disclosures."],
   ["Maxxed Measure", "In development", "Finish camera calibration, measurement correction, history, export, and known-object validation."],
   ["Rival Rush", "Internal testing", "Finish Word Rush, credits, navigation, tester feedback, and Android internal-test polish."],
-  ["WordPress Bulk Content Cleanup", "Next product", "Build a controlled bulk auditing and cleanup workflow after the current app release queue."],
+  ["Post Purge Pro", "Release candidate", "Validate the WordPress plugin ZIP through the local harness, then prepare distribution copy and support materials."],
 ];
