@@ -162,6 +162,54 @@ export const apps = [
   },
 ];
 
+export const wordpressPlugins = [
+  {
+    slug: "broken-shortcode-finder",
+    name: "Broken Shortcode Finder",
+    status: "Release candidate",
+    accent: "#7dd3fc",
+    icon: "SC",
+    summary: "Read-only detection for unregistered and malformed shortcode-like tokens without executing post content.",
+    facts: ["Tools page", "CSV export", "Editable test profile"],
+  },
+  {
+    slug: "duplicate-media-finder",
+    name: "Duplicate Media Finder",
+    status: "Release candidate",
+    accent: "#86efac",
+    icon: "DM",
+    summary: "Exact-byte media duplicate review using file size and streamed SHA-256, with no deletion path.",
+    facts: ["Tools page", "500 media cap", "Editable test profile"],
+  },
+  {
+    slug: "image-alt-text-audit",
+    name: "Image Alt Text Audit",
+    status: "Release candidate",
+    accent: "#facc15",
+    icon: "ALT",
+    summary: "Image alt metadata audit with reviewed single-item corrections and clear accessibility limits.",
+    facts: ["Tools page", "300 image audit", "Editable test profile"],
+  },
+  {
+    slug: "post-purge-pro",
+    name: "Post Purge Pro",
+    status: "Release candidate",
+    accent: "#fb7185",
+    icon: "PP",
+    summary: "Controlled stale-post preview, CSV backup, and reviewed batch move-to-Trash workflow.",
+    facts: ["Tools page", "Preview required", "Editable test profile"],
+  },
+  {
+    slug: "stale-content-detector",
+    name: "Stale Content Detector",
+    status: "Release candidate",
+    accent: "#c084fc",
+    icon: "SD",
+    summary: "Explainable, read-only freshness scoring for WordPress posts with review marking and CSV export.",
+    facts: ["Tools page", "250 post cap", "Editable test profile"],
+  },
+];
+
 export const roadmap = [
   ["Maxxed Remote", "Release verification", "Complete television compatibility checks and Play Store release preparation."],
   ["Maxxed Compass", "Release verification", "Compile and verify constellation guidance, navigation, tracking, and battery behavior on device."],

@@ -41,7 +41,7 @@ if (catalog) {
     });
 
     if (resultCount) {
-      resultCount.textContent = `${visible} app${visible === 1 ? "" : "s"} shown`;
+      resultCount.textContent = `${visible} product${visible === 1 ? "" : "s"} shown`;
     }
     if (emptyState) emptyState.hidden = visible !== 0;
   };

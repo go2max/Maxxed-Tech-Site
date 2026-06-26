@@ -2,7 +2,7 @@ import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { apps, roadmap, site } from "../content/site-data.mjs";
+import { apps, roadmap, site, wordpressPlugins } from "../content/site-data.mjs";
 import { betaApps, betaCredits } from "../content/beta-data.mjs";
 import { privacyPolicies } from "../content/privacy-data.mjs";
 
@@ -42,6 +42,16 @@ function appCard(app, depth, featured = false) {
     <p>${escapeHtml(app.summary)}</p>
     <span class="app-meta">View ${escapeHtml(app.short)} details →</span>
   </a>`;
+}
+
+function pluginCard(plugin) {
+  return `<article class="app-card" data-app-card data-category="utility wordpress" style="--accent:${plugin.accent}">
+    <div class="app-card-top"><span class="app-icon" aria-hidden="true">${escapeHtml(plugin.icon)}</span><span class="status">${escapeHtml(plugin.status)}</span></div>
+    <h3>${escapeHtml(plugin.name)}</h3>
+    <p>${escapeHtml(plugin.summary)}</p>
+    <div class="fact-row">${plugin.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div>
+    <span class="app-meta">WordPress plugin package</span>
+  </article>`;
 }
 
 function header(depth, current, makeLink = link) {
@@ -155,9 +165,9 @@ function homePage() {
 }
 
 function appsPage() {
-  const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">Product directory</p><h1>Android apps and software</h1><p class="lede">Browse released candidates, active test builds, and tools currently in development. Status labels reflect the latest verified project state.</p></div></section>
-  <section class="shell section"><div class="catalog-tools"><label class="search-box"><span class="skip-link">Search apps</span><input type="search" data-app-search placeholder="Search by name or capability" autocomplete="off"></label><div class="filters" role="group" aria-label="Filter apps"><button class="filter" data-filter="all" aria-pressed="true">All</button><button class="filter" data-filter="utility" aria-pressed="false">Utilities</button><button class="filter" data-filter="outdoors" aria-pressed="false">Outdoors</button><button class="filter" data-filter="games" aria-pressed="false">Games</button></div></div><p class="fine-print" data-result-count aria-live="polite"></p><div class="app-grid" data-catalog>${apps.map((app) => appCard(app, 1)).join("")}</div><p class="empty-state" data-empty-state hidden>No apps match that search. Try a product name or a broader category.</p></section>${contactBand(1, "Need help choosing the right app?")}`;
-  return layout({ title: "Apps", description: "Browse Maxxed Technical Systems Android apps for TV control, navigation, measurement, visual field estimates, fishing records, and party games.", path: "apps/", depth: 1, current: "apps", body });
+  const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">Product directory</p><h1>Android apps, WordPress plugins, and software</h1><p class="lede">Browse released candidates, active test builds, and tools currently in development. Status labels reflect the latest verified project state.</p></div></section>
+  <section class="shell section"><div class="catalog-tools"><label class="search-box"><span class="skip-link">Search products</span><input type="search" data-app-search placeholder="Search by name or capability" autocomplete="off"></label><div class="filters" role="group" aria-label="Filter products"><button class="filter" data-filter="all" aria-pressed="true">All</button><button class="filter" data-filter="utility" aria-pressed="false">Utilities</button><button class="filter" data-filter="outdoors" aria-pressed="false">Outdoors</button><button class="filter" data-filter="games" aria-pressed="false">Games</button><button class="filter" data-filter="wordpress" aria-pressed="false">WordPress</button></div></div><p class="fine-print" data-result-count aria-live="polite"></p><div class="app-grid" data-catalog>${apps.map((app) => appCard(app, 1)).join("")}${wordpressPlugins.map((plugin) => pluginCard(plugin)).join("")}</div><p class="empty-state" data-empty-state hidden>No products match that search. Try a product name or a broader category.</p></section>${contactBand(1, "Need help choosing the right product?")}`;
+  return layout({ title: "Apps", description: "Browse Maxxed Technical Systems Android apps, WordPress plugins, and focused software for TV control, navigation, measurement, content audits, field records, and party games.", path: "apps/", depth: 1, current: "apps", body });
 }
 
 function productPage(app) {
