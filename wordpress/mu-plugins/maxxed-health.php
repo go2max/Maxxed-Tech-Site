@@ -9,6 +9,10 @@ add_action('rest_api_init', function () {
         'methods' => 'GET',
         'permission_callback' => '__return_true',
         'callback' => function () {
+            if (! function_exists('get_plugins')) {
+                require_once ABSPATH . 'wp-admin/includes/plugin.php';
+            }
+
             return rest_ensure_response(array(
                 'ok' => true,
                 'site_url' => get_site_url(),
