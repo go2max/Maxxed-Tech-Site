@@ -48,5 +48,12 @@ assert.match(stylesheet.headers.get("content-type"), /^text\/css/);
 
 const missing = await workerModule.default.fetch(new Request("https://example.test/not-a-page"));
 assert.equal(missing.status, 404);
+const missingHtml = await missing.text();
+assert.match(missingHtml, /href="\/assets\/site\.css"/);
+assert.match(missingHtml, /src="\/assets\/site\.js"/);
+
+const deepMissing = await workerModule.default.fetch(new Request("https://example.test/apps/unknown/deep-page"));
+assert.equal(deepMissing.status, 404);
+assert.match(await deepMissing.text(), /href="\/assets\/site\.css"/);
 
 console.log("Artifact is valid ESM; routes, redirects, assets, and 404 responses passed.");

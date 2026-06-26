@@ -20,6 +20,7 @@ const escapeHtml = (value) => String(value)
   .replaceAll('"', "&quot;");
 
 const link = (depth, path = "") => `${"../".repeat(depth)}${path}`;
+const rootLink = (_depth, path = "") => `/${path}`;
 const canonical = (path = "") => `${site.url}/${path}`;
 const jsonLd = (value) => JSON.stringify(value).replaceAll("<", "\\u003c");
 
@@ -43,7 +44,7 @@ function appCard(app, depth, featured = false) {
   </a>`;
 }
 
-function header(depth, current) {
+function header(depth, current, makeLink = link) {
   const nav = [
     ["apps", "Apps", "apps/"],
     ["beta", "Beta Testers", "beta/"],
@@ -53,32 +54,33 @@ function header(depth, current) {
   ];
   return `<header class="site-header">
     <div class="nav-shell">
-      <a class="brand" href="${link(depth)}" aria-label="Maxxed Technical Systems home"><span class="brand-mark" aria-hidden="true">MTS</span><span class="brand-name">Maxxed Technical Systems</span></a>
+      <a class="brand" href="${makeLink(depth)}" aria-label="Maxxed Technical Systems home"><span class="brand-mark" aria-hidden="true">MTS</span><span class="brand-name">Maxxed Technical Systems</span></a>
       <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation">☰</button>
       <nav class="nav-links" id="primary-nav" data-nav-links data-open="false" aria-label="Primary navigation">
-        ${nav.map(([key, label, path]) => `<a href="${link(depth, path)}"${current === key ? ' aria-current="page"' : ""}>${label}</a>`).join("")}
-        <a class="nav-button" href="${link(depth, "support/")}">Get support</a>
+        ${nav.map(([key, label, path]) => `<a href="${makeLink(depth, path)}"${current === key ? ' aria-current="page"' : ""}>${label}</a>`).join("")}
+        <a class="nav-button" href="${makeLink(depth, "support/")}">Get support</a>
       </nav>
     </div>
   </header>`;
 }
 
-function footer(depth) {
+function footer(depth, makeLink = link) {
   return `<footer class="site-footer">
     <div class="shell footer-grid">
-      <div><a class="brand" href="${link(depth)}"><span class="brand-mark" aria-hidden="true">MTS</span><span>Maxxed Technical Systems</span></a><p>${escapeHtml(site.description)}</p></div>
-      <div><h2>Products</h2><ul><li><a href="${link(depth, "apps/")}">All apps</a></li><li><a href="${link(depth, "apps/maxxed-remote/")}">Maxxed Remote</a></li><li><a href="${link(depth, "apps/maxxed-compass/")}">Maxxed Compass</a></li><li><a href="${link(depth, "apps/rival-rush/")}">Rival Rush</a></li></ul></div>
-      <div><h2>Community</h2><ul><li><a href="${link(depth, "beta/")}">Become a beta tester</a></li><li><a href="${link(depth, "beta-credits/")}">Beta tester credits</a></li><li><a href="${link(depth, "support/")}">Support</a></li></ul></div>
-      <div><h2>Policies</h2><ul><li><a href="${link(depth, "privacy/")}">Privacy</a></li><li><a href="${link(depth, "terms/")}">Terms</a></li><li><a href="${link(depth, "accessibility/")}">Accessibility</a></li><li><a href="mailto:${site.email}">Email us</a></li></ul></div>
+      <div><a class="brand" href="${makeLink(depth)}"><span class="brand-mark" aria-hidden="true">MTS</span><span>Maxxed Technical Systems</span></a><p>${escapeHtml(site.description)}</p></div>
+      <div><h2>Products</h2><ul><li><a href="${makeLink(depth, "apps/")}">All apps</a></li><li><a href="${makeLink(depth, "apps/maxxed-remote/")}">Maxxed Remote</a></li><li><a href="${makeLink(depth, "apps/maxxed-compass/")}">Maxxed Compass</a></li><li><a href="${makeLink(depth, "apps/rival-rush/")}">Rival Rush</a></li></ul></div>
+      <div><h2>Community</h2><ul><li><a href="${makeLink(depth, "beta/")}">Become a beta tester</a></li><li><a href="${makeLink(depth, "beta-credits/")}">Beta tester credits</a></li><li><a href="${makeLink(depth, "support/")}">Support</a></li></ul></div>
+      <div><h2>Policies</h2><ul><li><a href="${makeLink(depth, "privacy/")}">Privacy</a></li><li><a href="${makeLink(depth, "terms/")}">Terms</a></li><li><a href="${makeLink(depth, "accessibility/")}">Accessibility</a></li><li><a href="mailto:${site.email}">Email us</a></li></ul></div>
     </div>
     <div class="shell footer-bottom">© <span data-year></span> Maxxed Technical Systems. Product availability and compatibility vary by app.</div>
   </footer>`;
 }
 
-function layout({ title, description, path = "", depth = 0, current = "", body, schema = [], image = "assets/images/og-default.png", noIndex = false }) {
+function layout({ title, description, path = "", depth = 0, current = "", body, schema = [], image = "assets/images/og-default.png", noIndex = false, forceRootLinks = false }) {
   const fullTitle = title === site.name ? `${site.name} | Android Apps and Practical Software` : `${title} | ${site.name}`;
   const pageUrl = canonical(path);
   const imageUrl = canonical(image);
+  const pageLink = forceRootLinks ? rootLink : link;
   const schemas = [
     {
       "@context": "https://schema.org",
@@ -111,18 +113,18 @@ function layout({ title, description, path = "", depth = 0, current = "", body, 
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${imageUrl}">
   <meta name="theme-color" content="#07131f">
-  <link rel="icon" href="${link(depth, "assets/images/favicon.svg")}" type="image/svg+xml">
-  <link rel="manifest" href="${link(depth, "site.webmanifest")}">
-  <link rel="stylesheet" href="${link(depth, "assets/site.css")}">
+  <link rel="icon" href="${pageLink(depth, "assets/images/favicon.svg")}" type="image/svg+xml">
+  <link rel="manifest" href="${pageLink(depth, "site.webmanifest")}">
+  <link rel="stylesheet" href="${pageLink(depth, "assets/site.css")}">
   ${googleTag()}
   ${schemas.map((item) => `<script type="application/ld+json">${jsonLd(item)}</script>`).join("\n  ")}
 </head>
 <body data-support-email="${site.email}" data-beta-email="${site.betaEmail}">
   <a class="skip-link" href="#main">Skip to content</a>
-  ${header(depth, current)}
+  ${header(depth, current, pageLink)}
   <main id="main">${body}</main>
-  ${footer(depth)}
-  <script src="${link(depth, "assets/site.js")}" defer></script>
+  ${footer(depth, pageLink)}
+  <script src="${pageLink(depth, "assets/site.js")}" defer></script>
 </body>
 </html>`;
 }
@@ -244,8 +246,8 @@ function accessibilityPage() {
 }
 
 function notFoundPage() {
-  const body = `<section class="shell not-found"><div><strong>404</strong><h1>Page not found</h1><p class="lede">The address may have changed, or the app page may not exist yet.</p><div class="hero-actions"><a class="button" href="./">Return home</a><a class="button secondary" href="apps/">Browse apps</a></div></div></section>`;
-  return layout({ title: "Page not found", description: "The requested Maxxed Technical Systems page could not be found.", body, noIndex: true });
+  const body = `<section class="shell not-found"><div><strong>404</strong><h1>Page not found</h1><p class="lede">The address may have changed, or the app page may not exist yet.</p><div class="hero-actions"><a class="button" href="/">Return home</a><a class="button secondary" href="/apps/">Browse apps</a></div></div></section>`;
+  return layout({ title: "Page not found", description: "The requested Maxxed Technical Systems page could not be found.", body, noIndex: true, forceRootLinks: true });
 }
 
 async function writePage(path, contents) {
