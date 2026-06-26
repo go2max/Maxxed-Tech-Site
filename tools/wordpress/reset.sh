@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.wordpress.yml}"
-ENV_FILE="${ENV_FILE:-.env.wordpress}"
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$ROOT"
+# shellcheck source=tools/wordpress/lib.sh
+source tools/wordpress/lib.sh
+wp_load_env
 
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" down -v --remove-orphans
+wp_compose down -v --remove-orphans
 
 echo "Local WordPress website test environment reset complete."
