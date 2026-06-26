@@ -22,6 +22,7 @@ function run(command, args) {
     cwd: process.cwd(),
     encoding: 'utf8',
     stdio: 'pipe',
+    shell: process.platform === 'win32',
   });
 
   return {
@@ -51,18 +52,13 @@ const rows = products.map((product) => {
     };
   }
 
-  const args = type === 'plugin'
-    ? ['tools/wordpress/install-plugin-zip.sh', source]
-    : type === 'theme'
-      ? ['tools/wordpress/install-theme-zip.sh', source]
-      : [];
-
-  if (args.length === 0) {
+  if (!['plugin', 'theme'].includes(type)) {
     return { name, type, activate, status: 'skipped', notes: `Unsupported type: ${type}` };
   }
 
+  const args = ['tools/wordpress/install-artifact.mjs', type, source];
   if (activate) args.push('--activate');
-  const result = run('bash', args);
+  const result = run('node', args);
   return {
     name,
     type,

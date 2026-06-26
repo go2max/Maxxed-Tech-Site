@@ -19,7 +19,7 @@ async function filesUnder(directory) {
 
 const files = await filesUnder(siteRoot);
 const htmlFiles = files.filter((file) => extname(file) === ".html");
-assert.equal(htmlFiles.length, 26, "Expected 25 indexed/static HTML pages and one 404 page");
+assert.equal(htmlFiles.length, 27, "Expected 26 indexed/static HTML pages and one 404 page");
 
 const existing = new Set(files.map((file) => `/${relative(siteRoot, file).split(sep).join("/")}`));
 const titles = new Set();
@@ -75,6 +75,12 @@ for (const slug of ["maxxed-remote", "maxxed-compass", "maxxed-measure", "maxxed
   assert.match(policy, /privacy@techmaxxed\.com/);
 }
 
+const pluginLab = await readFile(resolve(siteRoot, "tools/wordpress-plugin-lab/index.html"), "utf8");
+assert.match(pluginLab, /WordPress Plugin Lab/);
+assert.match(pluginLab, /local-artifacts\/wordpress/);
+assert.match(pluginLab, /npm run wordpress:manifest/);
+assert.match(pluginLab, /npm run wordpress:install/);
+
 const postPurge = await readFile(resolve(siteRoot, "tools/post-purge-pro/index.html"), "utf8");
 assert.match(postPurge, /Preview -&gt; Export -&gt; Confirm -&gt; Trash|Preview -> Export -> Confirm -> Trash/);
 assert.match(postPurge, /Trash-only/);
@@ -85,6 +91,7 @@ assert.match(await readFile(resolve(siteRoot, "beta-credits/index.html"), "utf8"
 
 const sitemap = await readFile(resolve(siteRoot, "sitemap.xml"), "utf8");
 assert.ok((sitemap.match(/<url>/g) || []).length >= 22, "Sitemap should contain generated indexed pages");
+assert.match(sitemap, /tools\/wordpress-plugin-lab\//);
 assert.match(await readFile(resolve(siteRoot, "robots.txt"), "utf8"), /Sitemap: https:\/\/techmaxxed\.com\/sitemap\.xml/);
 JSON.parse(await readFile(resolve(siteRoot, "site.webmanifest"), "utf8"));
 

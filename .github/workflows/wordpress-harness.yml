@@ -44,8 +44,15 @@ jobs:
           bash -n tools/wordpress/smoke-test.sh
           bash -n tools/wordpress/status.sh
 
-      - name: Check manifest runner syntax
-        run: node --check tools/wordpress/run-manifest.mjs
+      - name: Check Node WordPress tools syntax
+        run: |
+          node --check tools/wordpress/install-artifact.mjs
+          node --check tools/wordpress/run-manifest.mjs
+
+      - name: Check PowerShell WordPress lab syntax
+        shell: pwsh
+        run: |
+          $null = [scriptblock]::Create((Get-Content tools/wordpress/lab.ps1 -Raw))
 
       - name: Validate product manifest JSON
         run: node -e "JSON.parse(require('fs').readFileSync('wordpress/products.example.json', 'utf8'))"
