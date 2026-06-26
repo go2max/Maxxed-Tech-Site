@@ -4,6 +4,10 @@ Production-oriented multi-page company and app catalog for Maxxed Technical
 Systems. The public website is ordinary static HTML, CSS, JavaScript, and image
 files under `site/`.
 
+## Readiness
+
+Current repository readiness is tracked in [`READINESS.md`](READINESS.md). Treat the source as launch-oriented, but do not mark the site publicly launched until the production domain, hosting, mailboxes, legal/support links, and final audit gates are verified.
+
 ## Pages
 
 - Home and searchable app directory
