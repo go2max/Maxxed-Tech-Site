@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WordPress Plugin Lab | Maxxed Technical Systems</title>
+  <meta name="description" content="A WordPress plugin testing lab for uploading local ZIP artifacts, installing them in Docker WordPress, and validating admin and public behavior.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://techmaxxed.com/tools/wordpress-plugin-lab/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Maxxed Technical Systems">
+  <meta property="og:title" content="WordPress Plugin Lab | Maxxed Technical Systems">
+  <meta property="og:description" content="Upload local plugin ZIPs into the Maxxed WordPress Docker harness and validate them safely before release.">
+  <meta property="og:url" content="https://techmaxxed.com/tools/wordpress-plugin-lab/">
+  <meta property="og:image" content="https://techmaxxed.com/assets/images/og-default.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#07131f">
+  <link rel="icon" href="../../assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="../../site.webmanifest">
+  <link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body data-support-email="support@techmaxxed.com" data-beta-email="beta@techmaxxed.com">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><div class="nav-shell"><a class="brand" href="../../" aria-label="Maxxed Technical Systems home"><span class="brand-mark" aria-hidden="true">MTS</span><span class="brand-name">Maxxed Technical Systems</span></a><nav class="nav-links" aria-label="Primary navigation"><a href="../../apps/">Apps</a><a href="../../roadmap/">Roadmap</a><a href="../../about/">About</a><a href="../../support/">Help</a></nav></div></header>
+  <main id="main">
+    <section class="band product-hero"><div class="shell product-hero-grid"><div><div class="product-kicker" style="--accent:#7dd3fc"><span class="app-icon" aria-hidden="true">WP</span><span class="status">Plugin test lab</span></div><p class="eyebrow">WordPress subsite setup</p><h1>WordPress Plugin Lab</h1><p class="lede">A reusable local WordPress harness for uploading plugin ZIP artifacts, installing them in Docker, and validating admin/public behavior before anything is promoted on TechMaxxed.</p><div class="fact-row"><span>Local Docker WordPress</span><span>ZIP upload queue</span><span>Manifest reports</span><span>Windows-friendly</span></div><div class="hero-actions"><a class="button" href="#upload-flow">Upload plugins</a><a class="button secondary" href="#queue">Plugin queue</a></div></div><div class="product-visual" style="--accent:#7dd3fc"><span class="product-visual-label">Lab flow</span><span class="app-icon" aria-hidden="true">WP</span><strong>ZIP -> Manifest -> Install -> Smoke -> Report</strong><div class="fact-row"><span>Private</span><span>Repeatable</span><span>Safe</span></div></div></div></section>
+
+    <section class="shell section" id="upload-flow"><div class="section-head"><div><p class="eyebrow">How uploading works</p><h2>Drop plugin ZIPs into the artifact folder</h2></div><p>The public page documents the workflow. Actual plugin execution happens in the private local Docker WordPress harness.</p></div><div class="copy-grid"><aside><p>Artifact folder</p></aside><article><pre><code>local-artifacts/wordpress/</code></pre><p>Copy each plugin ZIP here using a stable filename such as <code>wordpress-role-auditor.zip</code> or <code>broken-shortcode-finder.zip</code>.</p></article></div><div class="copy-grid"><aside><p>Run the lab on Windows</p></aside><article><pre><code>npm run wordpress:lab
+npm run wordpress:manifest -- wordpress/products.example.json</code></pre></article></div><div class="copy-grid"><aside><p>Install one artifact</p></aside><article><pre><code>npm run wordpress:install -- plugin local-artifacts/wordpress/example-plugin.zip --activate
+npm run wordpress:install -- theme local-artifacts/wordpress/example-theme.zip</code></pre></article></div></section>
+
+    <section class="band" id="queue"><div class="shell section"><div class="section-head"><div><p class="eyebrow">Default queue</p><h2>Plugins ready for the lab pattern</h2></div><p>Each item should get its own ZIP, acceptance checklist, and report before it gets a public product page.</p></div><div class="road-list"><div class="road-item"><span class="number">01</span><div><strong>Post Purge Pro</strong><p>Preview, export, confirm, and move reviewed posts to Trash only.</p></div><span class="kind">Release candidate</span></div><div class="road-item"><span class="number">02</span><div><strong>WordPress Role Auditor</strong><p>Review roles and capabilities without mutating permissions by default.</p></div><span class="kind">Next ZIP</span></div><div class="road-item"><span class="number">03</span><div><strong>Broken Shortcode Finder</strong><p>Scan for inactive or broken shortcode usage before content cleanup.</p></div><span class="kind">Next ZIP</span></div><div class="road-item"><span class="number">04</span><div><strong>Stale Content Detector</strong><p>Flag old or low-value pages without automatic deletion.</p></div><span class="kind">Next ZIP</span></div><div class="road-item"><span class="number">05</span><div><strong>Redirect Manager Pro</strong><p>Review redirect rules before activation.</p></div><span class="kind">Next ZIP</span></div></div></div></section>
+
+    <section class="shell section"><div class="section-head"><div><p class="eyebrow">Acceptance</p><h2>Every uploaded plugin must pass the same floor</h2></div><p>The lab is meant to prevent one-off, half-tested plugins from reaching the public site.</p></div><div class="truth-grid" style="--accent:#7dd3fc"><article class="truth-item"><h3>Install</h3><p>ZIP installs and activates without breaking WordPress admin or the public site.</p></article><article class="truth-item"><h3>Admin</h3><p>Product admin screens load for an administrator and default views do not mutate content.</p></article><article class="truth-item"><h3>Report</h3><p>The manifest runner produces a report and records skipped, passed, or failed artifacts.</p></article></div></section>
+  </main>
+  <footer class="site-footer"><div class="shell footer-bottom">© <span data-year></span> Maxxed Technical Systems. Plugin lab access and artifacts are managed privately.</div></footer>
+  <script src="../../assets/site.js" defer></script>
+</body>
+</html>
