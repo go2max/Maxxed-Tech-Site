@@ -80,7 +80,7 @@ assert.match(await readFile(resolve(siteRoot, "beta-credits/index.html"), "utf8"
 assert.match(await readFile(resolve(siteRoot, "admin/index.html"), "utf8"), /Maxxed admin routing/);
 assert.match(await readFile(resolve(siteRoot, "admin/plugins/index.html"), "utf8"), /WordPress plugin admin/);
 assert.match(await readFile(resolve(siteRoot, "plugins/index.html"), "utf8"), /WordPress plugins/);
-assert.equal(((await readFile(resolve(siteRoot, "apps/index.html"), "utf8")).match(/data-app-card/g) || []).length, 42, "Apps page should show six Android apps and 36 WordPress plugins");
+assert.equal(((await readFile(resolve(siteRoot, "apps/index.html"), "utf8")).match(/data-app-card/g) || []).length, 186, "Apps page should show 6 Android apps, 36 WordPress plugins, 44 standalone repos, and 100 powerhouse repos");
 assert.equal(((await readFile(resolve(siteRoot, "plugins/index.html"), "utf8")).match(/data-app-card/g) || []).length, 36, "Plugins page should show all 36 WordPress plugins");
 
 const sitemap = await readFile(resolve(siteRoot, "sitemap.xml"), "utf8");

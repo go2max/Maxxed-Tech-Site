@@ -2,7 +2,7 @@ import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { apps, roadmap, site, wordpressPlugins } from "../content/site-data.mjs";
+import { apps, powerhouseProducts, repoProducts, roadmap, site, wordpressPlugins } from "../content/site-data.mjs";
 import { betaApps, betaCredits } from "../content/beta-data.mjs";
 import { privacyPolicies } from "../content/privacy-data.mjs";
 
@@ -23,6 +23,7 @@ const link = (depth, path = "") => `${"../".repeat(depth)}${path}`;
 const rootLink = (_depth, path = "") => `/${path}`;
 const canonical = (path = "") => `${site.url}/${path}`;
 const jsonLd = (value) => JSON.stringify(value).replaceAll("<", "\\u003c");
+const allPublicProducts = [...apps, ...wordpressPlugins, ...repoProducts, ...powerhouseProducts];
 
 function googleTag() {
   return `<script async src="https://www.googletagmanager.com/gtag/js?id=${googleTagId}"></script>
@@ -51,6 +52,16 @@ function pluginCard(plugin) {
     <p>${escapeHtml(plugin.summary)}</p>
     <div class="fact-row">${plugin.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div>
     <span class="app-meta">WordPress plugin package</span>
+  </article>`;
+}
+
+function repoProductCard(product) {
+  return `<article class="app-card" data-app-card data-category="${escapeHtml(product.categoryKey)}" style="--accent:${escapeHtml(product.accent)}">
+    <div class="app-card-top"><span class="app-icon" aria-hidden="true">${escapeHtml(product.icon)}</span><span class="status">${escapeHtml(product.status)}</span></div>
+    <h3>${escapeHtml(product.name)}</h3>
+    <p>${escapeHtml(product.summary)}</p>
+    <div class="fact-row">${product.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div>
+    <span class="app-meta">Repo-backed product</span>
   </article>`;
 }
 
@@ -211,14 +222,16 @@ function adminPluginsPage() {
 function homePage() {
   const featured = apps.slice(0, 4);
   const pluginHighlights = wordpressPlugins.slice(0, 6);
+  const repoHighlights = [...repoProducts.slice(0, 3), ...powerhouseProducts.slice(0, 3)];
   const body = `<section class="band home-hero">
     <div class="shell home-hero-grid">
-      <div><p class="eyebrow">Android apps + WordPress plugins</p><h1>Maxxed Technical Systems</h1><p class="lede">Useful tools built to do the job, from controlling a television and finding true north to organizing WordPress audits, maintenance, cleanup, and commerce workflows.</p><div class="hero-actions"><a class="button" href="apps/">Explore all products</a><a class="button secondary" href="roadmap/">See what is next</a></div><div class="proof-row"><span>${apps.length} Android apps</span><span>${wordpressPlugins.length} WordPress plugins</span><span>Privacy-aware</span><span>Honest limitations</span></div></div>
+      <div><p class="eyebrow">Android apps + WordPress plugins + repo products</p><h1>Maxxed Technical Systems</h1><p class="lede">Useful tools built to do the job, from controlling a television and finding true north to organizing WordPress audits, maintenance, cleanup, commerce workflows, and repo-backed microproducts.</p><div class="hero-actions"><a class="button" href="apps/">Explore all products</a><a class="button secondary" href="roadmap/">See what is next</a></div><div class="proof-row"><span>${allPublicProducts.length} public products</span><span>${apps.length} Android apps</span><span>${wordpressPlugins.length} WordPress plugins</span><span>${repoProducts.length + powerhouseProducts.length} repo products</span></div></div>
       <div class="hero-products" aria-label="Featured Maxxed apps"><div class="hero-shot"><img src="assets/images/remote-control.png" alt="Maxxed Remote Android app main control screen" width="1080" height="1920"></div><div class="hero-stack">${featured.map((app) => `<a class="mini-product" style="--accent:${app.accent}" href="apps/${app.slug}/"><span class="mini-icon" aria-hidden="true">${escapeHtml(app.icon)}</span><strong>${escapeHtml(app.short)}</strong><small>${escapeHtml(app.category)}</small></a>`).join("")}</div></div>
     </div>
   </section>
   <section class="shell section"><div class="section-head"><div><p class="eyebrow">Android apps</p><h2>Built around real tasks</h2></div><p>Each Android product states what it does, what remains in testing, how data is handled, and where the limits are.</p></div><div class="app-grid">${apps.map((app, index) => appCard(app, 0, index < 2)).join("")}</div></section>
   <section class="band"><div class="shell section"><div class="section-head"><div><p class="eyebrow">WordPress plugin lab</p><h2>${wordpressPlugins.length} plugins prepared for testing</h2></div><p>The public catalog includes every checked WordPress plugin package with an editable test profile for names, owners, and testing notes.</p></div><div class="app-grid">${pluginHighlights.map((plugin) => pluginCard(plugin)).join("")}</div><div class="hero-actions"><a class="button secondary" href="apps/">View all ${wordpressPlugins.length} WordPress plugins</a></div></div></section>
+  <section class="shell section"><div class="section-head"><div><p class="eyebrow">Repo-backed product library</p><h2>${repoProducts.length + powerhouseProducts.length} additional repo products</h2></div><p>Standalone repos and materialized powerhouse repos are included in the product catalog without overwhelming the homepage.</p></div><div class="app-grid">${repoHighlights.map((product) => repoProductCard(product)).join("")}</div><div class="hero-actions"><a class="button secondary" href="apps/">Browse all ${allPublicProducts.length} products</a></div></section>
   <section class="band"><div class="shell section"><div class="section-head"><div><p class="eyebrow">How we build</p><h2>Truth before hype</h2></div><p>Useful software earns trust through clear claims, careful handling of private data, and physical testing where sensors, cameras, televisions, or field conditions matter.</p></div><div class="truth-grid" style="--accent:var(--lime)"><article class="truth-item"><h3>Clear release states</h3><p>In-development tools are never presented as publicly available products.</p></article><article class="truth-item"><h3>Privacy by design</h3><p>On-device processing and explicit exports are preferred wherever the workflow supports them.</p></article><article class="truth-item"><h3>Evidence-based results</h3><p>Measurements and estimates expose uncertainty and never pretend a visual result is laboratory truth.</p></article></div></div></section>
   <section class="shell section compact"><div class="section-head"><div><p class="eyebrow">Current focus</p><h2>Release queue and plugin lab</h2></div><p>The Android release queue stays focused while the WordPress plugin lab packages move through organized testing.</p></div><div class="road-list">${roadmap.slice(0, 4).map((item, index) => `<div class="road-item"><span class="number">0${index + 1}</span><div><strong>${escapeHtml(item[0])}</strong><p>${escapeHtml(item[2])}</p></div><span class="kind">${escapeHtml(item[1])}</span></div>`).join("")}</div><div class="hero-actions"><a class="button secondary" href="roadmap/">View the full release queue</a></div></section>
   <section class="band"><div class="shell section compact"><div class="section-head"><div><p class="eyebrow">Test with us</p><h2>Android beta testers wanted</h2></div><p>Choose the apps you want to test, help us find real-device issues, and opt into permanent recognition on the beta tester credits page.</p></div><div class="hero-actions"><a class="button" href="beta/">Apply to beta test</a><a class="button secondary" href="beta-credits/">View tester credits</a></div></div></section>
@@ -233,8 +246,8 @@ function homePage() {
 
 function appsPage() {
   const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">Product directory</p><h1>Android apps, WordPress plugins, and software</h1><p class="lede">Browse released candidates, active test builds, and tools currently in development. Status labels reflect the latest verified project state.</p></div></section>
-  <section class="shell section"><div class="catalog-tools"><label class="search-box"><span class="skip-link">Search products</span><input type="search" data-app-search placeholder="Search by name or capability" autocomplete="off"></label><div class="filters" role="group" aria-label="Filter products"><button class="filter" data-filter="all" aria-pressed="true">All</button><button class="filter" data-filter="utility" aria-pressed="false">Utilities</button><button class="filter" data-filter="outdoors" aria-pressed="false">Outdoors</button><button class="filter" data-filter="games" aria-pressed="false">Games</button><button class="filter" data-filter="wordpress" aria-pressed="false">WordPress</button></div></div><p class="fine-print" data-result-count aria-live="polite"></p><div class="app-grid" data-catalog>${apps.map((app) => appCard(app, 1)).join("")}${wordpressPlugins.map((plugin) => pluginCard(plugin)).join("")}</div><p class="empty-state" data-empty-state hidden>No products match that search. Try a product name or a broader category.</p></section>${contactBand(1, "Need help choosing the right product?")}`;
-  return layout({ title: "Apps", description: "Browse Maxxed Technical Systems Android apps, WordPress plugins, and focused software for TV control, navigation, measurement, content audits, field records, and party games.", path: "apps/", depth: 1, current: "apps", body });
+  <section class="shell section"><div class="catalog-tools"><label class="search-box"><span class="skip-link">Search products</span><input type="search" data-app-search placeholder="Search by name or capability" autocomplete="off"></label><div class="filters" role="group" aria-label="Filter products"><button class="filter" data-filter="all" aria-pressed="true">All</button><button class="filter" data-filter="utility" aria-pressed="false">Utilities</button><button class="filter" data-filter="outdoors" aria-pressed="false">Outdoors</button><button class="filter" data-filter="games" aria-pressed="false">Games</button><button class="filter" data-filter="wordpress" aria-pressed="false">WordPress</button><button class="filter" data-filter="repo" aria-pressed="false">Standalone repos</button><button class="filter" data-filter="powerhouse" aria-pressed="false">Powerhouse repos</button><button class="filter" data-filter="business" aria-pressed="false">Business</button><button class="filter" data-filter="civic" aria-pressed="false">Civic</button><button class="filter" data-filter="content" aria-pressed="false">Content</button><button class="filter" data-filter="finance" aria-pressed="false">Finance</button></div></div><p class="fine-print" data-result-count aria-live="polite"></p><div class="app-grid" data-catalog>${apps.map((app) => appCard(app, 1)).join("")}${wordpressPlugins.map((plugin) => pluginCard(plugin)).join("")}${repoProducts.map((product) => repoProductCard(product)).join("")}${powerhouseProducts.map((product) => repoProductCard(product)).join("")}</div><p class="empty-state" data-empty-state hidden>No products match that search. Try a product name or a broader category.</p></section>${contactBand(1, "Need help choosing the right product?")}`;
+  return layout({ title: "Apps", description: "Browse Maxxed Technical Systems Android apps, WordPress plugins, standalone repo products, and powerhouse repo products in one organized catalog.", path: "apps/", depth: 1, current: "apps", body });
 }
 
 function pluginsPage() {
