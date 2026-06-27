@@ -9,6 +9,7 @@ import { privacyPolicies } from "../content/privacy-data.mjs";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const output = resolve(root, "site");
+const adminOutput = resolve(root, "admin");
 const dist = resolve(root, "dist");
 const generatedWorker = resolve(root, "worker/index.js");
 const googleTagId = "G-FPG9XJHGHK";
@@ -353,7 +354,58 @@ async function writePage(path, contents) {
   await writeFile(destination, contents, "utf8");
 }
 
+async function writeAdminExport(path, contents) {
+  const destination = resolve(adminOutput, path);
+  await mkdir(resolve(destination, ".."), { recursive: true });
+  await writeFile(destination, contents, "utf8");
+}
+
+function adminSubdomainHtml(html, depth) {
+  let transformed = html
+    .replaceAll("https://techmaxxed.com/admin/plugins/", "https://admin.techmaxxed.com/plugins/")
+    .replaceAll("https://techmaxxed.com/admin/", "https://admin.techmaxxed.com/");
+
+  if (depth === 0) {
+    transformed = transformed
+      .replaceAll('href="../assets/', 'href="assets/')
+      .replaceAll('src="../assets/', 'src="assets/')
+      .replaceAll('href="../site.webmanifest"', 'href="site.webmanifest"')
+      .replaceAll('href="../"', 'href="https://techmaxxed.com/"')
+      .replaceAll('href="../apps/', 'href="https://techmaxxed.com/apps/')
+      .replaceAll('href="../plugins/"', 'href="plugins/"')
+      .replaceAll('href="../beta/', 'href="https://techmaxxed.com/beta/')
+      .replaceAll('href="../beta-credits/', 'href="https://techmaxxed.com/beta-credits/')
+      .replaceAll('href="../roadmap/', 'href="https://techmaxxed.com/roadmap/')
+      .replaceAll('href="../admin/"', 'href="/"')
+      .replaceAll('href="../about/', 'href="https://techmaxxed.com/about/')
+      .replaceAll('href="../support/', 'href="https://techmaxxed.com/support/')
+      .replaceAll('href="../privacy/', 'href="https://techmaxxed.com/privacy/')
+      .replaceAll('href="../terms/', 'href="https://techmaxxed.com/terms/')
+      .replaceAll('href="../accessibility/', 'href="https://techmaxxed.com/accessibility/');
+  } else {
+    transformed = transformed
+      .replaceAll('href="../../assets/', 'href="../assets/')
+      .replaceAll('src="../../assets/', 'src="../assets/')
+      .replaceAll('href="../../site.webmanifest"', 'href="../site.webmanifest"')
+      .replaceAll('href="../../"', 'href="https://techmaxxed.com/"')
+      .replaceAll('href="../../apps/', 'href="https://techmaxxed.com/apps/')
+      .replaceAll('href="../../plugins/"', 'href="/plugins/"')
+      .replaceAll('href="../../beta/', 'href="https://techmaxxed.com/beta/')
+      .replaceAll('href="../../beta-credits/', 'href="https://techmaxxed.com/beta-credits/')
+      .replaceAll('href="../../roadmap/', 'href="https://techmaxxed.com/roadmap/')
+      .replaceAll('href="../../admin/"', 'href="/"')
+      .replaceAll('href="../../about/', 'href="https://techmaxxed.com/about/')
+      .replaceAll('href="../../support/', 'href="https://techmaxxed.com/support/')
+      .replaceAll('href="../../privacy/', 'href="https://techmaxxed.com/privacy/')
+      .replaceAll('href="../../terms/', 'href="https://techmaxxed.com/terms/')
+      .replaceAll('href="../../accessibility/', 'href="https://techmaxxed.com/accessibility/');
+  }
+
+  return transformed;
+}
+
 await rm(output, { recursive: true, force: true });
+await rm(adminOutput, { recursive: true, force: true });
 await rm(dist, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await cp(resolve(root, "public"), output, { recursive: true });
@@ -382,6 +434,14 @@ await writePage("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset 
 await writePage("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${canonical("sitemap.xml")}\n`);
 await writePage("site.webmanifest", JSON.stringify({ name: site.name, short_name: site.shortName, start_url: "/", display: "standalone", background_color: "#07131f", theme_color: "#07131f", icons: [{ src: "/assets/images/favicon.svg", sizes: "any", type: "image/svg+xml" }] }, null, 2));
 await writePage("_headers", `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Content-Security-Policy: ${contentSecurityPolicy}\n`);
+
+await mkdir(adminOutput, { recursive: true });
+await cp(resolve(root, "public", "assets"), resolve(adminOutput, "assets"), { recursive: true });
+await writeAdminExport("index.html", adminSubdomainHtml(adminPage(), 0));
+await writeAdminExport("plugins/index.html", adminSubdomainHtml(adminPluginsPage(), 1));
+await writeAdminExport("site.webmanifest", JSON.stringify({ name: "Maxxed Admin", short_name: "Maxxed Admin", start_url: "/", display: "standalone", background_color: "#07131f", theme_color: "#07131f", icons: [{ src: "/assets/images/favicon.svg", sizes: "any", type: "image/svg+xml" }] }, null, 2));
+await writeAdminExport("robots.txt", "User-agent: *\nDisallow: /\n");
+await writeAdminExport("_headers", `/*\n  X-Robots-Tag: noindex, nofollow\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Content-Security-Policy: ${contentSecurityPolicy}\n`);
 
 async function filesUnder(directory) {
   const entries = await readdir(directory, { withFileTypes: true });

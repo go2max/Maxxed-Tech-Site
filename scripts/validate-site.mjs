@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const siteRoot = resolve(root, "site");
+const adminRoot = resolve(root, "admin");
 
 async function filesUnder(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -18,6 +19,7 @@ async function filesUnder(directory) {
 }
 
 const files = await filesUnder(siteRoot);
+const adminFiles = await filesUnder(adminRoot);
 const htmlFiles = files.filter((file) => extname(file) === ".html");
 assert.equal(htmlFiles.length, 26, "Expected 23 indexed HTML pages, two admin pages, and one 404 page");
 
@@ -88,4 +90,27 @@ assert.equal((sitemap.match(/<url>/g) || []).length, 23, "Sitemap should contain
 assert.match(await readFile(resolve(siteRoot, "robots.txt"), "utf8"), /Sitemap: https:\/\/techmaxxed\.com\/sitemap\.xml/);
 JSON.parse(await readFile(resolve(siteRoot, "site.webmanifest"), "utf8"));
 
-console.log(`Validated ${htmlFiles.length} HTML pages, ${checkedReferences} local references, unique metadata, sitemap, manifest, and client JavaScript.`);
+const adminExisting = new Set(adminFiles.map((file) => `/${relative(adminRoot, file).split(sep).join("/")}`));
+for (const file of adminFiles.filter((item) => extname(item) === ".html")) {
+  const html = await readFile(file, "utf8");
+  const filePath = `/${relative(adminRoot, file).split(sep).join("/")}`;
+  const route = filePath.endsWith("/index.html") ? filePath.slice(0, -"index.html".length) : filePath;
+  assert.match(html, /https:\/\/admin\.techmaxxed\.com\//, `${filePath} should use the admin subdomain canonical URL`);
+  assert.doesNotMatch(html, /\.\.\/\.\.\/assets\//, `${filePath} should not point above the admin export for assets`);
+
+  const references = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((match) => match[1]);
+  for (const reference of references) {
+    if (/^(?:#|mailto:|tel:|https?:|data:)/.test(reference)) continue;
+    const resolvedUrl = new URL(reference, `https://admin.example.test${route}`);
+    let target = decodeURIComponent(resolvedUrl.pathname);
+    if (target === "/") target = "/index.html";
+    else if (target.endsWith("/")) target += "index.html";
+    assert.ok(adminExisting.has(target), `${filePath} has a broken admin export reference: ${reference} -> ${target}`);
+  }
+}
+
+assert.match(await readFile(resolve(adminRoot, "index.html"), "utf8"), /Maxxed admin routing/);
+assert.match(await readFile(resolve(adminRoot, "plugins/index.html"), "utf8"), /WordPress plugin admin/);
+JSON.parse(await readFile(resolve(adminRoot, "site.webmanifest"), "utf8"));
+
+console.log(`Validated ${htmlFiles.length} HTML pages, ${checkedReferences} local references, admin subdomain export, unique metadata, sitemap, manifest, and client JavaScript.`);
