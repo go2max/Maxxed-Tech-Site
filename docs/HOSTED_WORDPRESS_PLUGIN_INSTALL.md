@@ -2,13 +2,13 @@
 
 Target site: `plugins.techmaxxed.com`
 
-This runbook installs the 36 Maxxed WordPress plugin lab packages onto the hosted WordPress subsite. The source bundle is:
+This runbook installs the 36 Maxxed WordPress plugin lab packages onto the hosted WordPress subsite.
 
-`local-artifacts/wordpress/maxxed-plugin-lab-wp-content-plugins.zip`
+For WordPress Admin -> Plugins -> Add New -> Upload Plugin, use the individual ZIP files in:
 
-That bundle contains:
+`local-artifacts/wordpress/plugin-zips/`
 
-`local-artifacts/wordpress/wp-content/plugins/<plugin-folder>/...`
+Do not upload `maxxed-plugin-lab-wp-content-plugins.zip` through the WordPress plugin uploader. That file is a filesystem extraction bundle for Hostinger File Manager or SSH only. WordPress will reject it with "No valid plugins were found" because it contains many plugin folders instead of one plugin at the package root.
 
 ## Expected Count
 
@@ -16,7 +16,22 @@ That bundle contains:
 - Installed plugin folders: 36
 - Main plugin files: 36
 
-## Hostinger File Manager Path
+## WordPress Admin Upload Path
+
+Use this when installing from `Plugins -> Add New -> Upload Plugin`.
+
+1. Open WordPress Admin for `plugins.techmaxxed.com`.
+2. Go to `Plugins -> Add New -> Upload Plugin`.
+3. Upload one ZIP from `local-artifacts/wordpress/plugin-zips/`.
+4. Click `Install Now`.
+5. Click `Activate` if you want it active immediately, or return to the plugin installer.
+6. Repeat for all 36 individual ZIP files listed below.
+
+Each individual ZIP has a valid plugin folder and main plugin file at the package root, for example:
+
+`post-purge-pro.zip -> post-purge-pro/post-purge-pro.php`
+
+## Hostinger File Manager Bulk Path
 
 1. Open Hostinger File Manager for the WordPress install behind `plugins.techmaxxed.com`.
 2. Go to that site's WordPress root. It should contain `wp-admin`, `wp-content`, and `wp-includes`.
@@ -27,7 +42,7 @@ That bundle contains:
 7. Confirm all 36 Maxxed plugins appear.
 8. Activate them if the lab site is intended to run the full plugin set at once.
 
-## SSH Path
+## SSH Bulk Path
 
 Upload the bundle to the hosted WordPress root, then run:
 
