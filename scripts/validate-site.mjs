@@ -101,6 +101,7 @@ for (const file of adminFiles.filter((item) => extname(item) === ".html")) {
   const references = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((match) => match[1]);
   for (const reference of references) {
     if (/^(?:#|mailto:|tel:|https?:|data:)/.test(reference)) continue;
+    if (reference.startsWith("/api/")) continue;
     const resolvedUrl = new URL(reference, `https://admin.example.test${route}`);
     let target = decodeURIComponent(resolvedUrl.pathname);
     if (target === "/") target = "/index.html";
@@ -109,7 +110,8 @@ for (const file of adminFiles.filter((item) => extname(item) === ".html")) {
   }
 }
 
-assert.match(await readFile(resolve(adminRoot, "index.html"), "utf8"), /Maxxed admin routing/);
+assert.match(await readFile(resolve(adminRoot, "index.html"), "utf8"), /Testing Functions/);
+assert.match(await readFile(resolve(adminRoot, "testing-functions/index.html"), "utf8"), /Testing Functions/);
 assert.match(await readFile(resolve(adminRoot, "plugins/index.html"), "utf8"), /WordPress plugin admin/);
 JSON.parse(await readFile(resolve(adminRoot, "site.webmanifest"), "utf8"));
 

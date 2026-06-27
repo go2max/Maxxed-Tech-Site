@@ -6,6 +6,7 @@ import { powerhouseProducts, repoProducts } from "../content/repo-products.mjs";
 import { apps, roadmap, site, wordpressPlugins } from "../content/site-data.mjs";
 import { betaApps, betaCredits } from "../content/beta-data.mjs";
 import { privacyPolicies } from "../content/privacy-data.mjs";
+import adminPlatform from "../platform/src/index.js";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const output = resolve(root, "site");
@@ -404,6 +405,32 @@ function adminSubdomainHtml(html, depth) {
   return transformed;
 }
 
+async function adminTestingFunctionsHtml() {
+  const response = await adminPlatform.fetch(
+    new Request("https://admin.techmaxxed.com/admin/testing-functions/", {
+      headers: { "oai-authenticated-user-email": "admin@techmaxxed.com" },
+    }),
+    { ADMIN_ALLOWED_EMAILS: "admin@techmaxxed.com" },
+  );
+  if (!response.ok) throw new Error(`Admin platform export failed with ${response.status}`);
+  return (await response.text())
+    .replace(
+      '<meta name="viewport" content="width=device-width,initial-scale=1">',
+      '<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><link rel="canonical" href="https://admin.techmaxxed.com/">',
+    )
+    .replaceAll("admin@techmaxxed.com", "Static Hostinger export")
+    .replaceAll('href="/admin/testing-functions/"', 'href="/"')
+    .replaceAll("Testing Functions | Maxxed Admin", "Maxxed Admin")
+    .replace(
+      "async function api(path,options){const response=await fetch(path,options),body=response.status===204?{}:await response.json();if(!response.ok)throw new Error(body.error||'Request failed');return body}",
+      "async function api(path,options){if(!window.ADMIN_API_ENABLED){if(path==='/api/test-artifacts')return {artifacts:[]};if(path==='/api/test-jobs')return {jobs:[]};throw new Error('Admin backend API is not mounted on this static Hostinger export. Deploy the Worker admin platform for uploads and runner jobs.')}const response=await fetch(path,options),body=response.status===204?{}:await response.json();if(!response.ok)throw new Error(body.error||'Request failed');return body}",
+    )
+    .replace(
+      "<main><p class=\"eyebrow\">QA operations</p>",
+      "<main><p class=\"eyebrow\">QA operations</p><div class=\"empty\" style=\"margin-bottom:16px\">Static export loaded from /public_html/admin. The full UI is present; APK uploads, runner jobs, artifacts, and evidence require the Worker admin backend.</div>",
+    );
+}
+
 await rm(output, { recursive: true, force: true });
 await rm(adminOutput, { recursive: true, force: true });
 await rm(dist, { recursive: true, force: true });
@@ -437,7 +464,9 @@ await writePage("_headers", `/*\n  X-Content-Type-Options: nosniff\n  Referrer-P
 
 await mkdir(adminOutput, { recursive: true });
 await cp(resolve(root, "public", "assets"), resolve(adminOutput, "assets"), { recursive: true });
-await writeAdminExport("index.html", adminSubdomainHtml(adminPage(), 0));
+const testingFunctionsHtml = await adminTestingFunctionsHtml();
+await writeAdminExport("index.html", testingFunctionsHtml);
+await writeAdminExport("testing-functions/index.html", testingFunctionsHtml);
 await writeAdminExport("plugins/index.html", adminSubdomainHtml(adminPluginsPage(), 1));
 await writeAdminExport("site.webmanifest", JSON.stringify({ name: "Maxxed Admin", short_name: "Maxxed Admin", start_url: "/", display: "standalone", background_color: "#07131f", theme_color: "#07131f", icons: [{ src: "/assets/images/favicon.svg", sizes: "any", type: "image/svg+xml" }] }, null, 2));
 await writeAdminExport("robots.txt", "User-agent: *\nDisallow: /\n");
