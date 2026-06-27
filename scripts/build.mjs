@@ -2,7 +2,8 @@ import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { apps, powerhouseProducts, repoProducts, roadmap, site, wordpressPlugins } from "../content/site-data.mjs";
+import { powerhouseProducts, repoProducts } from "../content/repo-products.mjs";
+import { apps, roadmap, site, wordpressPlugins } from "../content/site-data.mjs";
 import { betaApps, betaCredits } from "../content/beta-data.mjs";
 import { privacyPolicies } from "../content/privacy-data.mjs";
 
