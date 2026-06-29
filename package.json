@@ -26,6 +26,7 @@
     "wordpress:reset": "bash ./tools/wordpress/reset.sh",
     "admin:deployment:check": "node scripts/validate-admin-production-config.mjs && node --test admin/tests/deployment.test.mjs",
     "admin:d1:check": "node scripts/admin-d1-migrate.mjs && node --test admin/tests/d1-migrations.test.mjs",
-    "admin:identity:check": "node --test admin/tests/production-identity-policy.test.mjs"
+    "admin:identity:check": "node --test admin/tests/production-identity-policy.test.mjs",
+    "web-launch-qa:check": "node scripts/validate-web-launch-qa-pro.mjs"
   }
 }
