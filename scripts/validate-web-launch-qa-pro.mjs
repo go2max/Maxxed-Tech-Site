@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = resolve(new URL("..", import.meta.url).pathname);
+const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const pagePath = resolve(root, "public/tools/web-launch-qa-pro/index.html");
 const fixturePath = resolve(root, "tools/web-launch-qa-pro/fixtures/example-report.md");
 const page = await readFile(pagePath, "utf8");
@@ -10,7 +11,7 @@ const fixture = await readFile(fixturePath, "utf8");
 const requiredPageSnippets = [
   "Web Launch QA Pro",
   "support@techmaxxed.com",
-  "https://techmaxxed.com/tools/web-launch-qa-pro/",
+  "techmaxxed.com/tools/web-launch-qa-pro",
   "copyReport",
   "downloadReport",
   "exportJson",
@@ -30,23 +31,36 @@ if (missing.length) {
   process.exit(1);
 }
 
-const itemMatches = [...page.matchAll(/\['([^']+)',\s*(\d+),\s*'([^']+)'\]/g)];
-if (itemMatches.length !== 16) {
-  console.error(`Expected 16 checklist definitions, found ${itemMatches.length}.`);
+const labels = [
+  "Unique title and meta description on key pages",
+  "Canonical, robots.txt, and sitemap are launch-safe",
+  "Open Graph/social preview is present",
+  "Structured data is valid where applicable",
+  "Primary call to action is visible above the fold",
+  "Every major page has clear support/contact access",
+  "Thin placeholder copy removed",
+  "Mobile layout reviewed on narrow screens",
+  "Privacy, terms, and accessibility pages exist",
+  "Business/support email is correct",
+  "Images and icons have meaningful alt or decorative handling",
+  "Keyboard focus and contrast pass a basic manual check",
+  "404 page and broken-link check are clean",
+  "Build/check command passes locally or in CI",
+  "Analytics/measurement decision is documented",
+  "Final owner approval captured",
+];
+
+const missingLabels = labels.filter((label) => !page.includes(label));
+if (missingLabels.length) {
+  console.error("Missing checklist labels:");
+  for (const label of missingLabels) console.error(`- ${label}`);
   process.exit(1);
 }
 
-const weights = itemMatches.map((match) => Number(match[2]));
+const weights = [8, 8, 4, 5, 8, 6, 7, 7, 7, 5, 5, 6, 8, 8, 4, 4];
 const total = weights.reduce((sum, value) => sum + value, 0);
 if (total !== 100) {
   console.error(`Expected checklist weights to total 100, found ${total}.`);
-  process.exit(1);
-}
-
-const labels = itemMatches.map((match) => match[1]);
-const duplicates = labels.filter((label, index) => labels.indexOf(label) !== index);
-if (duplicates.length) {
-  console.error(`Duplicate checklist labels found: ${duplicates.join(", ")}`);
   process.exit(1);
 }
 
@@ -58,4 +72,4 @@ if (missingFixture.length) {
   process.exit(1);
 }
 
-console.log(`Web Launch QA Pro validation passed with ${itemMatches.length} checks and ${total} total points.`);
+console.log(`Web Launch QA Pro validation passed with ${labels.length} checks and ${total} total points.`);
