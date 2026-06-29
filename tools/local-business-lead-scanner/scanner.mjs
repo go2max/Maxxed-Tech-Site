@@ -3,6 +3,7 @@ import { extname } from "node:path";
 import { defaultScanOptions, skippedExtensions, skippedPathPatterns } from "./schema.mjs";
 
 const EMAIL_PATTERN = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
+const OBFUSCATED_EMAIL_PATTERN = /\b([A-Z0-9._%+-]+)\s*(?:\(|\[)?\s*at\s*(?:\)|\])?\s*([A-Z0-9.-]+)\s*(?:\(|\[)?\s*dot\s*(?:\)|\])?\s*([A-Z]{2,})(?:\s*(?:\(|\[)?\s*dot\s*(?:\)|\])?\s*([A-Z]{2,}))?\b/gi;
 const PHONE_PATTERN = /(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}/g;
 const CTA_PATTERN = /\b(call|text|book|schedule|quote|estimate|contact|request|reserve|appointment|get started)\b/gi;
 const SERVICE_AREA_PATTERN = /\b(serving|service area|service areas|nearby|county|counties|city|cities|local|mobile service|we travel to)\b/gi;
@@ -38,8 +39,24 @@ export function isAllowedPageUrl(candidate, origin) {
   return true;
 }
 
+function extractObfuscatedEmails(text = "") {
+  const emails = [];
+  let match;
+  while ((match = OBFUSCATED_EMAIL_PATTERN.exec(text))) {
+    const [, mailbox, domain, tld, secondTld] = match;
+    const normalized = `${mailbox}@${domain}.${tld}${secondTld ? `.${secondTld}` : ""}`.toLowerCase();
+    if (EMAIL_PATTERN.test(normalized)) emails.push(normalized);
+    EMAIL_PATTERN.lastIndex = 0;
+  }
+  return emails;
+}
+
 export function extractEmails(html = "") {
-  return unique((html.match(EMAIL_PATTERN) || []).map((email) => email.toLowerCase()));
+  const text = normalizeWhitespace(stripTags(html));
+  return unique([
+    ...(html.match(EMAIL_PATTERN) || []).map((email) => email.toLowerCase()),
+    ...extractObfuscatedEmails(text),
+  ]);
 }
 
 export function normalizePhone(phone = "") {
