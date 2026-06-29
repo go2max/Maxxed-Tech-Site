@@ -15,16 +15,35 @@ GBP Audit Tracker is a manual local SEO utility for reviewing a Google Business 
 
 ## Run locally
 
-Open the app directly in a browser:
+Open the source app directly in a browser:
 
 ```bash
 open tools/gbp-audit-tracker/index.html
 ```
 
-Because the app uses browser modules, a local static server is the most reliable smoke-test path:
+Because the source app uses browser modules, a local static server is the most reliable smoke-test path:
 
 ```bash
 python3 -m http.server 4173
+# then open http://localhost:4173/tools/gbp-audit-tracker/
+```
+
+## Public/deploy route
+
+The deployable route is mirrored as a static single-file page under `public/` because the current site builder automatically copies that directory into the generated site.
+
+Source mirror smoke path:
+
+```bash
+python3 -m http.server 4173
+# then open http://localhost:4173/public/tools/gbp-audit-tracker/
+```
+
+After a normal site build:
+
+```bash
+npm run build
+python3 -m http.server 4173 --directory site
 # then open http://localhost:4173/tools/gbp-audit-tracker/
 ```
 
@@ -68,6 +87,8 @@ The score uses these section weights:
 
 **Best for:** Local SEO audits, small-business cleanup plans, agency discovery calls, service-area business reviews, notary/contractor/home-service website support.
 
+**Public route:** `/tools/gbp-audit-tracker/`
+
 **Disclaimer:** This is a manual audit helper from Maxxed Technical Systems. It is not affiliated with Google. Rankings, traffic, calls, and leads are not guaranteed.
 
 ## V1 limitations
@@ -82,7 +103,7 @@ The score uses these section weights:
 
 ## Suggested next increments
 
-1. Add a public site product page and link to the static tool.
+1. Add a first-class generated catalog card with a direct `Open tool` CTA.
 2. Add import/export JSON for moving audits between devices.
 3. Add white-label report branding fields.
 4. Add a Chrome extension wrapper for manual GBP tab-side audits.
