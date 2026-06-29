@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { apps } from "../content/site-data.mjs";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const siteRoot = resolve(root, "site");
@@ -21,7 +22,16 @@ async function filesUnder(directory) {
 const files = await filesUnder(siteRoot);
 const adminFiles = await filesUnder(adminRoot);
 const htmlFiles = files.filter((file) => extname(file) === ".html");
-assert.equal(htmlFiles.length, 26, "Expected 23 indexed HTML pages, two admin pages, and one 404 page");
+assert.equal(htmlFiles.length, 32, "Expected 29 indexed HTML pages, two admin pages, and one 404 page");
+const expectedAppSlugs = [
+  "maxxed-remote",
+  "maxxed-compass",
+  "maxxed-measure",
+  "maxxed-gold-estimator",
+  "fishing-maxxed",
+  "rival-rush",
+];
+assert.deepEqual(apps.map((app) => app.slug), expectedAppSlugs, "Current Android apps must not be removed or reordered accidentally");
 
 const existing = new Set(files.map((file) => `/${relative(siteRoot, file).split(sep).join("/")}`));
 const titles = new Set();
@@ -69,6 +79,13 @@ assert.match(betaPage, /voluntary and unpaid/i);
 assert.match(betaPage, /name="creditConsent"/);
 
 for (const slug of ["maxxed-remote", "maxxed-compass", "maxxed-measure", "maxxed-gold-estimator", "fishing-maxxed", "rival-rush"]) {
+  const readme = await readFile(resolve(siteRoot, `apps/${slug}/readme/index.html`), "utf8");
+  assert.match(readme, /README/);
+  assert.match(readme, /Support/);
+  assert.match(readme, /Privacy/);
+  assert.match(readme, /Pre-release Testing/);
+  assert.match(readme, /at least once per week/);
+
   const policy = await readFile(resolve(siteRoot, `apps/${slug}/privacy/index.html`), "utf8");
   assert.match(policy, /Permissions and purpose/);
   assert.match(policy, /Retention/);
@@ -86,9 +103,16 @@ assert.equal(((await readFile(resolve(siteRoot, "apps/index.html"), "utf8")).mat
 assert.equal(((await readFile(resolve(siteRoot, "plugins/index.html"), "utf8")).match(/data-app-card/g) || []).length, 36, "Plugins page should show all 36 WordPress plugins");
 
 const sitemap = await readFile(resolve(siteRoot, "sitemap.xml"), "utf8");
-assert.equal((sitemap.match(/<url>/g) || []).length, 23, "Sitemap should contain all 23 indexed pages");
+assert.equal((sitemap.match(/<url>/g) || []).length, 29, "Sitemap should contain all 29 indexed pages");
 assert.match(await readFile(resolve(siteRoot, "robots.txt"), "utf8"), /Sitemap: https:\/\/techmaxxed\.com\/sitemap\.xml/);
 JSON.parse(await readFile(resolve(siteRoot, "site.webmanifest"), "utf8"));
+
+const support = await readFile(resolve(siteRoot, "support/index.html"), "utf8");
+assert.match(support, /Prepare support ticket email/);
+assert.match(support, /Request type/);
+assert.match(support, /Privacy or data/);
+assert.match(support, /Pre-release testing/);
+assert.match(support, /data-support-form/);
 
 const adminExisting = new Set(adminFiles.map((file) => `/${relative(adminRoot, file).split(sep).join("/")}`));
 for (const file of adminFiles.filter((item) => extname(item) === ".html")) {

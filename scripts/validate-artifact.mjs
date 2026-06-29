@@ -34,6 +34,10 @@ const privacy = await workerModule.default.fetch(new Request("https://example.te
 assert.equal(privacy.status, 200);
 assert.match(await privacy.text(), /<h1>Rival Rush Privacy Policy<\/h1>/);
 
+const readme = await workerModule.default.fetch(new Request("https://example.test/apps/fishing-maxxed/readme/"));
+assert.equal(readme.status, 200);
+assert.match(await readme.text(), /<h1>Fishing Maxxed README<\/h1>/);
+
 const beta = await workerModule.default.fetch(new Request("https://example.test/beta/?app=rival-rush"));
 assert.equal(beta.status, 200);
 assert.match(await beta.text(), /<h1>Become a beta tester<\/h1>/);

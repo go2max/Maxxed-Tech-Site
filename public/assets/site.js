@@ -73,6 +73,53 @@ if (supportSelect && supportLink) {
   updateSupportLink();
 }
 
+const supportForm = document.querySelector("[data-support-form]");
+if (supportForm) {
+  const status = supportForm.querySelector("[data-support-status]");
+  const issueSelect = supportForm.querySelector("[data-support-issue]");
+
+  supportForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!supportForm.reportValidity()) return;
+
+    const data = new FormData(supportForm);
+    const app = data.get("app");
+    const issueType = data.get("issueType");
+    const recipient = issueType === "Privacy or data"
+      ? supportForm.dataset.privacyEmail || "privacy@techmaxxed.com"
+      : supportForm.dataset.email || "support@techmaxxed.com";
+    const subject = encodeURIComponent(`${app} - ${issueType}`);
+    const body = encodeURIComponent([
+      "Maxxed support ticket",
+      "",
+      `App: ${app}`,
+      `Request type: ${issueType}`,
+      `Severity: ${data.get("severity")}`,
+      `Device and Android version: ${data.get("device") || "Not provided"}`,
+      "",
+      "Steps or request details:",
+      data.get("steps") || "Not provided",
+      "",
+      "Expected result:",
+      data.get("expected") || "Not provided",
+      "",
+      "Actual result:",
+      data.get("actual") || "Not provided",
+      "",
+      "Sensitive information confirmation: No passwords, upload keys, signing material, payment data, or sensitive location history included.",
+    ].join("\n"));
+
+    if (status) status.textContent = "Your email app should open with the support ticket filled in. Send that email to finish the request.";
+    window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
+  });
+
+  issueSelect?.addEventListener("change", () => {
+    if (status) status.textContent = issueSelect.value === "Privacy or data"
+      ? "Privacy requests route to the privacy inbox."
+      : "";
+  });
+}
+
 const betaForm = document.querySelector("[data-beta-form]");
 if (betaForm) {
   const appInputs = [...betaForm.querySelectorAll('input[name="apps"]')];
@@ -100,6 +147,7 @@ if (betaForm) {
       `Android device: ${data.get("device")}`,
       `Android version: ${data.get("androidVersion")}`,
       `Testing experience or notes: ${data.get("notes") || "None provided"}`,
+      "Pre-release testing interest: Yes, include development-stage apps when selected",
       `Public credit permission: ${data.get("creditConsent") ? "Yes" : "No"}`,
       "Age or guardian confirmation: Yes",
       "Compensation acknowledged: Yes",
