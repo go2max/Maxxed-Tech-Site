@@ -59,14 +59,46 @@ function pluginCard(plugin, depth = 0) {
   </a>`;
 }
 
-function repoProductCard(product) {
-  return `<article class="app-card" data-app-card data-category="${escapeHtml(product.categoryKey)}" style="--accent:${escapeHtml(product.accent)}">
+function repoProductCard(product, depth = 0) {
+  return `<a class="app-card" data-app-card data-category="${escapeHtml(product.categoryKey)}" style="--accent:${escapeHtml(product.accent)}" href="${link(depth, `tools/${product.slug}/`)}">
     <div class="app-card-top"><span class="app-icon" aria-hidden="true">${escapeHtml(product.icon)}</span><span class="status">${escapeHtml(product.status)}</span></div>
     <h3>${escapeHtml(product.name)}</h3>
     <p>${escapeHtml(product.summary)}</p>
     <div class="fact-row">${product.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div>
-    <span class="app-meta">Software tool concept</span>
-  </article>`;
+    <span class="app-meta">View ${escapeHtml(product.name)} details -></span>
+  </a>`;
+}
+
+function productCapabilityDetails(product) {
+  const text = `${product.slug} ${product.name}`.toLowerCase();
+  const details = [];
+  if (/seo|metadata|sitemap|web|page|accessibility|link/.test(text)) details.push(["Website review workflow", "Collect page, metadata, accessibility, source, or link findings in a clear checklist before making customer-facing changes."]);
+  if (/document|pdf|letter|proposal|scope|template|approval|version/.test(text)) details.push(["Document operations", "Prepare structured documents, approvals, version notes, and repeatable working outputs without losing the context around them."]);
+  if (/finance|cost|savings|debt|rate|receipt|payback|subscription|tax/.test(text)) details.push(["Practical calculations", "Organize inputs, compare options, and preserve the reasoning behind a money or planning decision."]);
+  if (/community|neighborhood|civic|public|park|streetlight|volunteer|records|policy/.test(text)) details.push(["Local coordination", "Track public, neighborhood, volunteer, records, or issue-reporting workflows with enough detail for follow-up."]);
+  if (/client|business|project|job|meeting|intake|contract|equipment|maintenance|support|sales/.test(text)) details.push(["Business workflow", "Keep customer, job, intake, equipment, support, or project details in one focused workflow for faster decisions."]);
+  if (/privacy|security|cleanup|backup|password|two-factor|breach|phishing/.test(text)) details.push(["Security-minded review", "Help plan cleanup, access, backup, or security tasks without asking users to expose sensitive credentials in support requests."]);
+  if (!details.length) details.push(["Focused workflow", "Give a narrow recurring task its own clear screen, support route, and customer-facing explanation."]);
+
+  details.push(
+    ["Customer support path", `Questions route to ${site.email} with the product name, goal, device or browser, and the exact workflow being attempted.`],
+    ["Clear product state", "The page describes current intent and fit without promising public availability, timelines, or unsupported results."],
+  );
+  return details.slice(0, 4);
+}
+
+function toolPage(product, familyLabel) {
+  const details = productCapabilityDetails(product);
+  const related = [...repoProducts, ...powerhouseProducts]
+    .filter((item) => item.slug !== product.slug && item.categoryKey.split(" ").some((key) => product.categoryKey.split(" ").includes(key)))
+    .slice(0, 3);
+  const body = `<section class="band product-hero"><div class="shell product-hero-grid"><div><div class="product-kicker" style="--accent:${product.accent}"><span class="app-icon" aria-hidden="true">${escapeHtml(product.icon)}</span><span class="status">${escapeHtml(product.status)}</span></div><p class="eyebrow">${escapeHtml(familyLabel)}</p><h1>${escapeHtml(product.name)}</h1><p class="lede">${escapeHtml(product.summary)}</p><div class="fact-row">${product.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div><div class="hero-actions"><a class="button" href="../../support/?app=${encodeURIComponent(product.name)}">Get product support</a><a class="button secondary" href="../../apps/">Browse catalog</a><a class="button secondary" href="mailto:${site.email}?subject=${encodeURIComponent(`${product.name} support request`)}">Email support</a></div></div><div class="product-visual" style="--accent:${product.accent}"><span class="product-visual-label">Product fit</span><span class="app-icon" aria-hidden="true">${escapeHtml(product.icon)}</span><strong>${escapeHtml(product.summary)}</strong><div class="fact-row">${product.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div></div></div></section>
+  <section class="shell section"><div class="section-head"><div><p class="eyebrow">Details</p><h2>What this product helps with</h2></div><p>${escapeHtml(product.name)} is included so customers can understand the intended workflow, ask for help, or request the right tool for their situation.</p></div><div class="feature-list" style="--accent:${product.accent}">${details.map(([title, text], index) => `<article class="feature-item"><span class="feature-number">0${index + 1}</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`).join("")}</div></section>
+  <section class="band"><div class="shell section compact"><div class="copy-grid"><aside><p class="eyebrow">Good fit</p><h2>When to ask about it</h2></aside><article><p>Use this page when the product name matches a workflow you already need to organize, calculate, review, or hand off. If the current product is not the best fit, support can point you toward a better Maxxed app, WordPress plugin, or web tool.</p><p>For a useful request, include the exact workflow, the current tool you use, what is frustrating about it, and whether you need Android, WordPress, browser, or spreadsheet-style output.</p><p><a class="button" href="../../support/?app=${encodeURIComponent(product.name)}">Prepare a ${escapeHtml(product.name)} support ticket</a></p></article></div></div></section>
+  <section class="shell section compact"><div class="support-callout" style="--accent:${product.accent}"><div><p class="eyebrow">Product support</p><h2>Get support for ${escapeHtml(product.name)}</h2><p>Open a support ticket pre-selected for this product. Include browser or device details, screenshots when safe, expected result, and actual result.</p></div><div class="hero-actions"><a class="button" href="../../support/?app=${encodeURIComponent(product.name)}">Get support</a><a class="button secondary" href="mailto:${site.email}?subject=${encodeURIComponent(`${product.name} support request`)}">Email support</a></div></div></section>
+  ${related.length ? `<section class="band"><div class="shell section compact"><div class="section-head"><div><p class="eyebrow">Related tools</p><h2>Similar product ideas</h2></div><p>More focused tools in the same public catalog.</p></div><div class="app-grid">${related.map((item) => repoProductCard(item, 2)).join("")}</div></div></section>` : ""}`;
+  const schema = [{ "@context": "https://schema.org", "@type": "SoftwareApplication", name: product.name, applicationCategory: familyLabel, operatingSystem: "Web", description: product.summary, url: canonical(`tools/${product.slug}/`), author: { "@type": "Organization", name: site.name, url: site.url } }];
+  return layout({ title: product.name, description: product.summary, path: `tools/${product.slug}/`, depth: 2, current: "apps", body, schema });
 }
 
 function pluginDetails(plugin) {
@@ -275,12 +307,20 @@ function homePage() {
 }
 
 function appsPage() {
+  const guideLinks = [
+    ["Android utility apps", "TV remote, compass, measurement, field, and outdoor Android products.", "android-utility-apps/"],
+    ["WordPress cleanup plugins", "Cleanup, audit, stale content, redirects, roles, and maintenance tools.", "wordpress-cleanup-plugins/"],
+    ["Camera measurement apps", "Known-reference measurement, catch records, and visual estimate workflows.", "camera-measurement-apps/"],
+    ["Compass and outdoor tools", "Field-ready compass, trip, sky, fishing, and outdoor workflows.", "compass-outdoor-tools/"],
+    ["Beta testing Android apps", "Request pre-release access and help prioritize the next launch pass.", "beta-testing-android-apps/"],
+  ].map(([title, text, path]) => `<a class="support-option" href="../${path}"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p><span class="app-meta">Open guide -></span></a>`).join("");
   const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">Product directory</p><h1>Android apps, WordPress tools, and software</h1><p class="lede">Browse Maxxed products by section. Android apps have dedicated product, README, privacy, and support pages. WordPress tools now have individual detail and README pages for clearer discovery.</p></div></section>
   <section class="shell section compact"><div class="catalog-tools"><label class="search-box"><span class="skip-link">Search products</span><input type="search" data-app-search placeholder="Search by name or capability" autocomplete="off"></label><div class="filters" role="group" aria-label="Filter products"><button class="filter" data-filter="all" aria-pressed="true">All</button><button class="filter" data-filter="utility" aria-pressed="false">Utilities</button><button class="filter" data-filter="outdoors" aria-pressed="false">Outdoors</button><button class="filter" data-filter="games" aria-pressed="false">Games</button><button class="filter" data-filter="wordpress" aria-pressed="false">WordPress</button><button class="filter" data-filter="repo" aria-pressed="false">Web tools</button><button class="filter" data-filter="powerhouse" aria-pressed="false">Business tools</button><button class="filter" data-filter="business" aria-pressed="false">Business</button><button class="filter" data-filter="civic" aria-pressed="false">Civic</button><button class="filter" data-filter="content" aria-pressed="false">Content</button><button class="filter" data-filter="finance" aria-pressed="false">Finance</button></div></div><p class="fine-print" data-result-count aria-live="polite"></p><p class="empty-state" data-empty-state hidden>No products match that search. Try a product name or a broader category.</p></section>
+  <section class="band"><div class="shell section compact"><div class="section-head"><div><p class="eyebrow">Product guides</p><h2>Find the right starting point</h2></div><p>These focused guides give search visitors and customers a clearer path into the catalog.</p></div><div class="support-grid">${guideLinks}</div></div></section>
   <section class="shell section catalog-section" data-catalog><div class="section-head"><div><p class="eyebrow">Android apps</p><h2>Mobile products with full support pages</h2></div><p>Each app includes product details, a public README, app privacy policy, beta testing route, and app-specific support link.</p></div><div class="app-grid">${apps.map((app, index) => appCard(app, 1, index < 2)).join("")}</div></section>
   <section class="band catalog-section" data-catalog><div class="shell section"><div class="section-head"><div><p class="eyebrow">WordPress tools</p><h2>${wordpressPlugins.length} plugin workflows</h2></div><p>Each plugin has a detail page and README covering purpose, use cases, support routing, and weekly review expectations.</p></div><div class="app-grid">${wordpressPlugins.map((plugin) => pluginCard(plugin, 1)).join("")}</div></div></section>
-  <section class="shell section catalog-section" data-catalog><div class="section-head"><div><p class="eyebrow">Focused web tools</p><h2>${repoProducts.length} web tool concepts</h2></div><p>Focused tools for forms, documents, local SEO, civic workflows, evidence capture, and practical operations.</p></div><div class="app-grid dense-grid">${repoProducts.map((product) => repoProductCard(product)).join("")}</div></section>
-  <section class="band catalog-section" data-catalog><div class="shell section"><div class="section-head"><div><p class="eyebrow">Business tools</p><h2>${powerhouseProducts.length} business utility concepts</h2></div><p>Business and household operations concepts are grouped separately so the primary app and plugin catalog stays readable.</p></div><div class="app-grid dense-grid">${powerhouseProducts.map((product) => repoProductCard(product)).join("")}</div></div></section>${contactBand(1, "Need help choosing the right product?")}`;
+  <section class="shell section catalog-section" data-catalog><div class="section-head"><div><p class="eyebrow">Focused web tools</p><h2>${repoProducts.length} web tool concepts</h2></div><p>Focused tools for forms, documents, local SEO, civic workflows, evidence capture, and practical operations. Every card opens a product page with support routing.</p></div><div class="app-grid dense-grid">${repoProducts.map((product) => repoProductCard(product, 1)).join("")}</div></section>
+  <section class="band catalog-section" data-catalog><div class="shell section"><div class="section-head"><div><p class="eyebrow">Business tools</p><h2>${powerhouseProducts.length} business utility concepts</h2></div><p>Business and household operations concepts are grouped separately so the primary app and plugin catalog stays readable. Every card opens a product page with support routing.</p></div><div class="app-grid dense-grid">${powerhouseProducts.map((product) => repoProductCard(product, 1)).join("")}</div></div></section>${contactBand(1, "Need help choosing the right product?")}`;
   const schema = [{ "@context": "https://schema.org", "@type": "CollectionPage", name: "Maxxed product directory", url: canonical("apps/"), mainEntity: { "@type": "ItemList", numberOfItems: allPublicProducts.length, itemListElement: allPublicProducts.slice(0, 50).map((item, index) => ({ "@type": "ListItem", position: index + 1, name: item.name })) } }];
   return layout({ title: "Apps", description: "Browse Maxxed Android apps, WordPress plugin workflows, focused web tools, and business utilities grouped into clearer customer-facing sections.", path: "apps/", depth: 1, current: "apps", body, schema });
 }
@@ -290,6 +330,119 @@ function pluginsPage() {
   <section class="shell section"><div class="catalog-tools"><label class="search-box"><span class="skip-link">Search plugins</span><input type="search" data-app-search placeholder="Search plugins by name or capability" autocomplete="off"></label><div class="filters" role="group" aria-label="Filter plugins"><button class="filter" data-filter="all" aria-pressed="true">All</button><button class="filter" data-filter="wordpress" aria-pressed="false">WordPress</button></div></div><p class="fine-print" data-result-count aria-live="polite"></p><div class="app-grid" data-catalog>${wordpressPlugins.map((plugin) => pluginCard(plugin, 1)).join("")}</div><p class="empty-state" data-empty-state hidden>No plugins match that search. Try a plugin name or a broader capability.</p></section>${contactBand(1, "Need help with a WordPress plugin?")}`;
   const schema = [{ "@context": "https://schema.org", "@type": "CollectionPage", name: "Maxxed WordPress plugins", url: canonical("plugins/"), mainEntity: { "@type": "ItemList", numberOfItems: wordpressPlugins.length, itemListElement: wordpressPlugins.map((plugin, index) => ({ "@type": "ListItem", position: index + 1, name: plugin.name, url: canonical(`plugins/${plugin.slug}/`) })) } }];
   return layout({ title: "WordPress Plugins", description: "Browse Maxxed Technical Systems WordPress plugin pages for audits, cleanup, maintenance, commerce, schema, content, and operations workflows.", path: "plugins/", depth: 1, current: "plugins", body, schema });
+}
+
+function seoLandingPage({ title, path, eyebrow, heading, lede, intro, cards, cardRenderer, proof, supportSubject, faqs }) {
+  const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">${escapeHtml(eyebrow)}</p><h1>${escapeHtml(heading)}</h1><p class="lede">${escapeHtml(lede)}</p><div class="proof-row">${proof.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div><div class="hero-actions"><a class="button" href="../support/?app=${encodeURIComponent(supportSubject)}">Ask for help</a><a class="button secondary" href="../apps/">Browse all products</a></div></div></section>
+  <section class="shell section"><div class="section-head"><div><p class="eyebrow">Recommended products</p><h2>Start here</h2></div><p>${escapeHtml(intro)}</p></div><div class="app-grid">${cards.map((item) => cardRenderer(item)).join("")}</div></section>
+  <section class="band"><div class="shell section"><div class="section-head"><div><p class="eyebrow">Questions</p><h2>What customers usually ask</h2></div><p>Use these notes to choose the right product or send a cleaner support request.</p></div><div class="faq-list">${faqs.map(([question, answer]) => `<details><summary>${escapeHtml(question)}</summary><p>${escapeHtml(answer)}</p></details>`).join("")}</div></div></section>
+  ${contactBand(1, `Need help with ${supportSubject}?`)}`;
+  const schema = [{ "@context": "https://schema.org", "@type": "CollectionPage", name: heading, url: canonical(path), description: lede, mainEntity: { "@type": "ItemList", numberOfItems: cards.length, itemListElement: cards.map((item, index) => ({ "@type": "ListItem", position: index + 1, name: item.name })) } }];
+  return layout({ title, description: lede, path, depth: 1, current: "apps", body, schema });
+}
+
+function androidUtilityAppsPage() {
+  const utilityApps = apps.filter((app) => ["utility", "outdoors"].includes(app.categoryKey));
+  return seoLandingPage({
+    title: "Android Utility Apps",
+    path: "android-utility-apps/",
+    eyebrow: "Android utilities",
+    heading: "Android utility apps for everyday jobs",
+    lede: "Browse Maxxed Android utility apps for TV control, compass navigation, camera measurement, visual estimating, and private field records.",
+    intro: "These apps are built for practical device tasks where permissions, limitations, and support expectations need to be clear before someone installs a build.",
+    cards: utilityApps,
+    cardRenderer: (app) => appCard(app, 1),
+    proof: ["Android first", "App privacy pages", "Pre-release testing", "Support by app"],
+    supportSubject: "Android utility apps",
+    faqs: [
+      ["Can I request testing before an app is public?", "Yes. A useful pre-release request can help prioritize an app for a focused launch pass and real-device testing."],
+      ["Do these apps require accounts?", "The current public descriptions favor local or on-device workflows unless a product page says otherwise."],
+      ["Where do I get help?", "Each app page links to a support ticket with that app preselected."],
+    ],
+  });
+}
+
+function wordpressCleanupPluginsPage() {
+  const cleanupPlugins = wordpressPlugins.filter((plugin) => /cleanup|duplicate|purge|stale|orphan|redirect|shortcode|maintenance|security|accessibility|alt|legal|license|role/.test(plugin.slug));
+  return seoLandingPage({
+    title: "WordPress Cleanup Plugins",
+    path: "wordpress-cleanup-plugins/",
+    eyebrow: "WordPress cleanup",
+    heading: "WordPress cleanup and audit plugins",
+    lede: "Explore Maxxed WordPress plugins for stale content, duplicate media, redirects, shortcodes, accessibility, roles, legal reviews, and maintenance reporting.",
+    intro: "The cleanup catalog is review-first: it helps identify work, organize notes, and route support without implying unsafe automatic deletion.",
+    cards: cleanupPlugins,
+    cardRenderer: (plugin) => pluginCard(plugin, 1),
+    proof: ["Review-first", "Support routing", "Weekly README reviews", "WordPress workflows"],
+    supportSubject: "WordPress cleanup plugins",
+    faqs: [
+      ["Do cleanup plugins delete content automatically?", "Public pages describe review workflows and support routing; destructive actions should stay explicit and operator controlled."],
+      ["Can I ask which plugin fits my site?", "Yes. Send the site type, WordPress version, theme, and the cleanup problem you are trying to solve."],
+      ["Are plugin READMEs public?", "Every listed WordPress plugin has a public README page and should be reviewed weekly while listed."],
+    ],
+  });
+}
+
+function cameraMeasurementAppsPage() {
+  const measurementApps = apps.filter((app) => ["maxxed-measure", "maxxed-gold-estimator", "fishing-maxxed"].includes(app.slug));
+  return seoLandingPage({
+    title: "Camera Measurement Apps",
+    path: "camera-measurement-apps/",
+    eyebrow: "Camera workflows",
+    heading: "Camera measurement and visual estimate apps",
+    lede: "Review Maxxed camera-assisted apps for known-reference measurement, catch records, visual material estimates, uncertainty, and explicit user exports.",
+    intro: "Camera-assisted tools are useful only when the page is honest about references, uncertainty, lighting, user correction, and what the app cannot prove.",
+    cards: measurementApps,
+    cardRenderer: (app) => appCard(app, 1),
+    proof: ["Known references", "Visible uncertainty", "Local history", "Export by choice"],
+    supportSubject: "camera measurement apps",
+    faqs: [
+      ["Are camera measurements exact?", "No. Product pages describe estimates, references, correction handles, uncertainty, and limitations."],
+      ["Can images stay local?", "The current public descriptions prefer local storage and user-directed exports where the app supports it."],
+      ["What should testers report?", "Lighting, distance, reference size, device model, expected result, actual result, and screenshots when safe."],
+    ],
+  });
+}
+
+function compassOutdoorToolsPage() {
+  const outdoorApps = apps.filter((app) => ["maxxed-compass", "fishing-maxxed", "maxxed-gold-estimator"].includes(app.slug));
+  return seoLandingPage({
+    title: "Compass and Outdoor Tools",
+    path: "compass-outdoor-tools/",
+    eyebrow: "Outdoor tools",
+    heading: "Compass, field, and outdoor Android tools",
+    lede: "Find Maxxed outdoor apps for compass headings, trip tracking, sky scanning, catch records, field estimates, and privacy-minded exports.",
+    intro: "Outdoor software needs real device testing because sensors, lighting, weather, location, and field conditions change how well the tool works.",
+    cards: outdoorApps,
+    cardRenderer: (app) => appCard(app, 1),
+    proof: ["Sensor testing", "Offline workflows", "Location control", "Field records"],
+    supportSubject: "compass and outdoor tools",
+    faqs: [
+      ["Why does compass accuracy vary?", "Accuracy depends on device sensors, calibration, magnetic interference, and field conditions."],
+      ["Can I test an outdoor app early?", "Yes. Useful testers with relevant devices and real outdoor use cases can request pre-release testing."],
+      ["Do outdoor records expose exact location?", "Product pages and privacy policies explain location behavior and export controls for each app."],
+    ],
+  });
+}
+
+function betaTestingLandingPage() {
+  return seoLandingPage({
+    title: "Beta Testing Android Apps",
+    path: "beta-testing-android-apps/",
+    eyebrow: "Tester access",
+    heading: "Beta testing for Maxxed Android apps",
+    lede: "Apply to test Maxxed Android apps, request pre-release access for development-stage products, and help prioritize the next launch pass.",
+    intro: "Beta testers help by installing real builds, trying the product in normal conditions, and sending specific feedback that can be reproduced.",
+    cards: apps,
+    cardRenderer: (app) => appCard(app, 1),
+    proof: ["Choose apps", "Voluntary testing", "Optional credit", "Real-device feedback"],
+    supportSubject: "Android beta testing",
+    faqs: [
+      ["Can I request a product that is not public yet?", "Yes. That is exactly what pre-release testing is for when the tester and product are a good fit."],
+      ["Is beta testing paid?", "No. Public pages describe testing as voluntary and unpaid, with optional public credit when approved by the tester."],
+      ["How do I apply?", "Use the beta form and include your Google Account, device, Android version, selected apps, and useful testing notes."],
+    ],
+  });
 }
 
 function productPage(app) {
@@ -353,7 +506,7 @@ function aboutPage() {
 }
 
 function supportPage() {
-  const supportProducts = [...apps, ...wordpressPlugins];
+  const supportProducts = allPublicProducts;
   const options = supportProducts.map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join("");
   const issueTypes = [
     ["Setup or install", "Pairing, test access, install, update, or first-run problems."],
@@ -511,6 +664,11 @@ await cp(resolve(root, "public"), output, { recursive: true });
 await writePage("index.html", homePage());
 await writePage("apps/index.html", appsPage());
 await writePage("plugins/index.html", pluginsPage());
+await writePage("android-utility-apps/index.html", androidUtilityAppsPage());
+await writePage("wordpress-cleanup-plugins/index.html", wordpressCleanupPluginsPage());
+await writePage("camera-measurement-apps/index.html", cameraMeasurementAppsPage());
+await writePage("compass-outdoor-tools/index.html", compassOutdoorToolsPage());
+await writePage("beta-testing-android-apps/index.html", betaTestingLandingPage());
 for (const app of apps) {
   await writePage(`apps/${app.slug}/index.html`, productPage(app));
   await writePage(`apps/${app.slug}/readme/index.html`, appReadmePage(app));
@@ -519,6 +677,12 @@ for (const app of apps) {
 for (const plugin of wordpressPlugins) {
   await writePage(`plugins/${plugin.slug}/index.html`, pluginPage(plugin));
   await writePage(`plugins/${plugin.slug}/readme/index.html`, pluginReadmePage(plugin));
+}
+for (const product of repoProducts) {
+  await writePage(`tools/${product.slug}/index.html`, toolPage(product, "Focused web tool"));
+}
+for (const product of powerhouseProducts) {
+  await writePage(`tools/${product.slug}/index.html`, toolPage(product, "Business tool"));
 }
 await writePage("roadmap/index.html", roadmapPage());
 await writePage("about/index.html", aboutPage());
@@ -534,8 +698,15 @@ const indexedPaths = [
   "",
   "apps/",
   "plugins/",
+  "android-utility-apps/",
+  "wordpress-cleanup-plugins/",
+  "camera-measurement-apps/",
+  "compass-outdoor-tools/",
+  "beta-testing-android-apps/",
   ...apps.flatMap((app) => [`apps/${app.slug}/`, `apps/${app.slug}/readme/`, `apps/${app.slug}/privacy/`]),
   ...wordpressPlugins.flatMap((plugin) => [`plugins/${plugin.slug}/`, `plugins/${plugin.slug}/readme/`]),
+  ...repoProducts.map((product) => `tools/${product.slug}/`),
+  ...powerhouseProducts.map((product) => `tools/${product.slug}/`),
   "roadmap/",
   "about/",
   "support/",

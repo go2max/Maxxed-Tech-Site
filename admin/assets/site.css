@@ -371,7 +371,8 @@ p { margin-bottom: 18px; }
 .faq-list details p { max-width: 780px; padding-bottom: 20px; color: var(--muted); }
 
 .support-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.support-option { padding: 28px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.support-option { padding: 28px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); text-decoration: none; }
+.support-option:hover { border-color: rgba(255, 255, 255, 0.3); }
 .support-option p { color: var(--muted); }
 .support-option a { color: var(--lime); font-weight: 800; }
 .support-option label { display: block; margin: 22px 0 7px; color: var(--muted); font-size: 12px; font-weight: 750; }

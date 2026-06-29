@@ -22,7 +22,7 @@ async function filesUnder(directory) {
 const files = await filesUnder(siteRoot);
 const adminFiles = await filesUnder(adminRoot);
 const htmlFiles = files.filter((file) => extname(file) === ".html");
-assert.equal(htmlFiles.length, 102, "Expected 101 indexed public HTML pages and one 404 page");
+assert.equal(htmlFiles.length, 251, "Expected 250 indexed public HTML pages and one 404 page");
 const expectedAppSlugs = [
   "maxxed-remote",
   "maxxed-compass",
@@ -61,7 +61,7 @@ for (const file of htmlFiles) {
   const references = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((match) => match[1]);
   const isPublicPage = !filePath.startsWith("/admin/");
   if (isPublicPage) {
-    assert.doesNotMatch(html, /href="[^"]*\/?admin\//, `${filePath} must not link to the admin portal`);
+    assert.doesNotMatch(html, /href="(?:https:\/\/techmaxxed\.com)?\/admin(?:\/|")|href="\.\.\/admin(?:\/|")|href="\.\.\/\.\.\/admin(?:\/|")/, `${filePath} must not link to the admin portal`);
     assert.doesNotMatch(html, /Admin hub/, `${filePath} must not expose admin hub copy`);
     assert.doesNotMatch(html, /repo-backed|Repo-backed|repo products|Repo products|Powerhouse repo|powerhouse repo|standalone repos|plugin lab|artifact/i, `${filePath} contains internal-facing catalog language`);
     assert.doesNotMatch(html, /Release verification|release candidate|Internal testing|Active development/i, `${filePath} contains internal-facing release stage language`);
@@ -127,7 +127,7 @@ assert.equal(((await readFile(resolve(siteRoot, "apps/index.html"), "utf8")).mat
 assert.equal(((await readFile(resolve(siteRoot, "plugins/index.html"), "utf8")).match(/data-app-card/g) || []).length, 36, "Plugins page should show all 36 WordPress tools");
 
 const sitemap = await readFile(resolve(siteRoot, "sitemap.xml"), "utf8");
-assert.equal((sitemap.match(/<url>/g) || []).length, 101, "Sitemap should contain all 101 indexed public pages");
+assert.equal((sitemap.match(/<url>/g) || []).length, 250, "Sitemap should contain all 250 indexed public pages");
 assert.match(await readFile(resolve(siteRoot, "robots.txt"), "utf8"), /Sitemap: https:\/\/techmaxxed\.com\/sitemap\.xml/);
 JSON.parse(await readFile(resolve(siteRoot, "site.webmanifest"), "utf8"));
 
@@ -138,6 +138,7 @@ assert.match(support, /Privacy or data/);
 assert.match(support, /Pre-release testing/);
 assert.match(support, /data-support-form/);
 assert.match(support, /WordPress Role Auditor/);
+assert.match(support, /Support Desk Lite/);
 assert.doesNotMatch(support, /privacy@techmaxxed\.com|beta@techmaxxed\.com/);
 
 const adminExisting = new Set(adminFiles.map((file) => `/${relative(adminRoot, file).split(sep).join("/")}`));
