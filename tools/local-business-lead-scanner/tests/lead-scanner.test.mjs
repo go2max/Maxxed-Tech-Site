@@ -32,6 +32,11 @@ describe("Local Business Lead Scanner extraction", () => {
     assert.deepEqual(extractPhones(html), ["(916) 555-1212"]);
   });
 
+  it("extracts common human-readable obfuscated email candidates", async () => {
+    const html = await fixture("obfuscated-contact.html");
+    assert.deepEqual(extractEmails(html), ["hello@capitalvalleyservice.com", "billing@capitalvalleyservice.com"]);
+  });
+
   it("parses contact, social, metadata, schema, and CTA signals", async () => {
     const page = parsePage("https://example.com/", await fixture("strong-local-business.html"));
     assert.equal(page.meta.title, "Roseville Mobile Notary | A. Bunch Mobile Notary");
