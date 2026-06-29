@@ -1,0 +1,60 @@
+{
+  "businessName": "A. Bunch Mobile Notary",
+  "primaryCategory": "Notary Public",
+  "secondaryCategories": "Loan signing agent, Mobile notary",
+  "websiteUrl": "https://example.com/mobile-notary",
+  "phone": "916-555-0199",
+  "addressOrServiceArea": "Roseville, Sacramento County, Placer County, Yuba County",
+  "hoursPresent": true,
+  "appointmentUrlPresent": true,
+  "coreProfile": {
+    "descriptionPresent": true,
+    "accurateMapPinOrServiceArea": true,
+    "openingDateOrExperiencePresent": true
+  },
+  "categoryFit": {
+    "primaryCategoryMatchesMainService": true,
+    "secondaryCategoriesRelevant": true,
+    "noCategoryStuffing": true
+  },
+  "servicesProducts": {
+    "servicesListed": true,
+    "serviceDescriptionsPresent": false,
+    "pricingOrBookingNotesPresent": true
+  },
+  "reviews": {
+    "hasRecentReviews": false,
+    "repliesToReviews": true,
+    "reviewRequestProcess": false
+  },
+  "photosMedia": {
+    "logoCoverPresent": true,
+    "recentPhotos": false,
+    "serviceProofPhotos": false
+  },
+  "postsUpdates": {
+    "postedInLast30Days": false,
+    "offerOrUpdatePresent": false
+  },
+  "qna": {
+    "seededQuestions": true,
+    "accurateAnswers": true
+  },
+  "websiteAlignment": {
+    "websiteMatchesPrimaryCategory": true,
+    "localLandingPagePresent": true,
+    "schemaOrStructuredInfoPresent": false
+  },
+  "napConsistency": {
+    "napMatchesWebsite": true,
+    "phoneClickableOnWebsite": true
+  },
+  "conversionReadiness": {
+    "clearCallToAction": true,
+    "appointmentOrQuotePath": true
+  },
+  "taskStatuses": {
+    "reviews.hasRecentReviews": "In Progress"
+  },
+  "notes": "Sample fixture for smoke testing the MVP flow."
+}
