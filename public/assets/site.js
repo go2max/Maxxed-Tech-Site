@@ -45,15 +45,76 @@ function escapeText(value) {
   return String(value).replace(/[&<>"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[character]));
 }
 
+function relativePrefix() {
+  const stylesheet = document.querySelector('link[rel="stylesheet"]')?.getAttribute("href") || "assets/site.css";
+  return stylesheet.startsWith("../") ? "../" : "";
+}
+
+function slugifyPluginName(name) {
+  return String(name)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function pluginSettingsHref(name) {
+  return `${relativePrefix()}admin/plugins/?plugin=${encodeURIComponent(slugifyPluginName(name))}#settings`;
+}
+
+function pluginSettingsLinkHtml(name) {
+  const label = escapeText(`Open ${name} settings`);
+  return `<div class="hero-actions plugin-actions"><a class="button secondary" href="${pluginSettingsHref(name)}" aria-label="${label}">Settings</a></div>`;
+}
+
+function isWordPressPluginCard(card) {
+  const meta = card.querySelector(".app-meta")?.textContent?.toLowerCase() || "";
+  const status = card.querySelector(".status")?.textContent?.toLowerCase() || "";
+  return meta.includes("wordpress plugin") || meta.includes("installed plugin") || status.includes("plugin lab");
+}
+
+function normalizeWordPressPluginCard(card) {
+  if (!isWordPressPluginCard(card)) return;
+
+  const categories = new Set((card.dataset.category || "").split(/\s+/).filter(Boolean));
+  categories.add("wordpress");
+  categories.add("utility");
+  card.dataset.category = [...categories].join(" ");
+
+  if (card.querySelector('[data-plugin-settings-link]')) return;
+  const name = card.querySelector("h3")?.textContent?.trim();
+  if (!name) return;
+
+  const linkWrap = document.createElement("div");
+  linkWrap.className = "hero-actions plugin-actions";
+  const link = document.createElement("a");
+  link.className = "button secondary";
+  link.dataset.pluginSettingsLink = "";
+  link.href = pluginSettingsHref(name);
+  link.setAttribute("aria-label", `Open ${name} settings`);
+  link.textContent = "Settings";
+  linkWrap.appendChild(link);
+  card.appendChild(linkWrap);
+}
+
+function normalizeWordPressPluginCards(scope = document) {
+  scope.querySelectorAll("[data-app-card]").forEach(normalizeWordPressPluginCard);
+}
+
 function addWordPressPluginsToCatalog(catalog) {
-  if (catalog.querySelector('[data-category~="wordpress"]')) return;
+  const existingPluginCards = [...catalog.querySelectorAll("[data-app-card]")].filter(isWordPressPluginCard);
+  if (existingPluginCards.length) {
+    existingPluginCards.forEach(normalizeWordPressPluginCard);
+    return;
+  }
+
   wordpressPluginListings.forEach(([icon, name, summary], index) => {
     const card = document.createElement("article");
     card.className = "app-card";
     card.dataset.appCard = "";
     card.dataset.category = "utility wordpress";
     card.style.setProperty("--accent", pluginAccents[index % pluginAccents.length]);
-    card.innerHTML = `<div class="app-card-top"><span class="app-icon" aria-hidden="true">${escapeText(icon)}</span><span class="status">Plugin lab candidate</span></div><h3>${escapeText(name)}</h3><p>${escapeText(summary)}</p><div class="fact-row"><span>Editable profile</span><span>Zip package</span><span>Installed artifact</span></div><span class="app-meta">WordPress plugin package</span>`;
+    card.innerHTML = `<div class="app-card-top"><span class="app-icon" aria-hidden="true">${escapeText(icon)}</span><span class="status">Plugin lab candidate</span></div><h3>${escapeText(name)}</h3><p>${escapeText(summary)}</p><div class="fact-row"><span>Editable profile</span><span>Zip package</span><span>Installed artifact</span></div><span class="app-meta">WordPress plugin package</span>${pluginSettingsLinkHtml(name)}`;
     catalog.appendChild(card);
   });
 }
@@ -68,11 +129,6 @@ function addWordPressFilter(filters) {
   button.setAttribute("aria-pressed", "false");
   button.textContent = "WordPress";
   group.appendChild(button);
-}
-
-function relativePrefix() {
-  const stylesheet = document.querySelector('link[rel="stylesheet"]')?.getAttribute("href") || "assets/site.css";
-  return stylesheet.startsWith("../") ? "../" : "";
 }
 
 function addPluginsNavigation() {
@@ -106,13 +162,14 @@ function addHomePluginSummary() {
   const section = document.createElement("section");
   section.className = "band";
   section.dataset.pluginSummary = "";
-  const highlights = wordpressPluginListings.slice(0, 6).map(([icon, name, summary], index) => `<article class="app-card" data-category="utility wordpress" style="--accent:${pluginAccents[index % pluginAccents.length]}"><div class="app-card-top"><span class="app-icon" aria-hidden="true">${escapeText(icon)}</span><span class="status">Plugin lab candidate</span></div><h3>${escapeText(name)}</h3><p>${escapeText(summary)}</p><div class="fact-row"><span>Editable profile</span><span>Zip package</span></div><span class="app-meta">WordPress plugin package</span></article>`).join("");
+  const highlights = wordpressPluginListings.slice(0, 6).map(([icon, name, summary], index) => `<article class="app-card" data-app-card data-category="utility wordpress" style="--accent:${pluginAccents[index % pluginAccents.length]}"><div class="app-card-top"><span class="app-icon" aria-hidden="true">${escapeText(icon)}</span><span class="status">Plugin lab candidate</span></div><h3>${escapeText(name)}</h3><p>${escapeText(summary)}</p><div class="fact-row"><span>Editable profile</span><span>Zip package</span></div><span class="app-meta">WordPress plugin package</span>${pluginSettingsLinkHtml(name)}</article>`).join("");
   section.innerHTML = `<div class="shell section"><div class="section-head"><div><p class="eyebrow">WordPress plugin lab</p><h2>${wordpressPluginListings.length} plugins prepared for testing</h2></div><p>The homepage shows a small sample. The dedicated plugin catalog keeps the full list searchable and organized.</p></div><div class="app-grid">${highlights}</div><div class="hero-actions"><a class="button secondary" href="${prefix}plugins/">View all ${wordpressPluginListings.length} WordPress plugins</a><a class="button secondary" href="${prefix}apps/">Open full product catalog</a></div></div>`;
   productSection.after(section);
 }
 
 addPluginsNavigation();
 addHomePluginSummary();
+normalizeWordPressPluginCards();
 
 if (navToggle && navLinks) {
   navToggle.addEventListener("click", () => {
@@ -150,7 +207,7 @@ if (catalog) {
 
     cards.forEach((card) => {
       const matchesText = !term || card.textContent.toLowerCase().includes(term);
-      const categories = card.dataset.category.split(" ");
+      const categories = (card.dataset.category || "").split(" ");
       const matchesFilter = activeFilter === "all" || categories.includes(activeFilter);
       card.hidden = !(matchesText && matchesFilter);
       if (!card.hidden) visible += 1;
