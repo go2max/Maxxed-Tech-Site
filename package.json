@@ -10,6 +10,7 @@
     "check:runner": "node scripts/validate-runner.mjs",
     "check:pipeline": "node scripts/validate-pipeline-contract.mjs",
     "audit:github-apps": "node scripts/audit-github-apps.mjs",
-    "check": "npm run check:public && npm run check:admin && npm run check:runner && npm run check:pipeline"
+    "report:public": "node scripts/public-readiness-report.mjs",
+    "check": "npm run check:public && npm run report:public && npm run check:admin && npm run check:runner && npm run check:pipeline"
   }
 }

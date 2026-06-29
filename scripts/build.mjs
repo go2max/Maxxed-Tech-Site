@@ -333,7 +333,7 @@ function pluginsPage() {
 }
 
 function seoLandingPage({ title, path, eyebrow, heading, lede, intro, cards, cardRenderer, proof, supportSubject, faqs }) {
-  const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">${escapeHtml(eyebrow)}</p><h1>${escapeHtml(heading)}</h1><p class="lede">${escapeHtml(lede)}</p><div class="proof-row">${proof.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div><div class="hero-actions"><a class="button" href="../support/?app=${encodeURIComponent(supportSubject)}">Ask for help</a><a class="button secondary" href="../apps/">Browse all products</a></div></div></section>
+  const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">${escapeHtml(eyebrow)}</p><h1>${escapeHtml(heading)}</h1><p class="lede">${escapeHtml(lede)}</p><div class="proof-row">${proof.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div><div class="hero-actions"><a class="button" href="../support/?app=${encodeURIComponent(supportSubject)}&issue=${encodeURIComponent("Feature request")}">Ask for help</a><a class="button secondary" href="../apps/">Browse all products</a></div></div></section>
   <section class="shell section"><div class="section-head"><div><p class="eyebrow">Recommended products</p><h2>Start here</h2></div><p>${escapeHtml(intro)}</p></div><div class="app-grid">${cards.map((item) => cardRenderer(item)).join("")}</div></section>
   <section class="band"><div class="shell section"><div class="section-head"><div><p class="eyebrow">Questions</p><h2>What customers usually ask</h2></div><p>Use these notes to choose the right product or send a cleaner support request.</p></div><div class="faq-list">${faqs.map(([question, answer]) => `<details><summary>${escapeHtml(question)}</summary><p>${escapeHtml(answer)}</p></details>`).join("")}</div></div></section>
   ${contactBand(1, `Need help with ${supportSubject}?`)}`;
@@ -506,7 +506,15 @@ function aboutPage() {
 }
 
 function supportPage() {
-  const supportProducts = allPublicProducts;
+  const guidanceOptions = [
+    { name: "General product guidance" },
+    { name: "Android utility apps" },
+    { name: "WordPress cleanup plugins" },
+    { name: "camera measurement apps" },
+    { name: "compass and outdoor tools" },
+    { name: "Android beta testing" },
+  ];
+  const supportProducts = [...guidanceOptions, ...allPublicProducts];
   const options = supportProducts.map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join("");
   const issueTypes = [
     ["Setup or install", "Pairing, test access, install, update, or first-run problems."],

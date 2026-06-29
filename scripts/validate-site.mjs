@@ -139,6 +139,13 @@ assert.match(support, /Pre-release testing/);
 assert.match(support, /data-support-form/);
 assert.match(support, /WordPress Role Auditor/);
 assert.match(support, /Support Desk Lite/);
+assert.match(support, /Android utility apps/);
+assert.match(support, /WordPress cleanup plugins/);
+assert.match(support, /camera measurement apps/);
+assert.match(support, /compass and outdoor tools/);
+assert.match(support, /Android beta testing/);
+const supportProductSelect = support.match(/<select id="support-app"[^>]*>([\s\S]*?)<\/select>/)?.[1] || "";
+assert.equal((supportProductSelect.match(/<option value=/g) || []).length, 192, "Support page should include 186 products and six product-guide topics");
 assert.doesNotMatch(support, /privacy@techmaxxed\.com|beta@techmaxxed\.com/);
 
 const adminExisting = new Set(adminFiles.map((file) => `/${relative(adminRoot, file).split(sep).join("/")}`));

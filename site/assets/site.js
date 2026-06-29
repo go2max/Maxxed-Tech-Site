@@ -83,6 +83,11 @@ if (supportForm) {
   const status = supportForm.querySelector("[data-support-status]");
   const issueSelect = supportForm.querySelector("[data-support-issue]");
   const issuePresetButtons = [...document.querySelectorAll("[data-issue-preset]")];
+  const requestedIssue = new URLSearchParams(window.location.search).get("issue");
+
+  if (requestedIssue && issueSelect && [...issueSelect.options].some((option) => option.value === requestedIssue)) {
+    issueSelect.value = requestedIssue;
+  }
 
   const syncIssueButtons = () => {
     issuePresetButtons.forEach((button) => {
