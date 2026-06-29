@@ -46,13 +46,19 @@ const plugins = await workerModule.default.fetch(new Request("https://example.te
 assert.equal(plugins.status, 200);
 assert.match(await plugins.text(), /<h1>WordPress plugins<\/h1>/);
 
+const plugin = await workerModule.default.fetch(new Request("https://example.test/plugins/wordpress-role-auditor/"));
+assert.equal(plugin.status, 200);
+assert.match(await plugin.text(), /<h1>WordPress Role Auditor<\/h1>/);
+
+const pluginReadme = await workerModule.default.fetch(new Request("https://example.test/plugins/wordpress-role-auditor/readme/"));
+assert.equal(pluginReadme.status, 200);
+assert.match(await pluginReadme.text(), /<h1>WordPress Role Auditor README<\/h1>/);
+
 const admin = await workerModule.default.fetch(new Request("https://example.test/admin/"));
-assert.equal(admin.status, 200);
-assert.match(await admin.text(), /<h1>Maxxed admin routing<\/h1>/);
+assert.equal(admin.status, 404);
 
 const adminPlugins = await workerModule.default.fetch(new Request("https://example.test/admin/plugins/"));
-assert.equal(adminPlugins.status, 200);
-assert.match(await adminPlugins.text(), /<h1>WordPress plugin admin<\/h1>/);
+assert.equal(adminPlugins.status, 404);
 
 const redirect = await workerModule.default.fetch(new Request("https://example.test/apps"));
 assert.equal(redirect.status, 308);

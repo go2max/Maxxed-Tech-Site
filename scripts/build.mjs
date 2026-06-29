@@ -27,6 +27,7 @@ const rootLink = (_depth, path = "") => `/${path}`;
 const canonical = (path = "") => `${site.url}/${path}`;
 const jsonLd = (value) => JSON.stringify(value).replaceAll("<", "\\u003c");
 const allPublicProducts = [...apps, ...wordpressPlugins, ...repoProducts, ...powerhouseProducts];
+const publicSiteCss = resolve(root, "public/assets/site.css");
 
 function googleTag() {
   return `<script async src="https://www.googletagmanager.com/gtag/js?id=${googleTagId}"></script>
@@ -48,14 +49,14 @@ function appCard(app, depth, featured = false) {
   </a>`;
 }
 
-function pluginCard(plugin) {
-  return `<article class="app-card" data-app-card data-category="utility wordpress" style="--accent:${plugin.accent}">
+function pluginCard(plugin, depth = 0) {
+  return `<a class="app-card" data-app-card data-category="utility wordpress" style="--accent:${plugin.accent}" href="${link(depth, `plugins/${plugin.slug}/`)}">
     <div class="app-card-top"><span class="app-icon" aria-hidden="true">${escapeHtml(plugin.icon)}</span><span class="status">${escapeHtml(plugin.status)}</span></div>
     <h3>${escapeHtml(plugin.name)}</h3>
     <p>${escapeHtml(plugin.summary)}</p>
     <div class="fact-row">${plugin.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div>
-    <span class="app-meta">WordPress workflow tool</span>
-  </article>`;
+    <span class="app-meta">View ${escapeHtml(plugin.name)} details →</span>
+  </a>`;
 }
 
 function repoProductCard(product) {
@@ -66,6 +67,33 @@ function repoProductCard(product) {
     <div class="fact-row">${product.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div>
     <span class="app-meta">Software tool concept</span>
   </article>`;
+}
+
+function pluginDetails(plugin) {
+  const slug = plugin.slug;
+  const details = [];
+  if (/accessibility|alt-text/.test(slug)) details.push(["Accessibility review", "Track issues that affect visitors using assistive technology and keep follow-up visible until reviewed."]);
+  if (/security|role|fraud|compliance|legal|license/.test(slug)) details.push(["Risk review", "Surface operational risk, ownership, review notes, and status without making silent destructive changes."]);
+  if (/cleanup|duplicate|purge|stale|orphan|redirect|shortcode/.test(slug)) details.push(["Cleanup planning", "Identify candidates for cleanup, export or review the list, and leave the final decision with the site operator."]);
+  if (/price|stock|order|returns|shipping|supplier|woocommerce|margin|product/.test(slug)) details.push(["Commerce workflow", "Support WooCommerce catalog, inventory, order, supplier, or margin review with a controlled operator-first workflow."]);
+  if (/schema|nap|service-area|local/.test(slug)) details.push(["Local SEO support", "Help keep business details, schema, service-area planning, and consistency checks easier to review."]);
+  if (/content|approval|expiration|maintenance|uptime|form|website/.test(slug)) details.push(["Site operations", "Give website owners a clearer place to review maintenance, publishing, delivery, expiration, or reporting work."]);
+  if (!details.length) details.push(["Operational workflow", "Organize the review steps, notes, and status information needed to make the workflow easier to manage."]);
+
+  details.push(
+    ["Review-first design", "The plugin is described as a workflow aid, not an automated promise to change site content or data without review."],
+    ["Support routing", `Questions and setup requests route through ${site.email} with the plugin name, WordPress version, installed theme, and exact steps.`],
+  );
+
+  return details.slice(0, 4);
+}
+
+function pluginUseCases(plugin) {
+  const words = plugin.name.toLowerCase();
+  if (words.includes("audit") || words.includes("checker") || words.includes("finder")) return ["Run a focused review before a maintenance pass.", "Collect notes for the person who owns the site update.", "Recheck after fixes to confirm the visible issue is handled."];
+  if (words.includes("portal") || words.includes("approval") || words.includes("request")) return ["Give request or approval work a consistent place to land.", "Track ownership and status without relying on scattered messages.", "Use the plugin as a customer-service or client-review companion."];
+  if (words.includes("reporter") || words.includes("digest")) return ["Prepare a readable summary for operators or clients.", "Keep recurring checks from disappearing between maintenance windows.", "Use report history to decide what needs attention next."];
+  return ["Capture the item that needs review.", "Add owner, status, or notes in WordPress.", "Use the workflow to decide the next customer-facing action."];
 }
 
 function header(depth, current, makeLink = link) {
@@ -247,26 +275,33 @@ function homePage() {
 }
 
 function appsPage() {
-  const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">Product directory</p><h1>Android apps, WordPress tools, and software</h1><p class="lede">Browse released candidates, active test builds, and tools currently in development. Status labels reflect the latest verified product state, and development apps may still be requested for pre-release testing.</p></div></section>
-  <section class="shell section"><div class="catalog-tools"><label class="search-box"><span class="skip-link">Search products</span><input type="search" data-app-search placeholder="Search by name or capability" autocomplete="off"></label><div class="filters" role="group" aria-label="Filter products"><button class="filter" data-filter="all" aria-pressed="true">All</button><button class="filter" data-filter="utility" aria-pressed="false">Utilities</button><button class="filter" data-filter="outdoors" aria-pressed="false">Outdoors</button><button class="filter" data-filter="games" aria-pressed="false">Games</button><button class="filter" data-filter="wordpress" aria-pressed="false">WordPress</button><button class="filter" data-filter="repo" aria-pressed="false">Web tools</button><button class="filter" data-filter="powerhouse" aria-pressed="false">Business tools</button><button class="filter" data-filter="business" aria-pressed="false">Business</button><button class="filter" data-filter="civic" aria-pressed="false">Civic</button><button class="filter" data-filter="content" aria-pressed="false">Content</button><button class="filter" data-filter="finance" aria-pressed="false">Finance</button></div></div><p class="fine-print" data-result-count aria-live="polite"></p><div class="app-grid" data-catalog>${apps.map((app) => appCard(app, 1)).join("")}${wordpressPlugins.map((plugin) => pluginCard(plugin)).join("")}${repoProducts.map((product) => repoProductCard(product)).join("")}${powerhouseProducts.map((product) => repoProductCard(product)).join("")}</div><p class="empty-state" data-empty-state hidden>No products match that search. Try a product name or a broader category.</p></section>${contactBand(1, "Need help choosing the right product?")}`;
-  return layout({ title: "Apps", description: "Browse Maxxed Technical Systems Android apps, WordPress tools, focused web tools, and business utilities in one organized catalog.", path: "apps/", depth: 1, current: "apps", body });
+  const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">Product directory</p><h1>Android apps, WordPress tools, and software</h1><p class="lede">Browse Maxxed products by section. Android apps have dedicated product, README, privacy, and support pages. WordPress tools now have individual detail and README pages for clearer discovery.</p></div></section>
+  <section class="shell section compact"><div class="catalog-tools"><label class="search-box"><span class="skip-link">Search products</span><input type="search" data-app-search placeholder="Search by name or capability" autocomplete="off"></label><div class="filters" role="group" aria-label="Filter products"><button class="filter" data-filter="all" aria-pressed="true">All</button><button class="filter" data-filter="utility" aria-pressed="false">Utilities</button><button class="filter" data-filter="outdoors" aria-pressed="false">Outdoors</button><button class="filter" data-filter="games" aria-pressed="false">Games</button><button class="filter" data-filter="wordpress" aria-pressed="false">WordPress</button><button class="filter" data-filter="repo" aria-pressed="false">Web tools</button><button class="filter" data-filter="powerhouse" aria-pressed="false">Business tools</button><button class="filter" data-filter="business" aria-pressed="false">Business</button><button class="filter" data-filter="civic" aria-pressed="false">Civic</button><button class="filter" data-filter="content" aria-pressed="false">Content</button><button class="filter" data-filter="finance" aria-pressed="false">Finance</button></div></div><p class="fine-print" data-result-count aria-live="polite"></p><p class="empty-state" data-empty-state hidden>No products match that search. Try a product name or a broader category.</p></section>
+  <section class="shell section catalog-section" data-catalog><div class="section-head"><div><p class="eyebrow">Android apps</p><h2>Mobile products with full support pages</h2></div><p>Each app includes product details, a public README, app privacy policy, beta testing route, and app-specific support link.</p></div><div class="app-grid">${apps.map((app, index) => appCard(app, 1, index < 2)).join("")}</div></section>
+  <section class="band catalog-section" data-catalog><div class="shell section"><div class="section-head"><div><p class="eyebrow">WordPress tools</p><h2>${wordpressPlugins.length} plugin workflows</h2></div><p>Each plugin has a detail page and README covering purpose, use cases, support routing, and weekly review expectations.</p></div><div class="app-grid">${wordpressPlugins.map((plugin) => pluginCard(plugin, 1)).join("")}</div></div></section>
+  <section class="shell section catalog-section" data-catalog><div class="section-head"><div><p class="eyebrow">Focused web tools</p><h2>${repoProducts.length} web tool concepts</h2></div><p>Focused tools for forms, documents, local SEO, civic workflows, evidence capture, and practical operations.</p></div><div class="app-grid dense-grid">${repoProducts.map((product) => repoProductCard(product)).join("")}</div></section>
+  <section class="band catalog-section" data-catalog><div class="shell section"><div class="section-head"><div><p class="eyebrow">Business tools</p><h2>${powerhouseProducts.length} business utility concepts</h2></div><p>Business and household operations concepts are grouped separately so the primary app and plugin catalog stays readable.</p></div><div class="app-grid dense-grid">${powerhouseProducts.map((product) => repoProductCard(product)).join("")}</div></div></section>${contactBand(1, "Need help choosing the right product?")}`;
+  const schema = [{ "@context": "https://schema.org", "@type": "CollectionPage", name: "Maxxed product directory", url: canonical("apps/"), mainEntity: { "@type": "ItemList", numberOfItems: allPublicProducts.length, itemListElement: allPublicProducts.slice(0, 50).map((item, index) => ({ "@type": "ListItem", position: index + 1, name: item.name })) } }];
+  return layout({ title: "Apps", description: "Browse Maxxed Android apps, WordPress plugin workflows, focused web tools, and business utilities grouped into clearer customer-facing sections.", path: "apps/", depth: 1, current: "apps", body, schema });
 }
 
 function pluginsPage() {
   const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">WordPress tools</p><h1>WordPress plugins</h1><p class="lede">Browse Maxxed WordPress tools for audits, cleanup, maintenance, commerce, schema, content, and operations workflows.</p><div class="proof-row"><span>${wordpressPlugins.length} WordPress tools</span><span>Review-first workflows</span><span>Configurable admin screens</span><span>Customer-ready catalog</span></div></div></section>
-  <section class="shell section"><div class="catalog-tools"><label class="search-box"><span class="skip-link">Search plugins</span><input type="search" data-app-search placeholder="Search plugins by name or capability" autocomplete="off"></label><div class="filters" role="group" aria-label="Filter plugins"><button class="filter" data-filter="all" aria-pressed="true">All</button><button class="filter" data-filter="wordpress" aria-pressed="false">WordPress</button></div></div><p class="fine-print" data-result-count aria-live="polite"></p><div class="app-grid" data-catalog>${wordpressPlugins.map((plugin) => pluginCard(plugin)).join("")}</div><p class="empty-state" data-empty-state hidden>No plugins match that search. Try a plugin name or a broader capability.</p></section>${contactBand(1, "Need help with a WordPress plugin?")}`;
-  return layout({ title: "WordPress Plugins", description: "Browse Maxxed Technical Systems WordPress plugin packages for audits, cleanup, maintenance, commerce, schema, content, and operations.", path: "plugins/", depth: 1, current: "plugins", body });
+  <section class="shell section"><div class="catalog-tools"><label class="search-box"><span class="skip-link">Search plugins</span><input type="search" data-app-search placeholder="Search plugins by name or capability" autocomplete="off"></label><div class="filters" role="group" aria-label="Filter plugins"><button class="filter" data-filter="all" aria-pressed="true">All</button><button class="filter" data-filter="wordpress" aria-pressed="false">WordPress</button></div></div><p class="fine-print" data-result-count aria-live="polite"></p><div class="app-grid" data-catalog>${wordpressPlugins.map((plugin) => pluginCard(plugin, 1)).join("")}</div><p class="empty-state" data-empty-state hidden>No plugins match that search. Try a plugin name or a broader capability.</p></section>${contactBand(1, "Need help with a WordPress plugin?")}`;
+  const schema = [{ "@context": "https://schema.org", "@type": "CollectionPage", name: "Maxxed WordPress plugins", url: canonical("plugins/"), mainEntity: { "@type": "ItemList", numberOfItems: wordpressPlugins.length, itemListElement: wordpressPlugins.map((plugin, index) => ({ "@type": "ListItem", position: index + 1, name: plugin.name, url: canonical(`plugins/${plugin.slug}/`) })) } }];
+  return layout({ title: "WordPress Plugins", description: "Browse Maxxed Technical Systems WordPress plugin pages for audits, cleanup, maintenance, commerce, schema, content, and operations workflows.", path: "plugins/", depth: 1, current: "plugins", body, schema });
 }
 
 function productPage(app) {
   const featureVisual = app.featureImage
     ? `<div class="feature-image"><img src="../../assets/images/${app.featureImage}" alt="${escapeHtml(app.name)} feature graphic" width="1024" height="500"></div>`
     : `<div class="product-visual" style="--accent:${app.accent}"><span class="product-visual-label">Product focus</span><span class="app-icon" aria-hidden="true">${escapeHtml(app.icon)}</span><strong>${escapeHtml(app.tagline)}</strong><div class="fact-row">${app.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div></div>`;
-  const screenshots = app.screenshots ? `<section class="band"><div class="shell section"><div class="section-head"><div><p class="eyebrow">Interface</p><h2>See the app in action</h2></div><p>Current store-ready screens from the Android release candidate.</p></div><div class="screenshot-strip">${app.screenshots.map(([src, alt]) => `<figure><img src="../../assets/images/${src}" alt="${escapeHtml(alt)}" width="1080" height="1920" loading="lazy"><figcaption>${escapeHtml(alt)}</figcaption></figure>`).join("")}</div></div></section>` : "";
+  const screenshots = app.screenshots ? `<section class="band"><div class="shell section"><div class="section-head"><div><p class="eyebrow">Interface</p><h2>See the app in action</h2></div><p>Current preview screens from the Android app.</p></div><div class="screenshot-strip">${app.screenshots.map(([src, alt]) => `<figure><img src="../../assets/images/${src}" alt="${escapeHtml(alt)}" width="1080" height="1920" loading="lazy"><figcaption>${escapeHtml(alt)}</figcaption></figure>`).join("")}</div></div></section>` : "";
   const body = `<section class="band product-hero"><div class="shell product-hero-grid"><div><div class="product-kicker" style="--accent:${app.accent}"><span class="app-icon" aria-hidden="true">${escapeHtml(app.icon)}</span><span class="status">${escapeHtml(app.status)}</span></div><p class="eyebrow">${escapeHtml(app.category)} app</p><h1>${escapeHtml(app.name)}</h1><p class="lede">${escapeHtml(app.description)}</p><div class="fact-row">${app.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div><div class="hero-actions"><a class="button" href="../../beta/?app=${app.slug}">Request pre-release testing</a><a class="button secondary" href="privacy/">App privacy</a><a class="button secondary" href="readme/">README</a><a class="button secondary" href="../../support/?app=${encodeURIComponent(app.name)}">Support</a></div></div>${featureVisual}</div></section>
   <section class="shell section"><div class="section-head"><div><p class="eyebrow">Capabilities</p><h2>What ${escapeHtml(app.short)} does</h2></div><p>${escapeHtml(app.summary)}</p></div><div class="feature-list" style="--accent:${app.accent}">${app.features.map(([title, text], index) => `<article class="feature-item"><span class="feature-number">0${index + 1}</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`).join("")}</div></section>
   ${screenshots}
   <section class="shell section"><div class="section-head"><div><p class="eyebrow">Product truth</p><h2>Status, privacy, and limits</h2></div><p>Clear expectations are part of the product, not an afterthought.</p></div><div class="truth-grid" style="--accent:${app.accent}"><article class="truth-item"><h3>Availability</h3><p>${escapeHtml(app.availability)} Pre-release testing requests are welcome even before a public store launch.</p></article><article class="truth-item"><h3>Privacy</h3><p>${escapeHtml(app.privacy)} <a href="privacy/">Read the detailed ${escapeHtml(app.name)} privacy policy.</a></p></article><article class="truth-item"><h3>Important limitation</h3><p>${escapeHtml(app.limitation)}</p></article></div></section>
+  <section class="band"><div class="shell section compact"><div class="support-callout" style="--accent:${app.accent}"><div><p class="eyebrow">App support</p><h2>Get support for ${escapeHtml(app.name)}</h2><p>Open a ticket pre-selected for ${escapeHtml(app.name)}. Include device model, Android version, app version when available, exact steps, expected result, and actual result.</p></div><div class="hero-actions"><a class="button" href="../../support/?app=${encodeURIComponent(app.name)}">Get ${escapeHtml(app.name)} support</a><a class="button secondary" href="mailto:${site.email}?subject=${encodeURIComponent(`${app.name} support request`)}">Email support</a></div></div></div></section>
   <section class="band"><div class="shell section compact"><div class="section-head"><div><p class="eyebrow">Explore more</p><h2>Other Maxxed apps</h2></div><p>Focused products for different real-world jobs.</p></div><div class="app-grid">${apps.filter((item) => item.slug !== app.slug).slice(0, 3).map((item) => appCard(item, 2)).join("")}</div></div></section>${contactBand(2, `Need help with ${app.name}?`)}`;
   const schema = [{
     "@context": "https://schema.org",
@@ -287,6 +322,26 @@ function appReadmePage(app) {
   return layout({ title: `${app.name} README`, description: `Read the ${app.name} README with purpose, status, workflow, privacy link, support details, and known limitations.`, path: `apps/${app.slug}/readme/`, depth: 3, current: "apps", body });
 }
 
+function pluginPage(plugin) {
+  const details = pluginDetails(plugin);
+  const useCases = pluginUseCases(plugin);
+  const body = `<section class="band product-hero"><div class="shell product-hero-grid"><div><div class="product-kicker" style="--accent:${plugin.accent}"><span class="app-icon" aria-hidden="true">${escapeHtml(plugin.icon)}</span><span class="status">${escapeHtml(plugin.status)}</span></div><p class="eyebrow">WordPress plugin</p><h1>${escapeHtml(plugin.name)}</h1><p class="lede">${escapeHtml(plugin.summary)}</p><div class="fact-row">${plugin.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div><div class="hero-actions"><a class="button" href="../../support/?app=${encodeURIComponent(plugin.name)}">Get plugin support</a><a class="button secondary" href="readme/">README</a><a class="button secondary" href="mailto:${site.email}?subject=${encodeURIComponent(`${plugin.name} support request`)}">Email support</a></div></div><div class="product-visual" style="--accent:${plugin.accent}"><span class="product-visual-label">Plugin focus</span><span class="app-icon" aria-hidden="true">${escapeHtml(plugin.icon)}</span><strong>${escapeHtml(plugin.summary)}</strong><div class="fact-row">${plugin.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div></div></div></section>
+  <section class="shell section"><div class="section-head"><div><p class="eyebrow">Details</p><h2>What this plugin helps with</h2></div><p>${escapeHtml(plugin.name)} is documented as a review-first WordPress workflow tool with support routed through ${site.email}.</p></div><div class="feature-list" style="--accent:${plugin.accent}">${details.map(([title, text], index) => `<article class="feature-item"><span class="feature-number">0${index + 1}</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></article>`).join("")}</div></section>
+  <section class="band"><div class="shell section compact"><div class="copy-grid"><aside><p class="eyebrow">Use cases</p><h2>When to use it</h2></aside><article><ol class="readme-steps">${useCases.map((text) => `<li><strong>${escapeHtml(text)}</strong><span>Keep the workflow visible in WordPress and route questions through support when behavior is unclear.</span></li>`).join("")}</ol><p><a class="button" href="readme/">Read the ${escapeHtml(plugin.name)} README</a></p></article></div></div></section>
+  <section class="shell section compact"><div class="support-callout" style="--accent:${plugin.accent}"><div><p class="eyebrow">Plugin support</p><h2>Get support for ${escapeHtml(plugin.name)}</h2><p>Include the WordPress version, active theme, plugin version or package date, exact screen, expected result, and actual result.</p></div><div class="hero-actions"><a class="button" href="../../support/?app=${encodeURIComponent(plugin.name)}">Prepare support ticket</a><a class="button secondary" href="mailto:${site.email}?subject=${encodeURIComponent(`${plugin.name} support request`)}">Email support</a></div></div></section>
+  <section class="band"><div class="shell section compact"><div class="section-head"><div><p class="eyebrow">More WordPress tools</p><h2>Related plugin workflows</h2></div><p>Explore adjacent review-first tools in the Maxxed WordPress catalog.</p></div><div class="app-grid">${wordpressPlugins.filter((item) => item.slug !== plugin.slug).slice(0, 3).map((item) => pluginCard(item, 2)).join("")}</div></div></section>`;
+  const schema = [{ "@context": "https://schema.org", "@type": "SoftwareApplication", name: plugin.name, applicationCategory: "WordPressPlugin", operatingSystem: "WordPress", description: plugin.summary, url: canonical(`plugins/${plugin.slug}/`), author: { "@type": "Organization", name: site.name, url: site.url } }];
+  return layout({ title: plugin.name, description: `${plugin.name} is a Maxxed WordPress plugin for ${plugin.summary.toLowerCase()}`, path: `plugins/${plugin.slug}/`, depth: 2, current: "plugins", body, schema });
+}
+
+function pluginReadmePage(plugin) {
+  const details = pluginDetails(plugin);
+  const useCases = pluginUseCases(plugin);
+  const body = `<section class="band"><div class="shell section compact"><div class="product-kicker" style="--accent:${plugin.accent}"><span class="app-icon" aria-hidden="true">${escapeHtml(plugin.icon)}</span><span class="status">README</span></div><p class="eyebrow">WordPress plugin</p><h1>${escapeHtml(plugin.name)} README</h1><p class="lede">${escapeHtml(plugin.summary)}</p><div class="hero-actions"><a class="button" href="../../../support/?app=${encodeURIComponent(plugin.name)}">Support ticket</a><a class="button secondary" href="../">Plugin page</a><a class="button secondary" href="mailto:${site.email}?subject=${encodeURIComponent(`${plugin.name} support request`)}">Email support</a></div></div></section>
+  <section class="shell section"><div class="copy-grid"><aside><p>This public README summarizes the plugin purpose, review workflow, customer-facing support route, and weekly maintenance expectation.</p><p>Plugin README pages should be reviewed and updated at least once each week while the plugin is listed publicly or being tested.</p><div class="fact-row">${plugin.facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div></aside><article><h2>Purpose</h2><p>${escapeHtml(plugin.summary)}</p><h2>Current Status</h2><p><strong>${escapeHtml(plugin.status)}.</strong> This plugin is listed as a customer-facing WordPress workflow tool. Support and setup questions route to ${site.email}.</p><h2>Core Workflow</h2><ol class="readme-steps">${details.map(([title, text]) => `<li><strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span></li>`).join("")}</ol><h2>Common Use Cases</h2><ul>${useCases.map((text) => `<li>${escapeHtml(text)}</li>`).join("")}</ul><h2>Support</h2><p>For a useful ticket, include WordPress version, active theme, plugin version or package date, exact screen, expected result, actual result, and whether the issue repeats.</p><p><a class="button" href="../../../support/?app=${encodeURIComponent(plugin.name)}">Prepare a ${escapeHtml(plugin.name)} support ticket</a></p><h2>Weekly Review</h2><p>This README should stay in sync with the plugin package, customer-facing plugin page, support route, and latest GitHub PR work. Review it at least once per week and update stale claims before launch or customer handoff decisions.</p></article></div></section>`;
+  return layout({ title: `${plugin.name} README`, description: `Read the ${plugin.name} README with purpose, workflow details, support routing, and weekly review expectations.`, path: `plugins/${plugin.slug}/readme/`, depth: 3, current: "plugins", body });
+}
+
 function roadmapPage() {
   const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">Current product focus</p><h1>Seven-product release queue</h1><p class="lede">Our public focus stays intentionally narrow: six active Android products and one next product. Statuses describe current work, not availability promises.</p></div></section><section class="shell section"><div class="road-list">${roadmap.map((item, index) => `<div class="road-item"><span class="number">${String(index + 1).padStart(2, "0")}</span><div><strong>${escapeHtml(item[0])}</strong><p>${escapeHtml(item[2])}</p></div><span class="kind">${escapeHtml(item[1])}</span></div>`).join("")}</div></section><section class="band"><div class="shell section compact"><div class="copy-grid"><aside><p class="eyebrow">How priorities move</p><h2>Finish before expanding</h2></aside><article><p>Current Android products receive functionality, physical testing, store materials, privacy review, and truthful readiness reports before additional concepts enter public development.</p><p>Future ideas remain private until they have a real implementation path and a place in the release queue.</p><p><a class="button" href="../beta/">Apply to beta test</a></p></article></div></div></section>${contactBand(1, "Questions about the current release queue?")}`;
   return layout({ title: "Roadmap", description: "Follow the seven-product Tech Maxxed release queue for six active Android apps and the next near-term product.", path: "roadmap/", depth: 1, current: "roadmap", body });
@@ -298,7 +353,8 @@ function aboutPage() {
 }
 
 function supportPage() {
-  const options = apps.map((app) => `<option value="${escapeHtml(app.name)}">${escapeHtml(app.name)}</option>`).join("");
+  const supportProducts = [...apps, ...wordpressPlugins];
+  const options = supportProducts.map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join("");
   const issueTypes = [
     ["Setup or install", "Pairing, test access, install, update, or first-run problems."],
     ["Bug or crash", "Something breaks, crashes, freezes, miscalculates, or fails to save."],
@@ -308,7 +364,7 @@ function supportPage() {
     ["Pre-release testing", "Request tester access for an app even if it is still in development."],
   ];
   const issueOptions = issueTypes.map(([name]) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
-  const issueCards = issueTypes.map(([name, text]) => `<article class="ticket-type"><h3>${escapeHtml(name)}</h3><p>${escapeHtml(text)}</p></article>`).join("");
+  const issueCards = issueTypes.map(([name, text]) => `<button class="ticket-type" type="button" data-issue-preset="${escapeHtml(name)}"><h3>${escapeHtml(name)}</h3><p>${escapeHtml(text)}</p></button>`).join("");
   const quickHelp = [
     ["Maxxed Remote", "Check that the phone and TV are on the same private network, then approve the pairing request on the television."],
     ["Maxxed Compass", "Move away from magnetic cases, chargers, vehicles, and steel structures before recalibrating the device."],
@@ -321,7 +377,7 @@ function supportPage() {
   <section class="shell section compact"><div class="section-head"><div><p class="eyebrow">Quick help</p><h2>Start with the app</h2></div><p>These checks address common setup and test-build questions without exposing private operational information.</p></div><div class="support-grid">${quickHelp}</div></section>
   <section class="band"><div class="shell section"><div class="section-head"><div><p class="eyebrow">Ticket routing</p><h2>Choose the right request type</h2></div><p>The ticket form builds an email with the fields support needs to reproduce the issue or answer cleanly.</p></div><div class="ticket-type-grid">${issueCards}</div><form class="ticket-form" data-support-form data-email="${site.email}" data-privacy-email="${site.privacyEmail}"><div class="field"><label for="support-app">App</label><select id="support-app" name="app" data-support-select>${options}</select></div><div class="field"><label for="support-issue">Request type</label><select id="support-issue" name="issueType" data-support-issue>${issueOptions}</select></div><div class="field"><label for="support-severity">Severity</label><select id="support-severity" name="severity"><option>Question</option><option>Minor issue</option><option>Blocks testing</option><option>Crash or data loss</option></select></div><div class="field"><label for="support-device">Device and Android version</label><input id="support-device" name="device" type="text" maxlength="120" placeholder="Example: Samsung S22 Ultra, Android 16"></div><div class="field full"><label for="support-steps">Steps to reproduce or request details</label><textarea id="support-steps" name="steps" maxlength="1600" placeholder="What did you tap or try? What screen were you on?"></textarea></div><div class="field"><label for="support-expected">Expected result</label><textarea id="support-expected" name="expected" maxlength="700"></textarea></div><div class="field"><label for="support-actual">Actual result</label><textarea id="support-actual" name="actual" maxlength="700"></textarea></div><div class="consent-list full"><label><input type="checkbox" name="safeInfo" required><span>I will not include passwords, upload keys, signing material, payment data, or sensitive location history.</span></label></div><div class="form-actions"><button class="button" type="submit">Prepare support ticket email</button><a class="button secondary" data-support-link data-email="${site.email}" href="mailto:${site.email}">Quick email</a><p class="form-status" data-support-status aria-live="polite"></p></div><noscript><p>Email ${site.email} with the app, request type, device, Android version, steps, expected result, and actual result.</p></noscript></form></div></section>
   <section class="shell section"><div class="section-head"><div><p class="eyebrow">Before contacting support</p><h2>Useful details</h2></div><p>Never email passwords, upload keys, private signing material, full payment information, or sensitive location history.</p></div><div class="faq-list"><details><summary>What should a bug report include?</summary><p>App name and version, phone model, Android version, exact steps, expected result, actual result, and a screenshot when it does not expose sensitive information.</p></details><details><summary>Where are downloads and Play Store links?</summary><p>Links will appear on each product page only after that app reaches its verified public release state.</p></details><details><summary>Can support recover deleted local data?</summary><p>Usually not. Several Maxxed apps intentionally keep records on the device and do not maintain a cloud copy.</p></details><details><summary>How do I become a beta tester?</summary><p>Use the beta tester application to select the Android apps you want to test. Participation is voluntary and unpaid, with optional public credit.</p></details></div></section>`;
-  return layout({ title: "Help & Support", description: "Get help and support for Maxxed Remote, Maxxed Compass, Maxxed Measure, Maxxed Gold Estimator, Fishing Maxxed, and Rival Rush.", path: "support/", depth: 1, current: "support", body });
+  return layout({ title: "Help & Support", description: "Get help and support for Maxxed Android apps and WordPress plugin workflows with app-specific ticket routing.", path: "support/", depth: 1, current: "support", body });
 }
 
 function privacyPage() {
@@ -460,11 +516,13 @@ for (const app of apps) {
   await writePage(`apps/${app.slug}/readme/index.html`, appReadmePage(app));
   await writePage(`apps/${app.slug}/privacy/index.html`, appPrivacyPage(app));
 }
+for (const plugin of wordpressPlugins) {
+  await writePage(`plugins/${plugin.slug}/index.html`, pluginPage(plugin));
+  await writePage(`plugins/${plugin.slug}/readme/index.html`, pluginReadmePage(plugin));
+}
 await writePage("roadmap/index.html", roadmapPage());
 await writePage("about/index.html", aboutPage());
 await writePage("support/index.html", supportPage());
-await writePage("admin/index.html", adminPage());
-await writePage("admin/plugins/index.html", adminPluginsPage());
 await writePage("privacy/index.html", privacyPage());
 await writePage("accessibility/index.html", accessibilityPage());
 await writePage("beta/index.html", betaPage());
@@ -472,7 +530,21 @@ await writePage("beta-credits/index.html", betaCreditsPage());
 await writePage("terms/index.html", termsPage());
 await writePage("404.html", notFoundPage());
 
-const indexedPaths = ["", "apps/", "plugins/", ...apps.flatMap((app) => [`apps/${app.slug}/`, `apps/${app.slug}/readme/`, `apps/${app.slug}/privacy/`]), "roadmap/", "about/", "support/", "privacy/", "accessibility/", "beta/", "beta-credits/", "terms/"];
+const indexedPaths = [
+  "",
+  "apps/",
+  "plugins/",
+  ...apps.flatMap((app) => [`apps/${app.slug}/`, `apps/${app.slug}/readme/`, `apps/${app.slug}/privacy/`]),
+  ...wordpressPlugins.flatMap((plugin) => [`plugins/${plugin.slug}/`, `plugins/${plugin.slug}/readme/`]),
+  "roadmap/",
+  "about/",
+  "support/",
+  "privacy/",
+  "accessibility/",
+  "beta/",
+  "beta-credits/",
+  "terms/",
+];
 await writePage("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexedPaths.map((path) => `  <url><loc>${canonical(path)}</loc></url>`).join("\n")}\n</urlset>\n`);
 await writePage("robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${canonical("sitemap.xml")}\n`);
 await writePage("site.webmanifest", JSON.stringify({ name: site.name, short_name: site.shortName, start_url: "/", display: "standalone", background_color: "#07131f", theme_color: "#07131f", icons: [{ src: "/assets/images/favicon.svg", sizes: "any", type: "image/svg+xml" }] }, null, 2));

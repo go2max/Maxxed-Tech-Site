@@ -16,9 +16,9 @@ if (navToggle && navLinks) {
   });
 }
 
-const catalog = document.querySelector("[data-catalog]");
-if (catalog) {
-  const cards = [...catalog.querySelectorAll("[data-app-card]")];
+const catalogSections = [...document.querySelectorAll("[data-catalog]")];
+if (catalogSections.length) {
+  const cards = catalogSections.flatMap((section) => [...section.querySelectorAll("[data-app-card]")]);
   const search = document.querySelector("[data-app-search]");
   const filters = [...document.querySelectorAll("[data-filter]")];
   const resultCount = document.querySelector("[data-result-count]");
@@ -38,6 +38,11 @@ if (catalog) {
       const matchesFilter = activeFilter === "all" || categories.includes(activeFilter);
       card.hidden = !(matchesText && matchesFilter);
       if (!card.hidden) visible += 1;
+    });
+
+    catalogSections.forEach((section) => {
+      const sectionCards = [...section.querySelectorAll("[data-app-card]")];
+      section.hidden = sectionCards.length > 0 && sectionCards.every((card) => card.hidden);
     });
 
     if (resultCount) {
@@ -77,6 +82,22 @@ const supportForm = document.querySelector("[data-support-form]");
 if (supportForm) {
   const status = supportForm.querySelector("[data-support-status]");
   const issueSelect = supportForm.querySelector("[data-support-issue]");
+  const issuePresetButtons = [...document.querySelectorAll("[data-issue-preset]")];
+
+  const syncIssueButtons = () => {
+    issuePresetButtons.forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.issuePreset === issueSelect?.value));
+    });
+  };
+
+  issuePresetButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!issueSelect) return;
+      issueSelect.value = button.dataset.issuePreset;
+      issueSelect.dispatchEvent(new Event("change", { bubbles: true }));
+      issueSelect.focus();
+    });
+  });
 
   supportForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -85,9 +106,7 @@ if (supportForm) {
     const data = new FormData(supportForm);
     const app = data.get("app");
     const issueType = data.get("issueType");
-    const recipient = issueType === "Privacy or data"
-      ? supportForm.dataset.privacyEmail || "privacy@techmaxxed.com"
-      : supportForm.dataset.email || "support@techmaxxed.com";
+    const recipient = supportForm.dataset.email || "support@techmaxxed.com";
     const subject = encodeURIComponent(`${app} - ${issueType}`);
     const body = encodeURIComponent([
       "Maxxed support ticket",
@@ -115,9 +134,11 @@ if (supportForm) {
 
   issueSelect?.addEventListener("change", () => {
     if (status) status.textContent = issueSelect.value === "Privacy or data"
-      ? "Privacy requests route to the privacy inbox."
+      ? "Privacy requests route to support."
       : "";
+    syncIssueButtons();
   });
+  syncIssueButtons();
 }
 
 const betaForm = document.querySelector("[data-beta-form]");
@@ -136,7 +157,7 @@ if (betaForm) {
     if (!betaForm.reportValidity() || !selectedApps.length) return;
 
     const data = new FormData(betaForm);
-    const email = betaForm.dataset.email || "beta@techmaxxed.com";
+    const email = betaForm.dataset.email || "support@techmaxxed.com";
     const subject = encodeURIComponent(`Beta tester application - ${selectedApps.join(", ")}`);
     const body = encodeURIComponent([
       "Tech Maxxed beta tester application",
