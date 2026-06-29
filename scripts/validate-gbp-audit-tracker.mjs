@@ -9,12 +9,14 @@ const requiredFiles = [
   "tools/gbp-audit-tracker/fixtures/sample-audit.json",
   "tools/gbp-audit-tracker/tests/scoring.test.mjs",
   "tools/gbp-audit-tracker/README.md",
+  "public/tools/gbp-audit-tracker/index.html",
   "docs/GBP_AUDIT_TRACKER_READINESS.md",
 ];
 
 for (const file of requiredFiles) await access(file);
 
 const html = await readFile("tools/gbp-audit-tracker/index.html", "utf8");
+const publicHtml = await readFile("public/tools/gbp-audit-tracker/index.html", "utf8");
 const app = await readFile("tools/gbp-audit-tracker/src/app.mjs", "utf8");
 const scoring = await readFile("tools/gbp-audit-tracker/src/scoring.mjs", "utf8");
 const readme = await readFile("tools/gbp-audit-tracker/README.md", "utf8");
@@ -28,6 +30,14 @@ assert.match(html, /data-copy-report/);
 assert.match(html, /data-download-report/);
 assert.match(html, /support@techmaxxed\.com/);
 assert.match(html, /not affiliated with Google/i);
+
+assert.match(publicHtml, /GBP Audit Tracker/);
+assert.match(publicHtml, /support@techmaxxed\.com/);
+assert.match(publicHtml, /localStorage/);
+assert.match(publicHtml, /Copy report/);
+assert.match(publicHtml, /Download Markdown/);
+assert.match(publicHtml, /not affiliated with Google/i);
+assert.match(publicHtml, /index,follow/);
 
 assert.match(app, /localStorage/);
 assert.match(app, /saveAudit/);
