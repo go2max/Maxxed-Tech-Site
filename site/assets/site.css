@@ -66,6 +66,7 @@ p { margin-bottom: 18px; }
   align-items: center;
   gap: 11px;
   color: var(--ink);
+  flex: 0 0 auto;
   font-weight: 850;
   text-decoration: none;
 }
@@ -89,10 +90,11 @@ p { margin-bottom: 18px; }
   background: transparent;
   cursor: pointer;
 }
-.nav-links { display: flex; align-items: center; gap: 24px; }
+.nav-links { min-width: 0; display: flex; align-items: center; gap: clamp(12px, 1.5vw, 20px); }
 .nav-links a {
   color: var(--muted);
   font-size: 14px;
+  white-space: nowrap;
   text-decoration: none;
 }
 .nav-links a:hover,
@@ -554,9 +556,9 @@ p { margin-bottom: 18px; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 
-@media (max-width: 720px) {
-  h1 { font-size: 48px; }
-  h2 { font-size: 38px; }
+@media (max-width: 1080px) {
+  .nav-shell { width: min(calc(100% - 24px), var(--max)); }
+  .brand-name { max-width: 210px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .nav-toggle { display: grid; place-items: center; }
   .nav-links {
     position: absolute;
@@ -572,6 +574,11 @@ p { margin-bottom: 18px; }
   }
   .nav-links[data-open="true"] { display: flex; }
   .nav-links .nav-button { width: 100%; }
+}
+
+@media (max-width: 720px) {
+  h1 { font-size: 48px; }
+  h2 { font-size: 38px; }
   .section { padding-block: 66px; }
   .section-head, .copy-grid { grid-template-columns: 1fr; gap: 18px; }
   .home-hero-grid { min-height: 0; padding-block: 52px; }
