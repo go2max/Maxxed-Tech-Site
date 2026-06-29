@@ -1,4 +1,4 @@
-import { calculateAudit, cloneDefaultAudit, generateReport, SECTION_LABELS } from "./scoring.mjs";
+import { calculateAudit, cloneDefaultAudit, generateReport } from "./scoring.mjs";
 
 const STORAGE_KEY = "maxxed.gbpAuditTracker.v1";
 const form = document.querySelector("[data-audit-form]");
@@ -255,7 +255,7 @@ form.addEventListener("input", () => {
   render();
 });
 
-form.addEventListener("change", (event) => {
+document.addEventListener("change", (event) => {
   if (event.target.matches("[data-task-status]")) {
     currentAudit.taskStatuses[event.target.dataset.taskStatus] = event.target.value;
     render();
