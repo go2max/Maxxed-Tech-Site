@@ -47,6 +47,11 @@ const standaloneRepoNames = [
   "Website-Contact-Extractor",
 ];
 
+const productFamilyLabels = {
+  repo: "Focused web tool",
+  powerhouse: "Business tool",
+};
+
 const powerhouseRepoNames = [
   "allergy-symptom-journal",
   "appointment-care-pro",
@@ -169,12 +174,12 @@ function categoryFor(name) {
 function summaryFor(name) {
   const title = titleize(name);
   const slug = slugify(name);
-  if (/calculator|cost|rate|savings|debt|payback|subscription/.test(slug)) return `${title} helps plan, calculate, and compare practical financial decisions with a focused repo-backed workflow.`;
-  if (/tracker|watchlist|register|queue|reminder|log/.test(slug)) return `${title} tracks tasks, records, deadlines, and follow-up status in a focused repo-backed workflow.`;
-  if (/builder|generator/.test(slug)) return `${title} builds structured working documents and repeatable outputs from a focused repo-backed workflow.`;
-  if (/checker|tester|inspector|monitor|extractor|collector/.test(slug)) return `${title} reviews websites, content, fields, or source material with a focused repo-backed workflow.`;
-  if (/organizer|directory|manager/.test(slug)) return `${title} organizes operational details, contacts, assets, or records in a focused repo-backed workflow.`;
-  return `${title} is a repo-backed Maxxed utility prepared for inclusion in the public product catalog.`;
+  if (/calculator|cost|rate|savings|debt|payback|subscription/.test(slug)) return `${title} helps plan, calculate, and compare practical financial decisions in a focused web workflow.`;
+  if (/tracker|watchlist|register|queue|reminder|log/.test(slug)) return `${title} tracks tasks, records, deadlines, and follow-up status in a focused web workflow.`;
+  if (/builder|generator/.test(slug)) return `${title} builds structured working documents and repeatable outputs in a focused web workflow.`;
+  if (/checker|tester|inspector|monitor|extractor|collector/.test(slug)) return `${title} reviews websites, content, fields, or source material in a focused web workflow.`;
+  if (/organizer|directory|manager/.test(slug)) return `${title} organizes operational details, contacts, assets, or records in a focused web workflow.`;
+  return `${title} is a focused Maxxed software tool prepared for the public product catalog.`;
 }
 
 function productFromName(name, index, status, marker) {
@@ -187,9 +192,9 @@ function productFromName(name, index, status, marker) {
     icon: iconFor(name),
     summary: summaryFor(name),
     categoryKey: `${marker} ${categoryKey}`,
-    facts: [categoryLabel, marker === "powerhouse" ? "Powerhouse repo" : "Repo backed", "Ready to list"],
+    facts: [categoryLabel, productFamilyLabels[marker], "Available to discuss"],
   };
 }
 
-export const repoProducts = standaloneRepoNames.map((name, index) => productFromName(name, index, "Repo product", "repo"));
-export const powerhouseProducts = powerhouseRepoNames.map((name, index) => productFromName(name, index, "Powerhouse repo", "powerhouse"));
+export const repoProducts = standaloneRepoNames.map((name, index) => productFromName(name, index, "Product concept", "repo"));
+export const powerhouseProducts = powerhouseRepoNames.map((name, index) => productFromName(name, index, "Product concept", "powerhouse"));

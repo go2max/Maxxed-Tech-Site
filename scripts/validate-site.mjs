@@ -58,6 +58,13 @@ for (const file of htmlFiles) {
   if (filePath !== "/404.html") assert.match(html, /<link rel="canonical" href="https:\/\/techmaxxed\.com\//, `${filePath} needs a canonical URL`);
 
   const references = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((match) => match[1]);
+  const isPublicPage = !filePath.startsWith("/admin/");
+  if (isPublicPage) {
+    assert.doesNotMatch(html, /href="[^"]*\/?admin\//, `${filePath} must not link to the admin portal`);
+    assert.doesNotMatch(html, /Admin hub/, `${filePath} must not expose admin hub copy`);
+    assert.doesNotMatch(html, /repo-backed|Repo-backed|repo products|Repo products|Powerhouse repo|powerhouse repo|standalone repos|plugin lab|artifact/i, `${filePath} contains internal-facing catalog language`);
+  }
+
   for (const reference of references) {
     if (/^(?:#|mailto:|tel:|https?:|data:)/.test(reference)) continue;
     const resolvedUrl = new URL(reference, `https://example.test${route}`);
@@ -99,8 +106,8 @@ assert.match(await readFile(resolve(siteRoot, "beta-credits/index.html"), "utf8"
 assert.match(await readFile(resolve(siteRoot, "admin/index.html"), "utf8"), /Maxxed admin routing/);
 assert.match(await readFile(resolve(siteRoot, "admin/plugins/index.html"), "utf8"), /WordPress plugin admin/);
 assert.match(await readFile(resolve(siteRoot, "plugins/index.html"), "utf8"), /WordPress plugins/);
-assert.equal(((await readFile(resolve(siteRoot, "apps/index.html"), "utf8")).match(/data-app-card/g) || []).length, 186, "Apps page should show 6 Android apps, 36 WordPress plugins, 44 standalone repos, and 100 powerhouse repos");
-assert.equal(((await readFile(resolve(siteRoot, "plugins/index.html"), "utf8")).match(/data-app-card/g) || []).length, 36, "Plugins page should show all 36 WordPress plugins");
+assert.equal(((await readFile(resolve(siteRoot, "apps/index.html"), "utf8")).match(/data-app-card/g) || []).length, 186, "Apps page should show 6 Android apps, 36 WordPress tools, 44 focused web tools, and 100 business tools");
+assert.equal(((await readFile(resolve(siteRoot, "plugins/index.html"), "utf8")).match(/data-app-card/g) || []).length, 36, "Plugins page should show all 36 WordPress tools");
 
 const sitemap = await readFile(resolve(siteRoot, "sitemap.xml"), "utf8");
 assert.equal((sitemap.match(/<url>/g) || []).length, 29, "Sitemap should contain all 29 indexed pages");

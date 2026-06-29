@@ -110,7 +110,7 @@ export const apps = [
     facts: ["Offline analysis", "Six views", "User correction", "CSV export"],
     privacy: "Captures remain in app-private storage and leave only when the user chooses an export destination.",
     limitation: "Color and surface appearance cannot identify chemistry. Results are not an assay or a valuation.",
-    availability: "The requested workflow is implemented. Automated execution, signed artifacts, physical fixture testing, and final disclosures remain in progress.",
+    availability: "The requested workflow is implemented. Automated checks, signed builds, physical fixture testing, and final disclosures remain in progress.",
   },
   {
     slug: "fishing-maxxed",
@@ -166,11 +166,11 @@ const pluginAccents = ["#7dd3fc", "#86efac", "#facc15", "#fb7185", "#c084fc", "#
 const pluginListing = ([slug, name, icon, summary], index) => ({
   slug,
   name,
-  status: "Plugin lab candidate",
+  status: "WordPress tool",
   accent: pluginAccents[index % pluginAccents.length],
   icon,
   summary,
-  facts: ["Editable profile", "Zip package", "Installed artifact"],
+  facts: ["WordPress admin", "Review workflow", "Configurable"],
 });
 
 export const wordpressPlugins = [
