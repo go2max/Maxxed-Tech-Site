@@ -58,6 +58,27 @@ for (const file of htmlFiles) {
   assert.match(html, /<meta property="og:title"/, `${filePath} needs Open Graph metadata`);
   if (filePath !== "/404.html") assert.match(html, /<link rel="canonical" href="https:\/\/techmaxxed\.com\//, `${filePath} needs a canonical URL`);
 
+  const images = [...html.matchAll(/<img\b([^>]*)>/g)].map((match) => match[1]);
+  for (const attrs of images) {
+    assert.match(attrs, /\salt="[^"]*"/, `${filePath} has an image without alt text`);
+  }
+
+  const buttons = [...html.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/g)];
+  for (const [, attrs, label] of buttons) {
+    const hasAriaLabel = /\saria-label="[^"]+"/.test(attrs);
+    const text = label.replace(/<[^>]*>/g, "").trim();
+    assert.ok(hasAriaLabel || text, `${filePath} has a button without an accessible name`);
+  }
+
+  const controls = [...html.matchAll(/<(?:input|select|textarea)\b([^>]*)>/g)].map((match) => match[1]);
+  for (const attrs of controls) {
+    if (/\stype="(?:hidden|checkbox|radio)"/.test(attrs)) continue;
+    if (/\sdata-app-search\b/.test(attrs)) continue;
+    const id = attrs.match(/\sid="([^"]+)"/)?.[1];
+    assert.ok(id, `${filePath} has a form control without an id`);
+    assert.match(html, new RegExp(`<label[^>]*for="${id}"`), `${filePath} has an unlabeled form control: ${id}`);
+  }
+
   const structuredDataBlocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => match[1]);
   assert.ok(structuredDataBlocks.length >= 1, `${filePath} needs JSON-LD structured data`);
   for (const block of structuredDataBlocks) {
