@@ -13,6 +13,26 @@ GBP Audit Tracker is a manual local SEO utility for reviewing a Google Business 
 - Supports copy-to-clipboard and markdown download.
 - Includes a support CTA for `support@techmaxxed.com`.
 
+## First-class site integration
+
+GBP Audit Tracker is registered as a first-class browser tool through `content/tool-products.mjs`.
+
+The site build now:
+
+- Includes the tool in `allProducts`.
+- Shows it in the public `/apps/` catalog.
+- Adds a Tools filter.
+- Generates a product landing page.
+- Adds the product route to the sitemap.
+- Links from the landing page to the browser-local app.
+
+Built routes:
+
+```text
+/tools/gbp-audit-tracker/      Generated product landing page
+/tools/gbp-audit-tracker/app/  Browser-local audit app
+```
+
 ## Run locally
 
 Open the source app directly in a browser:
@@ -30,13 +50,11 @@ python3 -m http.server 4173
 
 ## Public/deploy route
 
-The deployable route is mirrored as a static single-file page under `public/` because the current site builder automatically copies that directory into the generated site.
-
-Source mirror smoke path:
+Before build, smoke the deployable app route from `public/`:
 
 ```bash
 python3 -m http.server 4173
-# then open http://localhost:4173/public/tools/gbp-audit-tracker/
+# then open http://localhost:4173/public/tools/gbp-audit-tracker/app/
 ```
 
 After a normal site build:
@@ -44,7 +62,8 @@ After a normal site build:
 ```bash
 npm run build
 python3 -m http.server 4173 --directory site
-# then open http://localhost:4173/tools/gbp-audit-tracker/
+# product page: http://localhost:4173/tools/gbp-audit-tracker/
+# app page:     http://localhost:4173/tools/gbp-audit-tracker/app/
 ```
 
 ## Check
@@ -87,7 +106,9 @@ The score uses these section weights:
 
 **Best for:** Local SEO audits, small-business cleanup plans, agency discovery calls, service-area business reviews, notary/contractor/home-service website support.
 
-**Public route:** `/tools/gbp-audit-tracker/`
+**Product route:** `/tools/gbp-audit-tracker/`
+
+**App route:** `/tools/gbp-audit-tracker/app/`
 
 **Disclaimer:** This is a manual audit helper from Maxxed Technical Systems. It is not affiliated with Google. Rankings, traffic, calls, and leads are not guaranteed.
 
@@ -103,8 +124,8 @@ The score uses these section weights:
 
 ## Suggested next increments
 
-1. Add a first-class generated catalog card with a direct `Open tool` CTA.
-2. Add import/export JSON for moving audits between devices.
-3. Add white-label report branding fields.
-4. Add a Chrome extension wrapper for manual GBP tab-side audits.
-5. Add optional PDF export after the markdown flow is stable.
+1. Add import/export JSON for moving audits between devices.
+2. Add white-label report branding fields.
+3. Add a Chrome extension wrapper for manual GBP tab-side audits.
+4. Add optional PDF export after the markdown flow is stable.
+5. Add support/admin lead capture around completed reports.
