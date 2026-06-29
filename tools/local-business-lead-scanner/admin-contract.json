@@ -1,0 +1,65 @@
+{
+  "toolId": "local-business-lead-scanner",
+  "name": "Local Business Lead Scanner",
+  "category": "business-seo",
+  "status": "in-development",
+  "inputSchemaVersion": "1.0.0",
+  "reportSchemaVersion": "1.0.0",
+  "defaultPageCap": 10,
+  "hardPageCap": 25,
+  "exports": ["json", "csv"],
+  "inputs": [
+    {
+      "name": "url",
+      "label": "Public website URL",
+      "type": "url",
+      "required": true
+    },
+    {
+      "name": "businessName",
+      "label": "Expected business name",
+      "type": "text",
+      "required": false
+    },
+    {
+      "name": "phone",
+      "label": "Expected phone",
+      "type": "text",
+      "required": false
+    },
+    {
+      "name": "email",
+      "label": "Expected email",
+      "type": "email",
+      "required": false
+    },
+    {
+      "name": "cityStateOrServiceArea",
+      "label": "Expected city, state, or service area",
+      "type": "text",
+      "required": false
+    },
+    {
+      "name": "notes",
+      "label": "Review notes",
+      "type": "textarea",
+      "required": false
+    }
+  ],
+  "guardrails": [
+    "Public same-origin pages only",
+    "No credentialed crawling",
+    "No automated outreach",
+    "No private-source enrichment",
+    "No ranking guarantee",
+    "Review extracted contacts before use"
+  ],
+  "scoreWeights": {
+    "contactability": 25,
+    "napConsistency": 20,
+    "localSeoBasics": 20,
+    "trustReadiness": 15,
+    "conversionPaths": 10,
+    "technicalReadability": 10
+  }
+}
