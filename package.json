@@ -8,6 +8,7 @@
     "check:windows": "powershell -ExecutionPolicy Bypass -File ./scripts/check.ps1",
     "check": "node ./scripts/check.mjs",
     "validate": "node scripts/validate-site.mjs && node scripts/validate-artifact.mjs",
+    "gbp:check": "node tools/gbp-audit-tracker/tests/scoring.test.mjs && node scripts/validate-gbp-audit-tracker.mjs",
     "platform:check": "node ./scripts/check-platform.mjs",
     "runner:check": "node ./scripts/check-runner.mjs",
     "admin:seed": "node admin/src/seed-admin-data.mjs",
