@@ -6,12 +6,21 @@
   "label": "Full UX, discovery, and TV connection test",
   "description": "Runs Maxxed Remote's emulator-safe UI controls in sequence, attempts discovery and an optional real-TV connection, and produces structured evidence without claiming unobserved hardware behavior.",
   "runner": "powershell-adb",
-  "entrypoint": "maxxed-remote-full-test.ps1",
+  "entrypoint": "maxxed-remote-test.ps1",
   "timeoutSeconds": 1200,
   "requires": [
     "windows-powershell-7",
     "android-platform-tools",
     "android-device-or-emulator"
+  ],
+  "supportedScriptIds": [
+    "maxxed-remote-full-ux-connection",
+    "remote-launch",
+    "remote-navigation",
+    "remote-device-crud",
+    "remote-invalid-host",
+    "remote-physical-tv",
+    "full"
   ],
   "parameters": [
     { "id": "ApkPath", "type": "apk-file", "required": true },

@@ -1,2 +1,7 @@
 dist/
 site.tar.gz
+local-artifacts/
+*.apk
+platform/.env
+runner/work/
+runner/**/maxxed-*-test-*/

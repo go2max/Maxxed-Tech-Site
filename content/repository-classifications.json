@@ -1,0 +1,19 @@
+{
+  "go2max/ageless_recycling_calculator": { "classification": "Candidate utility", "mapping": "Waste and Recycling family", "decision": "Wait" },
+  "go2max/eve-bp-bot": { "classification": "Game companion", "mapping": "Game Companion Tools", "decision": "Wait" },
+  "go2max/java-snake-game": { "classification": "Reference project", "mapping": "None", "decision": "Pass" },
+  "go2max/java8-backend-app": { "classification": "Reference project", "mapping": "None", "decision": "Pass" },
+  "go2max/maxxed": { "classification": "Unresolved web application", "mapping": "Needs repository audit", "decision": "Wait" },
+  "go2max/Path-of-exile-ahk-script": { "classification": "Game automation reference", "mapping": "None", "decision": "Pass" },
+  "go2max/Payroll_Accounting": { "classification": "Business utility", "mapping": "Finance and Business Operations", "decision": "Wait" },
+  "go2max/phone_scanner": { "classification": "Mobile utility concept", "mapping": "Visual Measurement suite", "decision": "Merge" },
+  "go2max/Post-Purge-Pro": { "classification": "WordPress plugin", "mapping": "MTS-0133 WordPress Bulk Content Cleanup", "decision": "Merge" },
+  "go2max/spring-react-web-app": { "classification": "Reference project", "mapping": "None", "decision": "Pass" },
+  "go2max/techmaxxed": { "classification": "Company-site duplicate", "mapping": "Maxxed Technical Systems website", "decision": "Merge" },
+  "go2max/url_checker": { "classification": "Web utility concept", "mapping": "Website Maintenance Reporter", "decision": "Merge" },
+  "Maxxed-Technical-Systems/kakesa-alt-1": { "classification": "Website duplicate", "mapping": "Kakesa canonical site", "decision": "Merge" },
+  "Maxxed-Technical-Systems/kakesa-alt-2": { "classification": "Website duplicate", "mapping": "Kakesa canonical site", "decision": "Merge" },
+  "Maxxed-Technical-Systems/kakesa-og": { "classification": "Website baseline", "mapping": "Kakesa canonical site", "decision": "Merge" },
+  "Maxxed-Technical-Systems/onepagetest": { "classification": "Website experiment", "mapping": "None", "decision": "Pass" },
+  "Maxxed-Technical-Systems/techmaxxed": { "classification": "Company website", "mapping": "Maxxed Technical Systems website", "decision": "Merge" }
+}

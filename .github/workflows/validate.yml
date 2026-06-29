@@ -1,0 +1,24 @@
+name: Validate Maxxed Platform
+
+on:
+  pull_request:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate public site, private platform, and runner contracts
+        run: npm run check
+      - name: Verify saved GitHub inventory is fully classified
+        run: node scripts/audit-github-apps.mjs --input reports/github-app-inventory.json --output /tmp/maxxed-inventory --fail-on-unmapped

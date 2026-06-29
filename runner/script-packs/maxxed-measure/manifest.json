@@ -1,0 +1,8 @@
+{
+  "id": "maxxed-measure-runner", "app": "maxxed-measure", "packageId": "com.maxxed.measure", "version": 1,
+  "label": "Maxxed Measure complete test runner", "runner": "powershell-adb", "entrypoint": "maxxed-measure-test.ps1", "timeoutSeconds": 1200,
+  "supportedScriptIds": ["measure-launch", "measure-fixtures", "measure-history", "measure-invalid-calibration", "measure-physical", "full"],
+  "requires": ["powershell-7", "android-platform-tools", "android-device-or-emulator"],
+  "parameters": [{"id":"ApkPath","type":"apk-file","required":true},{"id":"TestId","type":"approved-script-id","required":true},{"id":"DeviceSerial","type":"adb-serial","required":false}],
+  "outputs": ["result-json", "logcat", "screenshots", "package-metadata", "memory-snapshot"], "exitCodes": {"0":"pass","1":"fail","2":"blocked-or-manual-review"}
+}
