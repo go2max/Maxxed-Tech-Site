@@ -9,6 +9,7 @@ const commands = [
   ["node", ["./scripts/build.mjs"]],
   ["node", ["./scripts/validate-site.mjs"]],
   ["node", ["./scripts/validate-artifact.mjs"]],
+  ["node", ["./scripts/validate-web-launch-qa-pro.mjs"]],
 ];
 
 if (existsSync(resolve(root, "platform"))) {
