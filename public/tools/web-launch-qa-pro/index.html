@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Launch QA Pro | Maxxed Technical Systems</title>
+  <meta name="description" content="Run a structured website launch QA checklist, score readiness, and export a client-ready launch report.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://techmaxxed.com/tools/web-launch-qa-pro/">
+  <style>
+    :root { color-scheme: dark; --bg:#07131f; --panel:#0e2033; --muted:#9fb4c8; --text:#f4fbff; --accent:#7dd3fc; --warn:#facc15; --bad:#fb7185; --good:#86efac; --line:#1e3a56; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: radial-gradient(circle at top left, #12385c 0, var(--bg) 42rem); color: var(--text); }
+    a { color: var(--accent); }
+    .wrap { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    header { padding: 22px 0; border-bottom: 1px solid var(--line); background: rgba(7,19,31,.82); backdrop-filter: blur(14px); position: sticky; top: 0; z-index: 3; }
+    .nav { display:flex; justify-content:space-between; gap:16px; align-items:center; }
+    .brand { font-weight:800; text-decoration:none; color:var(--text); letter-spacing:.02em; }
+    .brand span { background: var(--accent); color:#03101d; border-radius:10px; padding:7px 9px; margin-right:8px; }
+    .hero { padding: 58px 0 34px; display:grid; grid-template-columns: 1.15fr .85fr; gap: 28px; align-items: stretch; }
+    .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: .14em; font-size: .76rem; font-weight: 800; margin: 0 0 10px; }
+    h1 { font-size: clamp(2.1rem, 5vw, 4.7rem); line-height: .95; margin:0 0 18px; }
+    h2 { margin:0 0 12px; font-size: clamp(1.35rem, 3vw, 2rem); }
+    p { color: var(--muted); line-height:1.65; }
+    .lede { font-size: 1.1rem; max-width: 760px; }
+    .panel, .card, .scorecard { background: linear-gradient(180deg, rgba(14,32,51,.96), rgba(9,25,42,.96)); border:1px solid var(--line); border-radius:24px; box-shadow: 0 24px 70px rgba(0,0,0,.24); }
+    .panel { padding: 24px; }
+    .scorecard { padding: 24px; display:grid; gap:14px; align-content:start; }
+    .score { font-size: 4.2rem; font-weight:900; line-height:1; }
+    .score small { font-size: 1rem; color: var(--muted); }
+    .meter { height: 12px; background:#07131f; border:1px solid var(--line); border-radius:999px; overflow:hidden; }
+    .meter > span { display:block; height:100%; width:0; background: linear-gradient(90deg, var(--bad), var(--warn), var(--good)); transition: width .2s ease; }
+    .grid { display:grid; grid-template-columns: 1fr 360px; gap: 22px; align-items:start; padding: 20px 0 54px; }
+    .card { padding: 20px; margin-bottom: 16px; }
+    label { display:block; color: var(--text); font-weight:700; margin: 14px 0 6px; }
+    input, textarea, select { width:100%; border:1px solid var(--line); background:#07131f; color: var(--text); padding: 12px 13px; border-radius:14px; font:inherit; }
+    textarea { min-height: 96px; resize: vertical; }
+    .checks { display:grid; gap:10px; }
+    .check { display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:start; padding:12px; border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,.025); }
+    .check input { width:auto; margin-top:3px; }
+    .check strong { display:block; }
+    .check small { color:var(--muted); line-height:1.45; }
+    .weight { color: var(--accent); font-weight:800; font-size:.8rem; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+    button, .button { border:0; border-radius:999px; padding:12px 16px; font-weight:800; cursor:pointer; background:var(--accent); color:#03101d; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
+    button.secondary { background:transparent; color:var(--text); border:1px solid var(--line); }
+    .result-list { display:grid; gap:10px; margin:0; padding:0; list-style:none; }
+    .result-list li { border:1px solid var(--line); border-radius:14px; padding:11px; color:var(--muted); }
+    .badge { display:inline-block; border-radius:999px; padding:5px 9px; font-size:.75rem; font-weight:800; background:#102a44; color:var(--accent); margin-right:6px; }
+    .footer { border-top:1px solid var(--line); padding:24px 0; color:var(--muted); }
+    @media (max-width: 900px) { .hero, .grid { grid-template-columns:1fr; } header { position:static; } }
+  </style>
+</head>
+<body>
+  <header><div class="wrap nav"><a class="brand" href="/"><span>MTS</span>Maxxed Technical Systems</a><a class="button" href="/support/">Support</a></div></header>
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Powerhouse utility MVP</p>
+        <h1>Web Launch QA Pro</h1>
+        <p class="lede">A structured pre-launch gate for client sites, product pages, and fast static deployments. Score readiness, identify launch blockers, and export a clean report before pushing live.</p>
+        <div class="actions"><a class="button" href="#qa-form">Start launch check</a><button class="secondary" id="loadExample" type="button">Load example</button></div>
+      </div>
+      <aside class="scorecard" aria-live="polite">
+        <p class="eyebrow">Readiness score</p>
+        <div class="score"><span id="score">0</span><small>/100</small></div>
+        <div class="meter" aria-hidden="true"><span id="meter"></span></div>
+        <p id="verdict">Complete the checklist to generate a launch verdict.</p>
+        <ul class="result-list" id="summaryList"></ul>
+      </aside>
+    </section>
+
+    <section class="grid" id="qa-form">
+      <form class="panel" id="launchForm">
+        <p class="eyebrow">Project profile</p>
+        <h2>Site details</h2>
+        <label for="siteName">Site or client name</label><input id="siteName" name="siteName" placeholder="Example: TechMaxxed.com launch pass">
+        <label for="siteUrl">Launch URL</label><input id="siteUrl" name="siteUrl" placeholder="https://example.com">
+        <label for="owner">Owner / reviewer</label><input id="owner" name="owner" placeholder="Maxxed Technical Systems">
+        <label for="notes">Launch notes</label><textarea id="notes" name="notes" placeholder="Known risks, pages reviewed, deploy target, remaining approval notes..."></textarea>
+
+        <div id="checkGroups"></div>
+        <div class="actions">
+          <button type="button" id="copyReport">Copy report</button>
+          <button type="button" id="downloadReport" class="secondary">Download Markdown</button>
+          <button type="reset" class="secondary">Reset</button>
+        </div>
+      </form>
+
+      <aside>
+        <article class="card">
+          <p class="eyebrow">Fix first</p>
+          <h2>Priority blockers</h2>
+          <ul class="result-list" id="blockers"><li>No blockers calculated yet.</li></ul>
+        </article>
+        <article class="card">
+          <p class="eyebrow">What this MVP covers</p>
+          <p><span class="badge">SEO</span><span class="badge">UX</span><span class="badge">Legal</span><span class="badge">Deploy</span></p>
+          <p>Designed for fast website launches where the value is a repeatable go/no-go gate, not a heavy crawler. It pairs well with Maxxed SEO Checker and Local Business Lead Scanner.</p>
+        </article>
+      </aside>
+    </section>
+  </main>
+  <footer class="footer"><div class="wrap">Email <a href="mailto:support@techmaxxed.com">support@techmaxxed.com</a> for Web Launch QA Pro support.</div></footer>
+
+  <script>
+    const groups = [
+      { title: 'SEO and crawlability', items: [
+        ['Unique title and meta description on key pages', 8, 'Home, service/product, support/contact, legal pages reviewed.'],
+        ['Canonical, robots.txt, and sitemap are launch-safe', 8, 'No accidental noindex, blocked assets, or stale sitemap paths.'],
+        ['Open Graph/social preview is present', 4, 'Title, description, URL, and share image are ready.'],
+        ['Structured data is valid where applicable', 5, 'Organization, local business, product, FAQ, or article schema checked.']
+      ]},
+      { title: 'Content and conversion', items: [
+        ['Primary call to action is visible above the fold', 8, 'Visitor can immediately request support, join beta, buy, book, or contact.'],
+        ['Every major page has clear support/contact access', 6, 'No dead-end product page or service page.'],
+        ['Thin placeholder copy removed', 7, 'No lorem ipsum, vague cards, or unfinished launch promises.'],
+        ['Mobile layout reviewed on narrow screens', 7, 'Navigation, cards, form controls, and footer remain usable.']
+      ]},
+      { title: 'Trust, legal, and accessibility', items: [
+        ['Privacy, terms, and accessibility pages exist', 7, 'Public trust pages are linked and readable.'],
+        ['Business/support email is correct', 5, 'Support routing points to support@techmaxxed.com where applicable.'],
+        ['Images and icons have meaningful alt or decorative handling', 5, 'Important visuals are not invisible to assistive tech.'],
+        ['Keyboard focus and contrast pass a basic manual check', 6, 'Buttons, links, and inputs are reachable and readable.']
+      ]},
+      { title: 'Launch operations', items: [
+        ['404 page and broken-link check are clean', 8, 'Internal links route correctly and missing pages are handled.'],
+        ['Build/check command passes locally or in CI', 8, 'The repo has a repeatable validation command.'],
+        ['Analytics/measurement decision is documented', 4, 'Either intentionally absent or configured without hidden assumptions.'],
+        ['Final owner approval captured', 4, 'The person responsible for launch has signed off.']
+      ]}
+    ];
+
+    const checkGroups = document.querySelector('#checkGroups');
+    const form = document.querySelector('#launchForm');
+    const scoreEl = document.querySelector('#score');
+    const meter = document.querySelector('#meter');
+    const verdict = document.querySelector('#verdict');
+    const summaryList = document.querySelector('#summaryList');
+    const blockers = document.querySelector('#blockers');
+
+    function renderChecks() {
+      checkGroups.innerHTML = groups.map((group, groupIndex) => `<section class="card"><p class="eyebrow">${group.title}</p><div class="checks">${group.items.map(([label, weight, help], itemIndex) => {
+        const id = `g${groupIndex}i${itemIndex}`;
+        return `<label class="check" for="${id}"><input type="checkbox" id="${id}" data-label="${label}" data-weight="${weight}" data-group="${group.title}"><span><strong>${label}</strong><small>${help}</small></span><span class="weight">${weight}</span></label>`;
+      }).join('')}</div></section>`).join('');
+    }
+
+    function checkedItems() { return [...document.querySelectorAll('[data-weight]')].filter(input => input.checked); }
+    function allItems() { return [...document.querySelectorAll('[data-weight]')]; }
+
+    function currentScore() {
+      return checkedItems().reduce((sum, item) => sum + Number(item.dataset.weight), 0);
+    }
+
+    function updateScore() {
+      const score = currentScore();
+      scoreEl.textContent = score;
+      meter.style.width = `${score}%`;
+      let text = 'Launch blocked: complete the required QA items before shipping.';
+      if (score >= 90) text = 'Launch-ready: only final human review and deployment timing remain.';
+      else if (score >= 75) text = 'Near-ready: resolve the highest-weight misses before publishing.';
+      else if (score >= 55) text = 'Needs work: several launch fundamentals are still incomplete.';
+      verdict.textContent = text;
+
+      const missing = allItems().filter(item => !item.checked).sort((a,b) => Number(b.dataset.weight) - Number(a.dataset.weight));
+      blockers.innerHTML = missing.slice(0, 5).map(item => `<li><strong>${item.dataset.label}</strong><br><span>${item.dataset.group} · ${item.dataset.weight} points</span></li>`).join('') || '<li>No priority blockers remain.</li>';
+      const doneByGroup = groups.map(group => {
+        const items = allItems().filter(item => item.dataset.group === group.title);
+        const done = items.filter(item => item.checked).length;
+        return `<li>${group.title}: ${done}/${items.length} complete</li>`;
+      }).join('');
+      summaryList.innerHTML = doneByGroup;
+    }
+
+    function reportMarkdown() {
+      const data = new FormData(form);
+      const missing = allItems().filter(item => !item.checked);
+      const done = checkedItems();
+      return `# Web Launch QA Pro Report\n\n` +
+        `**Site:** ${data.get('siteName') || 'Untitled site'}\n` +
+        `**URL:** ${data.get('siteUrl') || 'Not provided'}\n` +
+        `**Owner:** ${data.get('owner') || 'Not provided'}\n` +
+        `**Score:** ${currentScore()}/100\n\n` +
+        `## Verdict\n${verdict.textContent}\n\n` +
+        `## Launch notes\n${data.get('notes') || 'None'}\n\n` +
+        `## Completed checks\n${done.map(item => `- [x] ${item.dataset.label} (${item.dataset.weight})`).join('\n') || '- None'}\n\n` +
+        `## Remaining checks\n${missing.map(item => `- [ ] ${item.dataset.label} (${item.dataset.group}, ${item.dataset.weight})`).join('\n') || '- None'}\n`;
+    }
+
+    renderChecks();
+    updateScore();
+    form.addEventListener('input', updateScore);
+    form.addEventListener('reset', () => setTimeout(updateScore));
+    document.querySelector('#copyReport').addEventListener('click', async () => { await navigator.clipboard.writeText(reportMarkdown()); });
+    document.querySelector('#downloadReport').addEventListener('click', () => {
+      const blob = new Blob([reportMarkdown()], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), { href: url, download: 'web-launch-qa-report.md' });
+      a.click(); URL.revokeObjectURL(url);
+    });
+    document.querySelector('#loadExample').addEventListener('click', () => {
+      form.siteName.value = 'TechMaxxed product page launch pass';
+      form.siteUrl.value = 'https://techmaxxed.com/tools/web-launch-qa-pro/';
+      form.owner.value = 'Maxxed Technical Systems';
+      form.notes.value = 'Example launch review for a static public tool page.';
+      allItems().forEach((item, index) => item.checked = index < 12);
+      updateScore();
+      location.hash = 'qa-form';
+    });
+  </script>
+</body>
+</html>
