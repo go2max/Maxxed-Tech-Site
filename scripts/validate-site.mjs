@@ -58,6 +58,13 @@ for (const file of htmlFiles) {
   assert.match(html, /<meta property="og:title"/, `${filePath} needs Open Graph metadata`);
   if (filePath !== "/404.html") assert.match(html, /<link rel="canonical" href="https:\/\/techmaxxed\.com\//, `${filePath} needs a canonical URL`);
 
+  const structuredDataBlocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => match[1]);
+  assert.ok(structuredDataBlocks.length >= 1, `${filePath} needs JSON-LD structured data`);
+  for (const block of structuredDataBlocks) {
+    const parsed = JSON.parse(block);
+    assert.ok(parsed["@type"], `${filePath} JSON-LD block needs an @type`);
+  }
+
   const references = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((match) => match[1]);
   const isPublicPage = !filePath.startsWith("/admin/");
   if (isPublicPage) {

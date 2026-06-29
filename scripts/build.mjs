@@ -29,6 +29,21 @@ const jsonLd = (value) => JSON.stringify(value).replaceAll("<", "\\u003c");
 const allPublicProducts = [...apps, ...wordpressPlugins, ...repoProducts, ...powerhouseProducts];
 const publicSiteCss = resolve(root, "public/assets/site.css");
 
+function faqSchema(faqs) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map(([question, answer]) => ({
+      "@type": "Question",
+      name: question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: answer,
+      },
+    })),
+  };
+}
+
 function googleTag() {
   return `<script async src="https://www.googletagmanager.com/gtag/js?id=${googleTagId}"></script>
   <script>
@@ -337,7 +352,10 @@ function seoLandingPage({ title, path, eyebrow, heading, lede, intro, cards, car
   <section class="shell section"><div class="section-head"><div><p class="eyebrow">Recommended products</p><h2>Start here</h2></div><p>${escapeHtml(intro)}</p></div><div class="app-grid">${cards.map((item) => cardRenderer(item)).join("")}</div></section>
   <section class="band"><div class="shell section"><div class="section-head"><div><p class="eyebrow">Questions</p><h2>What customers usually ask</h2></div><p>Use these notes to choose the right product or send a cleaner support request.</p></div><div class="faq-list">${faqs.map(([question, answer]) => `<details><summary>${escapeHtml(question)}</summary><p>${escapeHtml(answer)}</p></details>`).join("")}</div></div></section>
   ${contactBand(1, `Need help with ${supportSubject}?`)}`;
-  const schema = [{ "@context": "https://schema.org", "@type": "CollectionPage", name: heading, url: canonical(path), description: lede, mainEntity: { "@type": "ItemList", numberOfItems: cards.length, itemListElement: cards.map((item, index) => ({ "@type": "ListItem", position: index + 1, name: item.name })) } }];
+  const schema = [
+    { "@context": "https://schema.org", "@type": "CollectionPage", name: heading, url: canonical(path), description: lede, mainEntity: { "@type": "ItemList", numberOfItems: cards.length, itemListElement: cards.map((item, index) => ({ "@type": "ListItem", position: index + 1, name: item.name })) } },
+    faqSchema(faqs),
+  ];
   return layout({ title, description: lede, path, depth: 1, current: "apps", body, schema });
 }
 
@@ -526,6 +544,12 @@ function supportPage() {
   ];
   const issueOptions = issueTypes.map(([name]) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
   const issueCards = issueTypes.map(([name, text]) => `<button class="ticket-type" type="button" data-issue-preset="${escapeHtml(name)}"><h3>${escapeHtml(name)}</h3><p>${escapeHtml(text)}</p></button>`).join("");
+  const faqs = [
+    ["What should a bug report include?", "App name and version, phone model, Android version, exact steps, expected result, actual result, and a screenshot when it does not expose sensitive information."],
+    ["Where are downloads and Play Store links?", "Links will appear on each product page only after that app reaches its verified public release state."],
+    ["Can support recover deleted local data?", "Usually not. Several Maxxed apps intentionally keep records on the device and do not maintain a cloud copy."],
+    ["How do I become a beta tester?", "Use the beta tester application to select the Android apps you want to test. Participation is voluntary and unpaid, with optional public credit."],
+  ];
   const quickHelp = [
     ["Maxxed Remote", "Check that the phone and TV are on the same private network, then approve the pairing request on the television."],
     ["Maxxed Compass", "Move away from magnetic cases, chargers, vehicles, and steel structures before recalibrating the device."],
@@ -537,8 +561,8 @@ function supportPage() {
   const body = `<section class="band"><div class="shell section compact"><p class="eyebrow">Product help</p><h1>Help &amp; Support</h1><p class="lede">Start with the product guidance below, or prepare a structured ticket with the app, issue type, device details, exact steps, expected result, and actual result.</p></div></section>
   <section class="shell section compact"><div class="section-head"><div><p class="eyebrow">Quick help</p><h2>Start with the app</h2></div><p>These checks address common setup and test-build questions without exposing private operational information.</p></div><div class="support-grid">${quickHelp}</div></section>
   <section class="band"><div class="shell section"><div class="section-head"><div><p class="eyebrow">Ticket routing</p><h2>Choose the right request type</h2></div><p>The ticket form builds an email with the fields support needs to reproduce the issue or answer cleanly.</p></div><div class="ticket-type-grid">${issueCards}</div><form class="ticket-form" data-support-form data-email="${site.email}" data-privacy-email="${site.privacyEmail}"><div class="field"><label for="support-app">App</label><select id="support-app" name="app" data-support-select>${options}</select></div><div class="field"><label for="support-issue">Request type</label><select id="support-issue" name="issueType" data-support-issue>${issueOptions}</select></div><div class="field"><label for="support-severity">Severity</label><select id="support-severity" name="severity"><option>Question</option><option>Minor issue</option><option>Blocks testing</option><option>Crash or data loss</option></select></div><div class="field"><label for="support-device">Device and Android version</label><input id="support-device" name="device" type="text" maxlength="120" placeholder="Example: Samsung S22 Ultra, Android 16"></div><div class="field full"><label for="support-steps">Steps to reproduce or request details</label><textarea id="support-steps" name="steps" maxlength="1600" placeholder="What did you tap or try? What screen were you on?"></textarea></div><div class="field"><label for="support-expected">Expected result</label><textarea id="support-expected" name="expected" maxlength="700"></textarea></div><div class="field"><label for="support-actual">Actual result</label><textarea id="support-actual" name="actual" maxlength="700"></textarea></div><div class="consent-list full"><label><input type="checkbox" name="safeInfo" required><span>I will not include passwords, upload keys, signing material, payment data, or sensitive location history.</span></label></div><div class="form-actions"><button class="button" type="submit">Prepare support ticket email</button><a class="button secondary" data-support-link data-email="${site.email}" href="mailto:${site.email}">Quick email</a><p class="form-status" data-support-status aria-live="polite"></p></div><noscript><p>Email ${site.email} with the app, request type, device, Android version, steps, expected result, and actual result.</p></noscript></form></div></section>
-  <section class="shell section"><div class="section-head"><div><p class="eyebrow">Before contacting support</p><h2>Useful details</h2></div><p>Never email passwords, upload keys, private signing material, full payment information, or sensitive location history.</p></div><div class="faq-list"><details><summary>What should a bug report include?</summary><p>App name and version, phone model, Android version, exact steps, expected result, actual result, and a screenshot when it does not expose sensitive information.</p></details><details><summary>Where are downloads and Play Store links?</summary><p>Links will appear on each product page only after that app reaches its verified public release state.</p></details><details><summary>Can support recover deleted local data?</summary><p>Usually not. Several Maxxed apps intentionally keep records on the device and do not maintain a cloud copy.</p></details><details><summary>How do I become a beta tester?</summary><p>Use the beta tester application to select the Android apps you want to test. Participation is voluntary and unpaid, with optional public credit.</p></details></div></section>`;
-  return layout({ title: "Help & Support", description: "Get help and support for Maxxed Android apps and WordPress plugin workflows with app-specific ticket routing.", path: "support/", depth: 1, current: "support", body });
+  <section class="shell section"><div class="section-head"><div><p class="eyebrow">Before contacting support</p><h2>Useful details</h2></div><p>Never email passwords, upload keys, private signing material, full payment information, or sensitive location history.</p></div><div class="faq-list">${faqs.map(([question, answer]) => `<details><summary>${escapeHtml(question)}</summary><p>${escapeHtml(answer)}</p></details>`).join("")}</div></section>`;
+  return layout({ title: "Help & Support", description: "Get help and support for Maxxed Android apps and WordPress plugin workflows with app-specific ticket routing.", path: "support/", depth: 1, current: "support", body, schema: [faqSchema(faqs)] });
 }
 
 function privacyPage() {
