@@ -6,7 +6,7 @@ This utility is intentionally review-first. It extracts public-page signals and 
 
 ## What it checks
 
-- Visible emails and phone numbers
+- Visible emails and phone numbers, including common human-readable obfuscation such as `name [at] domain [dot] com`
 - Contact links and contact forms
 - Local business language, hours, map/address cues, and service-area phrases
 - LocalBusiness or Organization JSON-LD
@@ -85,6 +85,10 @@ console.log(toCsv(report));
   "summary": "https://example.com/ scored 78/100 for local lead readiness..."
 }
 ```
+
+## Production operations
+
+See [`OPERATIONS.md`](OPERATIONS.md) before connecting this scanner to an admin runner, queue, or hosted endpoint. The pure scanner accepts an injected fetch layer; the caller is responsible for request timeouts, rate limits, same-origin enforcement, credential exclusion, and retention policy.
 
 ## Test fixtures
 
