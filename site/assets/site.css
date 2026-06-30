@@ -510,3 +510,53 @@ p { margin-bottom: 18px; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; }
 }
+
+/* Hotfix: support the current generated public header shape and suppress accidental public admin links. */
+.site-header {
+  min-height: 70px;
+  padding-inline: max(16px, calc((100% - var(--max)) / 2));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.site-header .nav-shell {
+  padding-inline: 0;
+}
+.site-header > nav[aria-label="Primary"],
+.site-header > nav[aria-label="Primary navigation"] {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.site-header > nav[aria-label="Primary"] a,
+.site-header > nav[aria-label="Primary navigation"] a {
+  color: var(--muted);
+  font-size: 14px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.site-header > nav[aria-label="Primary"] a:hover,
+.site-header > nav[aria-label="Primary"] a[aria-current="page"],
+.site-header > nav[aria-label="Primary navigation"] a:hover,
+.site-header > nav[aria-label="Primary navigation"] a[aria-current="page"] {
+  color: var(--ink);
+}
+.site-header > nav[aria-label="Primary"] a[href*="admin"],
+.site-header > nav[aria-label="Primary navigation"] a[href*="admin"],
+.site-header > nav[aria-label="Primary"] a[href*="Admin"],
+.site-header > nav[aria-label="Primary navigation"] a[href*="Admin"] {
+  display: none !important;
+}
+@media (max-width: 720px) {
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-block: 14px;
+  }
+  .site-header > nav[aria-label="Primary"],
+  .site-header > nav[aria-label="Primary navigation"] {
+    flex-wrap: wrap;
+    gap: 12px 18px;
+  }
+}
