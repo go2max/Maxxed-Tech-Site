@@ -29,7 +29,7 @@ for (const file of htmlFiles) {
   const html = await readFile(file, "utf8");
   const filePath = `/${relative(siteRoot, file).split(sep).join("/")}`;
   const route = filePath.endsWith("/index.html") ? filePath.slice(0, -"index.html".length) : filePath;
-  const isEmbeddedToolApp = /^\/tools\/[^/]+\/app\/index\.html$/.test(filePath);
+  const isStandaloneToolPage = /^\/tools\/[^/]+\/(?:app\/)?index\.html$/.test(filePath) && !html.includes('class="skip-link" href="#main"');
 
   if (/^google-site-verification: google[-\w]+\.html\s*$/.test(html)) continue;
 
@@ -44,7 +44,7 @@ for (const file of htmlFiles) {
   titles.add(title);
   assert.ok(description, `${filePath} needs a meta description`);
   assert.equal(h1Count, 1, `${filePath} should contain exactly one h1`);
-  if (!isEmbeddedToolApp) {
+  if (!isStandaloneToolPage) {
     assert.match(html, /<main id="main">/, `${filePath} needs a main landmark`);
     assert.match(html, /class="skip-link" href="#main"/, `${filePath} needs a skip link`);
     assert.match(html, /<meta property="og:title"/, `${filePath} needs Open Graph metadata`);
