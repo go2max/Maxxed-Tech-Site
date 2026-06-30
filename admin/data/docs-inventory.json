@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-30",
+  "docs": [
+    {
+      "id": "portal-architecture",
+      "title": "Portal architecture",
+      "path": "admin/docs/PORTAL_ARCHITECTURE.md",
+      "group": "foundation"
+    },
+    {
+      "id": "page-template",
+      "title": "Page template",
+      "path": "admin/docs/PAGE_TEMPLATE.md",
+      "group": "foundation"
+    },
+    {
+      "id": "data-conventions",
+      "title": "Data conventions",
+      "path": "admin/docs/DATA_CONVENTIONS.md",
+      "group": "foundation"
+    },
+    {
+      "id": "backend-skeleton",
+      "title": "Backend skeleton",
+      "path": "admin/docs/WORKER_BACKEND_SKELETON.md",
+      "group": "system"
+    },
+    {
+      "id": "readiness-checklist",
+      "title": "Readiness checklist",
+      "path": "admin/docs/LOGIN_VERIFICATION_CHECKLIST.md",
+      "group": "system"
+    }
+  ]
+}
