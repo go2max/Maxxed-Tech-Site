@@ -1,0 +1,52 @@
+{
+  "name": "maxxed-admin-deployment-checklist",
+  "scope": "private_admin_only",
+  "requiredAccessGate": true,
+  "publicExposureAllowed": false,
+  "items": [
+    {
+      "id": "admin_access_gate",
+      "label": "Admin access gate configured",
+      "required": true,
+      "notes": "All admin pages and admin APIs must be behind Cloudflare Access or an equivalent authenticated admin gate."
+    },
+    {
+      "id": "report_worker_route",
+      "label": "Report worker route configured",
+      "required": true,
+      "notes": "Route admin.techmaxxed.com/api/report/* to admin/api/report-worker.mjs."
+    },
+    {
+      "id": "report_page_private",
+      "label": "Report page is private",
+      "required": true,
+      "notes": "Serve admin/report/index.html only through the private admin host or protected admin path."
+    },
+    {
+      "id": "public_links_guard",
+      "label": "Public pages do not link to private admin routes",
+      "required": true,
+      "notes": "Public navigation and public pages must not link to /admin/report/ or /api/report/seed."
+    },
+    {
+      "id": "read_only_report",
+      "label": "Seed report remains read-only",
+      "required": true,
+      "notes": "The report endpoint must not create, update, delete, seed, bill, or modify customer state."
+    },
+    {
+      "id": "local_validation",
+      "label": "Local validation completed",
+      "required": true,
+      "notes": "Run the admin deploy validation script and npm check before deployment."
+    }
+  ],
+  "commands": [
+    "node admin/tests/report-deploy-manifest.test.mjs",
+    "node admin/tests/report-worker.test.mjs",
+    "node admin/tests/admin-report-page.test.mjs",
+    "node admin/tests/seed-report.test.mjs",
+    "node admin/tests/public-admin-link-guard.test.mjs",
+    "npm run check"
+  ]
+}
