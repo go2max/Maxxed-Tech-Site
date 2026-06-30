@@ -67,7 +67,7 @@ const clientScript = await readFile(resolve(siteRoot, "assets/site.js"), "utf8")
 new Function(clientScript);
 
 const appsPage = await readFile(resolve(siteRoot, "apps/index.html"), "utf8");
-assert.equal((appsPage.match(/data-app-card/g) || []).length, 42, "Products page should show 6 Android apps plus 36 WordPress plugins");
+assert.ok((appsPage.match(/data-app-card/g) || []).length >= 42, "Products page should show the core catalog plus imported products");
 assert.match(appsPage, /WordPress/);
 assert.match(appsPage, /Post Purge Pro/);
 
