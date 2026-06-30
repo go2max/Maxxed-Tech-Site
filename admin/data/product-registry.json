@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-30",
+  "products": [
+    {
+      "id": "maxxed-remote",
+      "name": "Maxxed Remote",
+      "category": "Android app",
+      "section": "products",
+      "stage": "internal-test",
+      "supportEmail": "support@techmaxxed.com",
+      "adminPath": "/admin/products/maxxed-remote/",
+      "nextAction": "Confirm latest signed bundle and physical TV acceptance path"
+    },
+    {
+      "id": "maxxed-compass",
+      "name": "Maxxed Compass",
+      "category": "Android app",
+      "section": "products",
+      "stage": "release-prep",
+      "supportEmail": "support@techmaxxed.com",
+      "adminPath": "/admin/products/maxxed-compass/",
+      "nextAction": "Run outdoor sensor and battery validation"
+    },
+    {
+      "id": "maxxed-measure",
+      "name": "Maxxed Measure",
+      "category": "Android app",
+      "section": "products",
+      "stage": "active-build",
+      "supportEmail": "support@techmaxxed.com",
+      "adminPath": "/admin/products/maxxed-measure/",
+      "nextAction": "Polish measurement workflow and validation confidence"
+    },
+    {
+      "id": "fishing-maxxed",
+      "name": "Fishing Maxxed",
+      "category": "Android app",
+      "section": "products",
+      "stage": "active-build",
+      "supportEmail": "support@techmaxxed.com",
+      "adminPath": "/admin/products/fishing-maxxed/",
+      "nextAction": "Validate catch measurement and regulation safety"
+    },
+    {
+      "id": "rival-rush",
+      "name": "Rival Rush",
+      "category": "Android game",
+      "section": "products",
+      "stage": "internal-test",
+      "supportEmail": "support@techmaxxed.com",
+      "adminPath": "/admin/products/rival-rush/",
+      "nextAction": "Run crash, scene navigation, and gameplay regression"
+    },
+    {
+      "id": "techmaxxed-site",
+      "name": "TechMaxxed Site",
+      "category": "Website",
+      "section": "operations",
+      "stage": "active",
+      "supportEmail": "support@techmaxxed.com",
+      "adminPath": "/admin/operations/",
+      "nextAction": "Keep support routing and admin portal map current"
+    },
+    {
+      "id": "bunch-signing",
+      "name": "A. Bunch Mobile Notary",
+      "category": "Client website",
+      "section": "support",
+      "stage": "active",
+      "supportEmail": "support@bunchsigning.com",
+      "adminPath": "/admin/support-verification/",
+      "nextAction": "Verify quote and contact routing"
+    }
+  ]
+}
