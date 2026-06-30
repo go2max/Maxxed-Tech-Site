@@ -58,6 +58,11 @@ for (const file of htmlFiles) {
   assert.match(html, /<meta property="og:title"/, `${filePath} needs Open Graph metadata`);
   if (filePath !== "/404.html") assert.match(html, /<link rel="canonical" href="https:\/\/techmaxxed\.com\//, `${filePath} needs a canonical URL`);
 
+  const primaryNav = html.match(/<nav class="nav-links" id="primary-nav"[\s\S]*?<\/nav>/)?.[0];
+  assert.ok(primaryNav, `${filePath} needs the public primary navigation`);
+  assert.doesNotMatch(primaryNav, />\s*Admin\s*</, `${filePath} public primary navigation must not include Admin`);
+  assert.doesNotMatch(primaryNav, /href="[^"]*admin/i, `${filePath} public primary navigation must not link to admin`);
+
   const images = [...html.matchAll(/<img\b([^>]*)>/g)].map((match) => match[1]);
   for (const attrs of images) {
     assert.match(attrs, /\salt="[^"]*"/, `${filePath} has an image without alt text`);

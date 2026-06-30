@@ -28,6 +28,7 @@ const canonical = (path = "") => `${site.url}/${path}`;
 const jsonLd = (value) => JSON.stringify(value).replaceAll("<", "\\u003c");
 const allPublicProducts = [...apps, ...wordpressPlugins, ...repoProducts, ...powerhouseProducts];
 const publicSiteCss = resolve(root, "public/assets/site.css");
+const criticalNavCss = ".site-header{position:sticky;top:0;z-index:30;border-bottom:1px solid rgba(255,255,255,.13);background:#07131f}.nav-shell{width:min(calc(100% - 32px),1180px);min-height:70px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand,.nav-links{display:flex;align-items:center}.brand{gap:11px;color:#f4f7f8;font-weight:850;text-decoration:none}.brand-mark{width:34px;aspect-ratio:1;border-radius:7px;display:grid;place-items:center;background:#b9ed45;color:#07131f;font-size:12px}.nav-links{gap:20px}.nav-links a{color:#a9b7be;font-size:14px;white-space:nowrap;text-decoration:none}.nav-button{min-height:44px;padding:0 18px;border-radius:7px;background:#b9ed45;color:#07131f!important;font-weight:800}@media(max-width:980px){.nav-toggle{display:grid;place-items:center}.nav-links{display:none;position:absolute;left:16px;right:16px;top:76px;padding:14px;border:1px solid rgba(255,255,255,.13);border-radius:8px;background:#0d1c28;flex-direction:column;align-items:stretch}.nav-links[data-open=true]{display:flex}.nav-links a{padding:10px 0}.nav-button{justify-content:center}}";
 
 function faqSchema(faqs) {
   return {
@@ -157,7 +158,7 @@ function header(depth, current, makeLink = link) {
       <a class="brand" href="${makeLink(depth)}" aria-label="Maxxed Technical Systems home"><span class="brand-mark" aria-hidden="true">MTS</span><span class="brand-name">Maxxed Technical Systems</span></a>
       <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation">☰</button>
       <nav class="nav-links" id="primary-nav" data-nav-links data-open="false" aria-label="Primary navigation">
-        ${nav.map(([key, label, path]) => `<a href="${makeLink(depth, path)}"${current === key ? ' aria-current="page"' : ""}>${label}</a>`).join("")}
+        ${nav.map(([key, label, path]) => `<a href="${makeLink(depth, path)}"${current === key ? ' aria-current="page"' : ""}>${label}</a>`).join("\n        ")}
         <a class="nav-button" href="${makeLink(depth, "support/")}">Get support</a>
       </nav>
     </div>
@@ -249,6 +250,7 @@ function layout({ title, description, path = "", depth = 0, current = "", body, 
   <meta name="theme-color" content="#07131f">
   <link rel="icon" href="${pageLink(depth, "assets/images/favicon.svg")}" type="image/svg+xml">
   <link rel="manifest" href="${pageLink(depth, "site.webmanifest")}">
+  <style>${criticalNavCss}</style>
   <link rel="stylesheet" href="${pageLink(depth, "assets/site.css")}">
   ${googleTag()}
   ${schemas.map((item) => `<script type="application/ld+json">${jsonLd(item)}</script>`).join("\n  ")}
