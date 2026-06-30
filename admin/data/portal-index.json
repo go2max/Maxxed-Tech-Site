@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-30",
+  "groups": [
+    {
+      "id": "foundation",
+      "label": "Foundation",
+      "items": [
+        "admin/docs/PORTAL_ARCHITECTURE.md",
+        "admin/docs/PAGE_TEMPLATE.md",
+        "admin/docs/DATA_CONVENTIONS.md",
+        "admin/data/navigation.json",
+        "admin/data/page-states.json"
+      ]
+    },
+    {
+      "id": "products",
+      "label": "Products",
+      "items": [
+        "admin/products/",
+        "admin/data/product-registry.json",
+        "admin/data/route-backlog.json"
+      ]
+    },
+    {
+      "id": "operations",
+      "label": "Operations",
+      "items": [
+        "admin/operations/",
+        "admin/data/domain-inventory.json",
+        "admin/data/release-artifacts.json"
+      ]
+    },
+    {
+      "id": "system",
+      "label": "System",
+      "items": [
+        "admin/system/",
+        "admin/contracts/README.md",
+        "admin/docs/WORKER_BACKEND_SKELETON.md"
+      ]
+    }
+  ]
+}
