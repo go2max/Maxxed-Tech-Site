@@ -7,12 +7,30 @@ export const packageIds = {
   'maxxed-gold-estimator': null,
   'fishing-maxxed': null,
   'rival-rush': 'com.maxxed_technical_systems.rivalrushlaunch',
+  'contract-extractor': null,
   'wordpress-bulk-content-cleanup': null
 };
+
+const supplementalProducts = [
+  {
+    slug: 'contract-extractor',
+    name: 'Contract Extractor',
+    shortName: 'Contract Extractor',
+    category: 'Web utility',
+    lifecycle: 'testing',
+    publicStatus: 'Testing',
+    currentTrack: 'live_board',
+    publicUrl: null,
+    privacyUrl: null,
+    sourceStatus: 'repo_confirmed',
+    notes: 'Contract Extractor v1.2.0 is committed to the org repo and moved to testing after clean clone validation passed.'
+  }
+];
 
 const lifecycleFromStatus = (status) => {
   const normalized = String(status || '').toLowerCase();
   if (normalized.includes('internal')) return 'internal_test';
+  if (normalized.includes('testing')) return 'testing';
   if (normalized.includes('release')) return 'release_prep';
   if (normalized.includes('development')) return 'development';
   if (normalized.includes('next')) return 'queued';
@@ -44,6 +62,31 @@ export function productSeedsFromPublicCatalog() {
   }));
 
   const known = new Set(seeded.map((product) => product.name));
+  for (const product of supplementalProducts) {
+    if (known.has(product.name)) continue;
+    seeded.push({
+      id: `prod_${product.slug}`,
+      slug: product.slug,
+      name: product.name,
+      shortName: product.shortName,
+      category: product.category,
+      packageId: packageIds[product.slug] ?? null,
+      lifecycle: product.lifecycle,
+      publicStatus: product.publicStatus,
+      currentTrack: product.currentTrack,
+      latestVersionName: '1.2.0',
+      latestVersionCode: null,
+      publicUrl: product.publicUrl,
+      privacyUrl: product.privacyUrl,
+      supportUrl: `${site.url}/support/`,
+      sourceStatus: product.sourceStatus,
+      notes: product.notes,
+      sortOrder: seeded.length + 1,
+      archived: false
+    });
+    known.add(product.name);
+  }
+
   for (const [name, status, notes] of roadmap) {
     if (known.has(name)) continue;
     const slug = slugify(name);
@@ -67,6 +110,7 @@ export function productSeedsFromPublicCatalog() {
       sortOrder: seeded.length + 1,
       archived: false
     });
+    known.add(name);
   }
 
   return seeded;
