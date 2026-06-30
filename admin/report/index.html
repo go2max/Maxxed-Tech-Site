@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Seed Report | Maxxed Admin</title>
+  <style>
+    :root{color-scheme:dark;--bg:#07131f;--panel:#0d1c2b;--panel2:#12263a;--text:#edf7ff;--muted:#9eb2c8;--line:#264158;--accent:#25d0d8;--warn:#ffc44d;--bad:#ff715b;--good:#b9ed45}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,system-ui,sans-serif}.wrap{max-width:1120px;margin:0 auto;padding:28px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;margin-bottom:20px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:800}.muted,small{color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.metrics div,.card{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:16px}.metrics strong{display:block;font-size:28px}.chip{display:inline-block;padding:4px 8px;border-radius:999px;background:#20394f;font-weight:800}.chip-ok{background:#314f20;color:var(--good)}.chip-blocked{background:#55281f;color:var(--bad)}pre{white-space:pre-wrap;background:#06111d;border:1px solid var(--line);border-radius:12px;padding:14px;overflow:auto}@media(max-width:800px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  </style>
+</head>
+<body><main class="wrap">
+  <section class="panel"><p class="eyebrow">Private admin</p><h1>Seed Readiness Report</h1><p class="muted">Read-only view for catalog seed readiness. This page should stay behind admin access controls.</p><p id="state"><span class="chip">Loading</span></p></section>
+  <section class="panel"><h2>Catalog Counts</h2><div class="metrics"><div><strong id="groups">--</strong><span>Groups</span></div><div><strong id="products">--</strong><span>Products</span></div><div><strong id="plans">--</strong><span>Plans</span></div><div><strong id="meters">--</strong><span>Meters</span></div></div></section>
+  <section class="panel"><h2>Recommendation</h2><p id="recommendation" class="muted">Waiting for report data.</p><h3>Blockers</h3><pre id="blockers">[]</pre></section>
+  <section class="panel"><h2>Raw Report</h2><pre id="raw">Loading report...</pre></section>
+</main>
+<script>
+const text=(id,value)=>{document.getElementById(id).textContent=value};
+async function loadReport(){
+  try{
+    const response=await fetch('/api/report/seed',{cache:'no-store'});
+    const report=await response.json();
+    document.getElementById('state').innerHTML='<span class="chip '+(report.ok?'chip-ok':'chip-blocked')+'">'+(report.ok?'Ready':'Blocked')+'</span>';
+    text('groups',report.counts?.groups ?? '--');
+    text('products',report.counts?.products ?? '--');
+    text('plans',report.counts?.plans ?? '--');
+    text('meters',report.counts?.meters ?? '--');
+    text('recommendation',report.recommendation || 'No recommendation returned.');
+    text('blockers',JSON.stringify(report.blockers || [], null, 2));
+    text('raw',JSON.stringify(report, null, 2));
+  }catch(error){
+    document.getElementById('state').innerHTML='<span class="chip chip-blocked">Unavailable</span>';
+    text('raw',String(error));
+  }
+}
+loadReport();
+</script>
+</body></html>
