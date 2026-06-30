@@ -17,6 +17,7 @@
     "admin:check": "node admin/src/seed-admin-data.mjs && node admin/src/build-admin.mjs && node admin/tests/admin.test.mjs",
     "commerce:check": "node admin/tests/commerce.test.mjs",
     "commerce:stripe:check": "node admin/tests/stripe-entitlements.test.mjs && node admin/tests/commerce-worker.test.mjs",
+    "commerce:persistence:check": "node admin/tests/commerce-store.test.mjs && node admin/tests/commerce-worker.test.mjs",
     "check:admin-boundary": "node scripts/validate-admin-boundary.mjs",
     "wordpress:bootstrap": "bash ./tools/wordpress/bootstrap.sh",
     "wordpress:smoke": "bash ./tools/wordpress/smoke-test.sh",

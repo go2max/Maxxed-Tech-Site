@@ -15,8 +15,10 @@ assert.ok(['ok','warning','critical'].includes(risk.diskLevel));
 assert.ok(risk.recommendation.includes('Capacity') || risk.recommendation.includes('Enable') || risk.recommendation.includes('Upgrade'));
 
 const schema = await readFile('admin/db/commerce-schema.sql', 'utf8');
-for (const table of ['commerce_products','commerce_plans','business_accounts','business_seats','subscriptions','entitlements','usage_events','capacity_limits','capacity_snapshots']) {
+for (const table of ['commerce_products','commerce_plans','business_accounts','business_seats','subscriptions','entitlements','usage_events','stripe_webhook_events','capacity_limits','capacity_snapshots']) {
   assert.ok(schema.includes(`CREATE TABLE IF NOT EXISTS ${table}`), `commerce schema missing ${table}`);
 }
+assert.ok(schema.includes('idempotency_key TEXT UNIQUE'), 'usage idempotency key must be unique');
+assert.ok(schema.includes('processing_state TEXT NOT NULL'), 'webhook processing state is required');
 
 console.log('commerce tests passed');

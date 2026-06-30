@@ -148,10 +148,21 @@ CREATE TABLE IF NOT EXISTS usage_events (
   business_id TEXT REFERENCES business_accounts(id),
   commerce_product_id TEXT REFERENCES commerce_products(id),
   quantity REAL NOT NULL DEFAULT 1,
-  idempotency_key TEXT,
+  idempotency_key TEXT UNIQUE,
   metadata TEXT NOT NULL DEFAULT '{}',
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CHECK (customer_id IS NOT NULL OR business_id IS NOT NULL)
+);
+
+CREATE TABLE IF NOT EXISTS stripe_webhook_events (
+  id TEXT PRIMARY KEY,
+  event_type TEXT NOT NULL,
+  livemode INTEGER NOT NULL DEFAULT 0,
+  received_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  processed_at TEXT,
+  processing_state TEXT NOT NULL DEFAULT 'received' CHECK (processing_state IN ('received','processed','ignored','failed','duplicate')),
+  result_summary TEXT,
+  error_message TEXT
 );
 
 CREATE TABLE IF NOT EXISTS capacity_limits (
