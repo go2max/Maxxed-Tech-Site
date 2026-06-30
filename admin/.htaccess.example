@@ -1,0 +1,19 @@
+# Copy this file to the deployed admin directory as `.htaccess` after creating
+# the referenced credential file outside the public web root.
+#
+# Do not commit the real credential file.
+# Do not leave the placeholder AuthUserFile path below.
+
+AuthType Basic
+AuthName "TechMaxxed Admin"
+AuthUserFile /absolute/non-public/path/to/admin-credential-file
+Require valid-user
+
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow, noarchive"
+  Header set Cache-Control "no-store"
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "no-referrer"
+</IfModule>
+
+Options -Indexes
