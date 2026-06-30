@@ -1,9 +1,11 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { productSeedsFromPublicCatalog } from './catalog.mjs';
+import { liveBoardItemsFromProducts } from './live-board.mjs';
 
 const now = new Date().toISOString();
 const products = productSeedsFromPublicCatalog();
+const liveBoardItems = liveBoardItemsFromProducts(products, now);
 
 const integrations = [
   ['cloudflare_access', 'Cloudflare Access', ['ADMIN_HOSTNAME']],
@@ -50,10 +52,12 @@ const readinessGates = products.flatMap((product) => readinessGateNames.map(([ke
   productId: product.id,
   gateKey: key,
   gateName: name,
-  state: key === 'public_site_validation' ? 'not_run' : 'not_configured',
+  state: product.slug === 'contract-extractor' && ['public_site_validation', 'support_path_verified'].includes(key) ? 'pass' : key === 'public_site_validation' ? 'not_run' : 'not_configured',
   mandatory: true,
-  evidenceUrl: null,
-  notes: key === 'crash_anr_data_reviewed' ? 'Requires Play Developer Reporting API configuration.' : '',
+  evidenceUrl: product.slug === 'contract-extractor' ? 'https://github.com/Maxxed-Technical-Systems/contract-extractor' : null,
+  notes: product.slug === 'contract-extractor' && key === 'crash_anr_data_reviewed'
+    ? 'No crash signal recorded; web utility currently uses npm validation rather than Play crash/ANR sync.'
+    : key === 'crash_anr_data_reviewed' ? 'Requires Play Developer Reporting API configuration.' : '',
   updatedAt: now
 })));
 
@@ -61,6 +65,7 @@ const monitoringChecks = [
   { id: 'mon_public_home', checkKey: 'public_home', label: 'techmaxxed.com public home', targetUrl: 'https://techmaxxed.com/', expectedMarker: 'Maxxed Technical Systems', sourceStatus: 'not_configured' },
   { id: 'mon_public_apps', checkKey: 'public_apps', label: 'Public apps directory', targetUrl: 'https://techmaxxed.com/apps/', expectedMarker: 'Android apps and software', sourceStatus: 'not_configured' },
   { id: 'mon_public_privacy', checkKey: 'public_privacy', label: 'Public privacy page', targetUrl: 'https://techmaxxed.com/privacy/', expectedMarker: 'Privacy', sourceStatus: 'not_configured' },
+  { id: 'mon_contract_extractor_repo', checkKey: 'contract_extractor_repo', label: 'Contract Extractor repository', targetUrl: 'https://github.com/Maxxed-Technical-Systems/contract-extractor', expectedMarker: 'contract-extractor', sourceStatus: 'manual_verified' },
   { id: 'mon_support_mailbox', checkKey: 'support_mailbox', label: 'support@ mailbox health', targetUrl: null, expectedMarker: null, sourceStatus: 'not_configured' },
   { id: 'mon_beta_mailbox', checkKey: 'beta_mailbox', label: 'beta@ mailbox health', targetUrl: null, expectedMarker: null, sourceStatus: 'not_configured' }
 ];
@@ -68,6 +73,7 @@ const monitoringChecks = [
 const state = {
   generatedAt: now,
   products,
+  liveBoardItems,
   betaApplications: [],
   betaStatusEvents: [],
   testerEnrollments: [],
@@ -82,4 +88,4 @@ const state = {
 
 await mkdir(resolve('admin/data'), { recursive: true });
 await writeFile(resolve('admin/data/admin-seed.json'), `${JSON.stringify(state, null, 2)}\n`, 'utf8');
-console.log(`Seeded ${products.length} products and ${readinessGates.length} readiness gates into admin/data/admin-seed.json`);
+console.log(`Seeded ${products.length} products, ${liveBoardItems.length} live board items, and ${readinessGates.length} readiness gates into admin/data/admin-seed.json`);
