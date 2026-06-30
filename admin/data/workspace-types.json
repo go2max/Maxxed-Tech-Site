@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-30",
+  "types": [
+    {
+      "id": "overview",
+      "label": "Overview",
+      "description": "High-level summary page with links to deeper routes"
+    },
+    {
+      "id": "registry",
+      "label": "Registry",
+      "description": "Structured list of items managed by the portal"
+    },
+    {
+      "id": "detail",
+      "label": "Detail",
+      "description": "Single item workspace"
+    },
+    {
+      "id": "checklist",
+      "label": "Checklist",
+      "description": "Manual review or readiness sequence"
+    },
+    {
+      "id": "reference",
+      "label": "Reference",
+      "description": "Static documentation and conventions"
+    }
+  ]
+}
