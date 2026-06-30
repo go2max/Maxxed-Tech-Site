@@ -2,6 +2,8 @@
 
 The admin dashboard currently renders a static-safe uptime board with seeded data. This keeps the Hostinger export usable before a Worker/admin API is mounted.
 
+Security boundary: the admin subsite must remain static/read-only until access control is in place. Do not expose live probe endpoints, check history, incidents, tokens, server paths, private IPs, runner metadata, or backend diagnostics to unauthenticated browsers.
+
 ## Sites currently tracked
 
 | Site | URL | Support route |
@@ -12,6 +14,8 @@ The admin dashboard currently renders a static-safe uptime board with seeded dat
 | A. Bunch Mobile Notary | https://bunchsigning.com | support@bunchsigning.com |
 
 ## API shape to mount later
+
+Only mount this after authentication/IP allowlisting exists.
 
 Recommended read endpoint:
 
@@ -55,7 +59,9 @@ Recommended response shape:
   - `offline` when DNS, TLS, timeout, or HTTP failure thresholds are exceeded.
 - Surface incidents separately from raw check history so the admin board can show the latest meaningful outage.
 - Keep the frontend sortable/searchable table contract stable so additional admin tables can reuse the same table pattern.
+- Redact raw errors before returning them to the browser.
+- Never include secrets, worker tokens, private backend URLs, or infrastructure identifiers in the JSON response.
 
 ## Next frontend handoff
 
-Replace the seeded `uptimeSites` array in `admin/index.html` with a safe async fetch. On failure, keep seeded fallback rows and show a non-blocking status message rather than blanking the dashboard.
+Replace the seeded `uptimeSites` array in `admin/index.html` with a safe authenticated async fetch. On failure, keep seeded fallback rows and show a non-blocking status message rather than blanking the dashboard.
