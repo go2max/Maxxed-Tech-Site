@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-30",
+  "states": [
+    {
+      "id": "scaffold",
+      "label": "Scaffold",
+      "meaning": "Route exists with static planning content only"
+    },
+    {
+      "id": "active-static",
+      "label": "Active static",
+      "meaning": "Route is useful with static data and manual updates"
+    },
+    {
+      "id": "backend-ready",
+      "label": "Backend ready",
+      "meaning": "Route has a backend contract ready but is not live-connected"
+    },
+    {
+      "id": "live-connected",
+      "label": "Live connected",
+      "meaning": "Route reads authorized backend data"
+    },
+    {
+      "id": "paused",
+      "label": "Paused",
+      "meaning": "Route exists but should not receive new work right now"
+    }
+  ]
+}
