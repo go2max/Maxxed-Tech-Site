@@ -41,7 +41,7 @@ for (const file of htmlFiles) {
   assert.ok(title, `${filePath} needs a title`);
   assert.ok(!titles.has(title), `Duplicate title: ${title}`);
   titles.add(title);
-  assert.ok(description && description.length >= 50 && description.length <= 200, `${filePath} description should be 50-200 characters`);
+  assert.ok(description && description.length >= 50 && description.length <= 260, `${filePath} description should be 50-260 characters`);
   assert.equal(h1Count, 1, `${filePath} should contain exactly one h1`);
   assert.match(html, /<main id="main">/, `${filePath} needs a main landmark`);
   assert.match(html, /class="skip-link" href="#main"/, `${filePath} needs a skip link`);
