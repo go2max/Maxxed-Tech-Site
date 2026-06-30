@@ -47,7 +47,7 @@ function escapeText(value) {
 
 function relativePrefix() {
   const stylesheet = document.querySelector('link[rel="stylesheet"]')?.getAttribute("href") || "assets/site.css";
-  return stylesheet.startsWith("../") ? "../" : "";
+  return stylesheet.endsWith("assets/site.css") ? stylesheet.slice(0, -"assets/site.css".length) : "";
 }
 
 function slugifyPluginName(name) {
