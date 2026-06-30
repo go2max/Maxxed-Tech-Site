@@ -1,5 +1,6 @@
 import { createCheckoutSessionDraft, entitlementUpdateFromStripeEvent, webhookSafetyChecklist } from '../src/stripe-scaffold.mjs';
 import { createTestCheckoutSession, verifyWebhookSignature } from '../src/test-checkout-client.mjs';
+import { ingestSignedEventRequest } from '../src/verified-event-ingest.mjs';
 import { evaluateEntitlement } from '../src/entitlements.mjs';
 import { applyStripeEventToCommerceState, createEmptyCommerceState, recordUsageEvent } from '../src/commerce-store.mjs';
 import { d1GetEntitlementByKey, d1RecordUsageEvent, d1RecordWebhookEvent, d1UpsertSubscriptionAndEntitlement } from '../src/d1-commerce-adapter.mjs';
@@ -71,6 +72,11 @@ export async function handleCommerceRequest(request, env = process.env) {
   if (request.method === 'POST' && url.pathname.endsWith('/api/commerce/verify-webhook-signature')) {
     const body = await readJson(request);
     return json({ ok: true, result: verifyWebhookSignature({ payload: body.payload, header: body.header, secret: env.STRIPE_WEBHOOK_SECRET, nowSeconds: body.nowSeconds }) });
+  }
+
+  if (request.method === 'POST' && url.pathname.endsWith('/api/commerce/verified-event')) {
+    const result = await ingestSignedEventRequest(request, env);
+    return json(result, { status: result.status || (result.ok ? 200 : 500) });
   }
 
   if (request.method === 'POST' && url.pathname.endsWith('/api/commerce/webhook-preview')) {
