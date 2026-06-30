@@ -1,4 +1,5 @@
 import { createCheckoutSessionDraft, entitlementUpdateFromStripeEvent, webhookSafetyChecklist } from '../src/stripe-scaffold.mjs';
+import { createTestCheckoutSession, verifyWebhookSignature } from '../src/test-checkout-client.mjs';
 import { evaluateEntitlement } from '../src/entitlements.mjs';
 import { applyStripeEventToCommerceState, createEmptyCommerceState, recordUsageEvent } from '../src/commerce-store.mjs';
 import { d1GetEntitlementByKey, d1RecordUsageEvent, d1RecordWebhookEvent, d1UpsertSubscriptionAndEntitlement } from '../src/d1-commerce-adapter.mjs';
@@ -59,6 +60,17 @@ export async function handleCommerceRequest(request, env = process.env) {
     const draft = createCheckoutSessionDraft(body, env);
     if (!draft.enabled) return json({ ok: false, error: draft.blockedReason, draft }, { status: 503 });
     return json({ ok: true, draft, note: 'Checkout response is still a scaffold and does not redirect to payment yet.' });
+  }
+
+  if (request.method === 'POST' && url.pathname.endsWith('/api/commerce/test-checkout-session')) {
+    const body = await readJson(request);
+    const result = await createTestCheckoutSession(body, env, env.TEST_FETCH || fetch);
+    return json(result, { status: result.status || (result.ok ? 200 : 500) });
+  }
+
+  if (request.method === 'POST' && url.pathname.endsWith('/api/commerce/verify-webhook-signature')) {
+    const body = await readJson(request);
+    return json({ ok: true, result: verifyWebhookSignature({ payload: body.payload, header: body.header, secret: env.STRIPE_WEBHOOK_SECRET, nowSeconds: body.nowSeconds }) });
   }
 
   if (request.method === 'POST' && url.pathname.endsWith('/api/commerce/webhook-preview')) {
