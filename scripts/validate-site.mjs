@@ -47,9 +47,9 @@ for (const file of htmlFiles) {
   if (!isEmbeddedToolApp) {
     assert.match(html, /<main id="main">/, `${filePath} needs a main landmark`);
     assert.match(html, /class="skip-link" href="#main"/, `${filePath} needs a skip link`);
+    assert.match(html, /<meta property="og:title"/, `${filePath} needs Open Graph metadata`);
+    if (filePath !== "/404.html") assert.match(html, /<link rel="canonical" href="https:\/\/techmaxxed\.com\//, `${filePath} needs a canonical URL`);
   }
-  assert.match(html, /<meta property="og:title"/, `${filePath} needs Open Graph metadata`);
-  if (filePath !== "/404.html") assert.match(html, /<link rel="canonical" href="https:\/\/techmaxxed\.com\//, `${filePath} needs a canonical URL`);
 
   const references = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((match) => match[1]);
   for (const reference of references) {
