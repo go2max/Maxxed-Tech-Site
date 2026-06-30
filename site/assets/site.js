@@ -131,17 +131,8 @@ function addWordPressFilter(filters) {
   group.appendChild(button);
 }
 
-function addPluginsNavigation() {
+function addPluginsFooterNavigation() {
   const prefix = relativePrefix();
-  if (navLinks && !navLinks.querySelector('a[href$="plugins/"]')) {
-    const appsLink = [...navLinks.querySelectorAll("a")].find((link) => link.textContent.trim() === "Apps");
-    const pluginLink = document.createElement("a");
-    pluginLink.href = `${prefix}plugins/`;
-    pluginLink.textContent = "Plugins";
-    if (location.pathname.includes("/plugins/")) pluginLink.setAttribute("aria-current", "page");
-    appsLink?.after(pluginLink);
-  }
-
   document.querySelectorAll(".footer-grid ul").forEach((list) => {
     const heading = list.closest("div")?.querySelector("h2")?.textContent?.trim();
     if (heading !== "Products" || list.querySelector('a[href$="plugins/"]')) return;
@@ -151,6 +142,14 @@ function addPluginsNavigation() {
     link.textContent = "WordPress plugins";
     item.appendChild(link);
     list.insertBefore(item, list.children[1] || null);
+  });
+}
+
+function removePluginsFromPrimaryNavigation() {
+  document.querySelectorAll('nav[aria-label="Primary"] a, nav[aria-label="Primary navigation"] a').forEach((link) => {
+    const label = link.textContent.trim().toLowerCase();
+    const href = link.getAttribute("href") || "";
+    if (label === "plugins" || /(^|\/)plugins\/?($|[?#])/.test(href)) link.remove();
   });
 }
 
@@ -167,7 +166,8 @@ function addHomePluginSummary() {
   productSection.after(section);
 }
 
-addPluginsNavigation();
+removePluginsFromPrimaryNavigation();
+addPluginsFooterNavigation();
 addHomePluginSummary();
 normalizeWordPressPluginCards();
 
@@ -262,7 +262,7 @@ if (betaForm) {
     if (!betaForm.reportValidity() || !selectedApps.length) return;
 
     const data = new FormData(betaForm);
-    const email = betaForm.dataset.email || "beta@techmaxxed.com";
+    const email = betaForm.dataset.email || "support@techmaxxed.com";
     const subject = encodeURIComponent(`Beta tester application - ${selectedApps.join(", ")}`);
     const body = encodeURIComponent([
       "Tech Maxxed beta tester application",
