@@ -198,7 +198,10 @@ for (const file of adminFiles.filter((item) => extname(item) === ".html")) {
 
 assert.match(await readFile(resolve(adminRoot, "index.html"), "utf8"), /Testing Functions/);
 assert.match(await readFile(resolve(adminRoot, "testing-functions/index.html"), "utf8"), /Testing Functions/);
-assert.match(await readFile(resolve(adminRoot, "plugins/index.html"), "utf8"), /WordPress plugin admin/);
+const adminPlugins = await readFile(resolve(adminRoot, "plugins/index.html"), "utf8");
+assert.match(adminPlugins, /WordPress plugin package review/);
+assert.doesNotMatch(adminPlugins, /Settings\s*[-&>]/);
+assert.doesNotMatch(adminPlugins, /Settings Profile|Test Profile/);
 JSON.parse(await readFile(resolve(adminRoot, "site.webmanifest"), "utf8"));
 
 console.log(`Validated ${htmlFiles.length} HTML pages, ${checkedReferences} local references, admin subdomain export, unique metadata, sitemap, manifest, and client JavaScript.`);

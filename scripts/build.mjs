@@ -164,6 +164,40 @@ function header(depth, current, makeLink = link) {
   </header>`;
 }
 
+function adminHeader() {
+  return `<header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="/" aria-label="Maxxed Admin home"><span class="brand-mark" aria-hidden="true">MTS</span><span class="brand-name">Maxxed Admin</span></a>
+      <nav class="nav-links" aria-label="Admin navigation">
+        <a href="/">Testing Functions</a><a href="/plugins/">Plugin Admin</a><a href="https://techmaxxed.com/apps/">Public Catalog</a><a class="nav-button" href="https://techmaxxed.com/support/">Public support</a>
+      </nav>
+    </div>
+  </header>`;
+}
+
+function adminLayout({ title, description, path = "", body }) {
+  const pageUrl = `https://admin.techmaxxed.com/${path}`;
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(title)} | Maxxed Admin</title>
+  <meta name="description" content="${escapeHtml(description)}">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="canonical" href="${pageUrl}">
+  <meta name="theme-color" content="#07131f">
+  <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+  ${adminHeader()}
+  <main id="main">${body}</main>
+</body>
+</html>`;
+}
+
 function footer(depth, makeLink = link) {
   return `<footer class="site-footer">
     <div class="shell footer-grid">
@@ -277,23 +311,23 @@ function adminRouteCard(title, text, href, action) {
 }
 
 function adminPage() {
-  const body = `<section class="band admin-hero"><div class="shell section compact"><p class="eyebrow">Admin travel</p><h1>Maxxed admin routing</h1><p class="lede">A direct control hub for jumping between the product catalog, plugin sub-site checks, beta flow, support, and release planning.</p><div class="proof-row"><span>${pluginAdminItems.length} plugin repos checked</span><span>Editable test profiles added</span><span>Plugin install artifact prepared</span><span>Noindex admin route</span></div></div></section>
+  const body = `<section class="band admin-hero"><div class="shell section compact"><p class="eyebrow">Admin travel</p><h1>Maxxed admin routing</h1><p class="lede">A direct control hub for jumping between the product catalog, plugin package checks, beta flow, support, and release planning.</p><div class="proof-row"><span>${pluginAdminItems.length} plugin repos checked</span><span>Package review checklist</span><span>Plugin install artifact prepared</span><span>Noindex admin route</span></div></div></section>
   <section class="shell section"><div class="section-head"><div><p class="eyebrow">Fast paths</p><h2>Travel from one place</h2></div><p>Use these admin routes when testing packages, reviewing listings, checking tester intake, or sending someone to the right public page.</p></div><div class="admin-route-grid">
-    ${adminRouteCard("Plugin sub-site", "Review every checked WordPress plugin repo and its editable profile page target.", "plugins/", "Open plugins")}
-    ${adminRouteCard("Public catalog", "Open the public product directory with Android apps and current WordPress plugin listings.", "../apps/", "Open apps")}
-    ${adminRouteCard("Beta tester flow", "Jump to the public beta application and tester routing pages.", "../beta/", "Open beta")}
-    ${adminRouteCard("Support routing", "Go directly to the support page and product-specific contact flows.", "../support/", "Open support")}
-    ${adminRouteCard("Release roadmap", "Review the active public release queue and current product priorities.", "../roadmap/", "Open roadmap")}
-    ${adminRouteCard("Policies", "Check privacy, terms, accessibility, and product disclosure pages.", "../privacy/", "Open policies")}
+    ${adminRouteCard("Plugin packages", "Review checked WordPress plugin packages without exposing customer-site Settings pages.", "/plugins/", "Open plugins")}
+    ${adminRouteCard("Public catalog", "Open the public product directory with Android apps and current WordPress plugin listings.", "https://techmaxxed.com/apps/", "Open apps")}
+    ${adminRouteCard("Beta tester flow", "Jump to the public beta application and tester routing pages.", "https://techmaxxed.com/beta/", "Open beta")}
+    ${adminRouteCard("Support routing", "Go directly to the support page and product-specific contact flows.", "https://techmaxxed.com/support/", "Open support")}
+    ${adminRouteCard("Release roadmap", "Review the active public release queue and current product priorities.", "https://techmaxxed.com/roadmap/", "Open roadmap")}
+    ${adminRouteCard("Policies", "Check privacy, terms, accessibility, and product disclosure pages.", "https://techmaxxed.com/privacy/", "Open policies")}
   </div></section>`;
-  return layout({ title: "Admin Routing", description: "Admin routing hub for Maxxed Technical Systems product catalog, plugin sub-site, beta, support, roadmap, and policy travel.", path: "admin/", depth: 1, current: "admin", body, noIndex: true });
+  return adminLayout({ title: "Admin Routing", description: "Admin routing hub for Maxxed Technical Systems product catalog, plugin package checks, beta, support, roadmap, and policy travel.", path: "", body });
 }
 
 function adminPluginsPage() {
-  const plugins = pluginAdminItems.map((name) => `<article class="plugin-admin-item"><h3>${escapeHtml(name)}</h3><p>Editable profile: Settings -> ${escapeHtml(name)} Profile.</p><span>Installed package checked</span></article>`).join("");
-  const body = `<section class="band admin-hero"><div class="shell section compact"><p class="eyebrow">Plugin sub-site</p><h1>WordPress plugin admin</h1><p class="lede">Every local WordPress plugin repo has been checked, packaged, installed into the plugin sub-site artifact, and given an editable profile page for test names, owners, and notes.</p><div class="proof-row"><span>${pluginAdminItems.length} plugin folders</span><span>${pluginAdminItems.length} zip packages</span><span>Settings profile route</span><span>Ready for activation testing</span></div><div class="hero-actions"><a class="button" href="../">Back to admin hub</a><a class="button secondary" href="../../apps/">Open public catalog</a></div></div></section>
-  <section class="shell section"><div class="section-head"><div><p class="eyebrow">Installed plugins</p><h2>Checked repo list</h2></div><p>Use each plugin's WordPress settings profile page to label builds during testing and keep the lab organized.</p></div><div class="plugin-admin-grid">${plugins}</div></section>`;
-  return layout({ title: "WordPress Plugin Admin", description: "Admin view of checked WordPress plugins installed into the plugin sub-site artifact with editable profile settings pages.", path: "admin/plugins/", depth: 2, current: "admin", body, noIndex: true });
+  const plugins = pluginAdminItems.map((name) => `<article class="plugin-admin-item"><h3>${escapeHtml(name)}</h3><p>Package listed for private review. Customer installs should not receive separate Maxxed test profile pages in the WordPress admin menu.</p><span>Package review needed</span></article>`).join("");
+  const body = `<section class="band admin-hero"><div class="shell section compact"><p class="eyebrow">Plugin packages</p><h1>WordPress plugin package review</h1><p class="lede">Track plugin package readiness without exposing customer-site profile routes from the Maxxed site.</p><div class="proof-row"><span>${pluginAdminItems.length} plugin folders</span><span>${pluginAdminItems.length} package checks</span><span>No customer profile route claims</span><span>Ready for package remediation</span></div><div class="hero-actions"><a class="button" href="/">Back to admin hub</a><a class="button secondary" href="https://techmaxxed.com/apps/">Open public catalog</a></div></div></section>
+  <section class="shell section"><div class="section-head"><div><p class="eyebrow">Package list</p><h2>Checked repo list</h2></div><p>Each plugin should keep customer-facing configuration inside its own plugin workflow only when it is truly needed. Internal test labels must not appear as separate customer profile pages.</p></div><div class="plugin-admin-grid">${plugins}</div></section>`;
+  return adminLayout({ title: "WordPress Plugin Admin", description: "Admin view of checked WordPress plugin packages without customer-site profile route claims.", path: "plugins/", body });
 }
 
 function homePage() {
@@ -758,7 +792,7 @@ await cp(resolve(root, "public", "assets"), resolve(adminOutput, "assets"), { re
 const testingFunctionsHtml = await adminTestingFunctionsHtml();
 await writeAdminExport("index.html", testingFunctionsHtml);
 await writeAdminExport("testing-functions/index.html", testingFunctionsHtml);
-await writeAdminExport("plugins/index.html", adminSubdomainHtml(adminPluginsPage(), 1));
+await writeAdminExport("plugins/index.html", adminPluginsPage());
 await writeAdminExport("site.webmanifest", JSON.stringify({ name: "Maxxed Admin", short_name: "Maxxed Admin", start_url: "/", display: "standalone", background_color: "#07131f", theme_color: "#07131f", icons: [{ src: "/assets/images/favicon.svg", sizes: "any", type: "image/svg+xml" }] }, null, 2));
 await writeAdminExport("robots.txt", "User-agent: *\nDisallow: /\n");
 await writeAdminExport("_headers", `/*\n  X-Robots-Tag: noindex, nofollow\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Content-Security-Policy: ${contentSecurityPolicy}\n`);
