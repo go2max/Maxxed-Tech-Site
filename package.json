@@ -8,9 +8,11 @@
     "check:public": "npm run build && npm run validate",
     "check:admin": "npm --prefix platform run check",
     "check:runner": "node scripts/validate-runner.mjs",
+    "check:build-runner": "node scripts/validate-build-runner.mjs",
     "check:pipeline": "node scripts/validate-pipeline-contract.mjs",
     "audit:github-apps": "node scripts/audit-github-apps.mjs",
     "report:public": "node scripts/public-readiness-report.mjs",
-    "check": "npm run check:public && npm run report:public && npm run check:admin && npm run check:runner && npm run check:pipeline"
+    "sync:admin-catalog": "node scripts/sync-admin-catalog.mjs",
+    "check": "npm run check:public && npm run report:public && npm run check:admin && npm run check:runner && npm run check:build-runner && npm run check:pipeline"
   }
 }

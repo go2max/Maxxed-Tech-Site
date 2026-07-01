@@ -26,3 +26,22 @@ outdoor, television, or two-player acceptance.
 Exit code `0` is pass, `1` is fail, and `2` is blocked or manual review. Each
 run writes `result.json`, screenshots, `logcat.txt`, `meminfo.txt`, and
 `package.txt` to its output directory.
+
+## Build Runner Skeleton
+
+`runner/build-agent/maxxed-build-runner.mjs` leases build pipeline steps from
+`/api/build-runner/lease` and resolves only approved `commandRef` values. It is
+dry-run only right now: it confirms the contract, writes a local `result.json`,
+and completes the run as blocked until real Codex/GitHub execution is explicitly
+enabled.
+
+Example:
+
+```sh
+MAXXED_BUILD_RUNNER_TOKEN=... node runner/build-agent/maxxed-build-runner.mjs \
+  --base-url https://admin.techmaxxed.com \
+  --runner-id local-build-runner-1
+```
+
+The script must never accept shell text from the admin browser. Add new behavior
+by adding a fixed handler for a fixed `commandRef`.

@@ -170,7 +170,7 @@ function adminHeader() {
     <div class="nav-shell">
       <a class="brand" href="/" aria-label="Maxxed Admin home"><span class="brand-mark" aria-hidden="true">MTS</span><span class="brand-name">Maxxed Admin</span></a>
       <nav class="nav-links" aria-label="Admin navigation">
-        <a href="/">Testing Functions</a><a href="/plugins/">Plugin Admin</a><a href="https://techmaxxed.com/apps/">Public Catalog</a><a class="nav-button" href="https://techmaxxed.com/support/">Public support</a>
+        <a href="/">Testing Functions</a><a href="/products/">Products</a><a href="/plugins/">Plugin Admin</a><a href="https://techmaxxed.com/apps/">Public Catalog</a><a class="nav-button" href="https://techmaxxed.com/support/">Public support</a>
       </nav>
     </div>
   </header>`;
@@ -330,6 +330,90 @@ function adminPluginsPage() {
   const body = `<section class="band admin-hero"><div class="shell section compact"><p class="eyebrow">Plugin packages</p><h1>WordPress plugin package review</h1><p class="lede">Track plugin package readiness without exposing customer-site profile routes from the Maxxed site.</p><div class="proof-row"><span>${pluginAdminItems.length} plugin folders</span><span>${pluginAdminItems.length} package checks</span><span>No customer profile route claims</span><span>Ready for package remediation</span></div><div class="hero-actions"><a class="button" href="/">Back to admin hub</a><a class="button secondary" href="https://techmaxxed.com/apps/">Open public catalog</a></div></div></section>
   <section class="shell section"><div class="section-head"><div><p class="eyebrow">Package list</p><h2>Checked repo list</h2></div><p>Each plugin should keep customer-facing configuration inside its own plugin workflow only when it is truly needed. Internal test labels must not appear as separate customer profile pages.</p></div><div class="plugin-admin-grid">${plugins}</div></section>`;
   return adminLayout({ title: "WordPress Plugin Admin", description: "Admin view of checked WordPress plugin packages without customer-site profile route claims.", path: "plugins/", body });
+}
+
+const adminOnlyProducts = [
+  {
+    slug: "aspiration",
+    name: "Aspiration",
+    status: "Admin tracked",
+    family: "Upcoming app",
+    summary: "Admin-tracked aspiration planning app entry reserved for product scoping, routing, and future build review.",
+    route: "/products/aspiration/",
+    publicRoute: null,
+  },
+];
+
+function adminCatalogRecords() {
+  const appRecords = apps.map((app) => ({
+    id: app.slug,
+    name: app.name,
+    route: `/products/${app.slug}/`,
+    publicRoute: `https://techmaxxed.com/apps/${app.slug}/`,
+    state: app.status,
+    family: "Android app",
+    summary: app.summary,
+    supportEmail: site.email,
+  }));
+  const pluginRecords = wordpressPlugins.map((plugin) => ({
+    id: plugin.slug,
+    name: plugin.name,
+    route: `https://techmaxxed.com/plugins/${plugin.slug}/`,
+    publicRoute: `https://techmaxxed.com/plugins/${plugin.slug}/`,
+    state: plugin.status,
+    family: "WordPress plugin",
+    summary: plugin.summary,
+    supportEmail: site.email,
+  }));
+  const toolRecords = repoProducts.map((product) => ({
+    id: product.slug,
+    name: product.name,
+    route: `https://techmaxxed.com/tools/${product.slug}/`,
+    publicRoute: `https://techmaxxed.com/tools/${product.slug}/`,
+    state: product.status,
+    family: "Focused web tool",
+    summary: product.summary,
+    supportEmail: site.email,
+  }));
+  const businessRecords = powerhouseProducts.map((product) => ({
+    id: product.slug,
+    name: product.name,
+    route: `https://techmaxxed.com/tools/${product.slug}/`,
+    publicRoute: `https://techmaxxed.com/tools/${product.slug}/`,
+    state: product.status,
+    family: "Business tool",
+    summary: product.summary,
+    supportEmail: site.email,
+  }));
+  const adminOnlyRecords = adminOnlyProducts.map((product) => ({
+    id: product.slug,
+    name: product.name,
+    route: product.route,
+    publicRoute: product.publicRoute,
+    state: product.status,
+    family: product.family,
+    summary: product.summary,
+    supportEmail: site.email,
+  }));
+  return [...appRecords, ...pluginRecords, ...toolRecords, ...businessRecords, ...adminOnlyRecords]
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+function adminProductCard(product) {
+  return `<a class="admin-product-card" data-app-card data-category="${escapeHtml(product.family.toLowerCase())}" href="${escapeHtml(product.route)}"><h2>${escapeHtml(product.name)}</h2><p>${escapeHtml(product.summary)}</p><div class="admin-meta"><span class="admin-pill">${escapeHtml(product.family)}</span><span class="admin-pill">${escapeHtml(product.state)}</span></div></a>`;
+}
+
+function adminProductsPage() {
+  const products = adminCatalogRecords();
+  const body = `<section class="band admin-hero"><div class="shell section compact"><p class="eyebrow">Product registry</p><h1>Admin product catalog</h1><p class="lede">A private admin copy of the Maxxed catalog, including public products plus admin-tracked upcoming items such as Aspiration.</p><div class="proof-row"><span>${products.length} admin catalog entries</span><span>${apps.length} Android apps</span><span>${wordpressPlugins.length} WordPress tools</span><span>${repoProducts.length + powerhouseProducts.length} web and business tools</span></div></div></section>
+  <section class="admin-shell section"><div class="catalog-tools"><label class="search-box"><span class="skip-link">Search admin catalog</span><input type="search" data-app-search placeholder="Search products, plugins, tools, or status" autocomplete="off"></label><div class="filters" role="group" aria-label="Filter admin catalog"><button class="filter" data-filter="all" aria-pressed="true">All</button><button class="filter" data-filter="android" aria-pressed="false">Android</button><button class="filter" data-filter="wordpress" aria-pressed="false">WordPress</button><button class="filter" data-filter="focused" aria-pressed="false">Web tools</button><button class="filter" data-filter="business" aria-pressed="false">Business</button><button class="filter" data-filter="upcoming" aria-pressed="false">Upcoming</button></div></div><p class="fine-print" data-result-count aria-live="polite"></p><p class="empty-state" data-empty-state hidden>No admin catalog entries match that search.</p><div class="admin-product-grid" data-catalog>${products.map(adminProductCard).join("")}</div><p class="fine-print">Source data: <span class="admin-code">/data/product-registry.json</span>. Public product links intentionally leave the admin subdomain; admin-only products stay inside this portal.</p></section>`;
+  return adminLayout({ title: "Products", description: "Private admin copy of the Maxxed product catalog with public products and admin-tracked upcoming app entries.", path: "products/", body });
+}
+
+function adminAspirationPage() {
+  const body = `<section class="band admin-hero"><div class="shell section compact"><p class="eyebrow">Upcoming app</p><h1>Aspiration</h1><p class="lede">Admin-tracked aspiration planning app entry for product scoping, routing, and future build review.</p><div class="proof-row"><span>Admin tracked</span><span>Upcoming app</span><span>support@techmaxxed.com</span></div></div></section>
+  <section class="admin-shell section"><div class="admin-list"><article><h2>Current intent</h2><p>Keep Aspiration visible in the admin catalog while the public product page and build scope are still being defined.</p></article><article><h2>Routing</h2><p><a class="button small" href="/products/">Back to product catalog</a> <a class="button secondary small" href="mailto:${site.email}?subject=${encodeURIComponent("Aspiration app planning")}">Email planning notes</a></p></article></div></section>`;
+  return adminLayout({ title: "Aspiration", description: "Admin-tracked Aspiration app route for product scoping and future build review.", path: "products/aspiration/", body });
 }
 
 function homePage() {
@@ -794,6 +878,9 @@ await cp(resolve(root, "public", "assets"), resolve(adminOutput, "assets"), { re
 const testingFunctionsHtml = await adminTestingFunctionsHtml();
 await writeAdminExport("index.html", testingFunctionsHtml);
 await writeAdminExport("testing-functions/index.html", testingFunctionsHtml);
+await writeAdminExport("data/product-registry.json", JSON.stringify({ version: 2, updatedAt: "2026-07-01", products: adminCatalogRecords() }, null, 2));
+await writeAdminExport("products/index.html", adminProductsPage());
+await writeAdminExport("products/aspiration/index.html", adminAspirationPage());
 await writeAdminExport("plugins/index.html", adminPluginsPage());
 await writeAdminExport("site.webmanifest", JSON.stringify({ name: "Maxxed Admin", short_name: "Maxxed Admin", start_url: "/", display: "standalone", background_color: "#07131f", theme_color: "#07131f", icons: [{ src: "/assets/images/favicon.svg", sizes: "any", type: "image/svg+xml" }] }, null, 2));
 await writeAdminExport("robots.txt", "User-agent: *\nDisallow: /\n");

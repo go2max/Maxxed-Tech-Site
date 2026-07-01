@@ -201,12 +201,21 @@ for (const file of adminFiles.filter((item) => extname(item) === ".html")) {
   }
 }
 
-assert.match(await readFile(resolve(adminRoot, "index.html"), "utf8"), /Testing Functions/);
+const adminHome = await readFile(resolve(adminRoot, "index.html"), "utf8");
+assert.match(adminHome, /Admin control center/);
+assert.match(adminHome, /\/testing-functions\//);
 assert.match(await readFile(resolve(adminRoot, "testing-functions/index.html"), "utf8"), /Testing Functions/);
 const adminPlugins = await readFile(resolve(adminRoot, "plugins/index.html"), "utf8");
 assert.match(adminPlugins, /WordPress plugin package review/);
 assert.doesNotMatch(adminPlugins, /Settings\s*[-&>]/);
 assert.doesNotMatch(adminPlugins, /Settings Profile|Test Profile/);
+const adminProductRegistry = JSON.parse(await readFile(resolve(adminRoot, "data/product-registry.json"), "utf8"));
+assert.equal(adminProductRegistry.products.length, 187, "Admin catalog should include 186 public products plus Aspiration");
+assert.ok(adminProductRegistry.products.some((product) => product.id === "aspiration" && product.route === "/products/aspiration/"), "Admin catalog must include the Aspiration app route");
+const adminProducts = await readFile(resolve(adminRoot, "products/index.html"), "utf8");
+assert.equal((adminProducts.match(/data-app-card/g) || []).length, 187, "Admin products page should render the full admin catalog");
+assert.match(adminProducts, /Aspiration/);
+assert.match(await readFile(resolve(adminRoot, "products/aspiration/index.html"), "utf8"), /Aspiration/);
 JSON.parse(await readFile(resolve(adminRoot, "site.webmanifest"), "utf8"));
 
 console.log(`Validated ${htmlFiles.length} HTML pages, ${checkedReferences} local references, admin subdomain export, unique metadata, sitemap, manifest, and client JavaScript.`);

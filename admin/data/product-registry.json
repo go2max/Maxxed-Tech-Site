@@ -1,12 +1,1876 @@
 {
-  "version": 1,
+  "version": 2,
   "updatedAt": "2026-07-01",
   "products": [
-    { "id": "maxxed-remote", "name": "Maxxed Remote", "route": "/products/maxxed-remote/", "state": "release-prep", "supportEmail": "support@techmaxxed.com" },
-    { "id": "maxxed-compass", "name": "Maxxed Compass", "route": "/products/maxxed-compass/", "state": "test-ready", "supportEmail": "support@techmaxxed.com" },
-    { "id": "maxxed-measure", "name": "Maxxed Measure", "route": "/products/maxxed-measure/", "state": "active-build", "supportEmail": "support@techmaxxed.com" },
-    { "id": "fishing-maxxed", "name": "Fishing Maxxed", "route": "/products/fishing-maxxed/", "state": "active-build", "supportEmail": "support@techmaxxed.com" },
-    { "id": "rival-rush", "name": "Rival Rush", "route": "/products/rival-rush/", "state": "internal-test", "supportEmail": "support@techmaxxed.com" },
-    { "id": "maxxed-gold-estimator", "name": "Maxxed Gold Estimator", "route": "/products/maxxed-gold-estimator/", "state": "scaffold", "supportEmail": "support@techmaxxed.com" }
+    {
+      "id": "accessibility-task-tracker",
+      "name": "Accessibility Task Tracker",
+      "route": "https://techmaxxed.com/plugins/accessibility-task-tracker/",
+      "publicRoute": "https://techmaxxed.com/plugins/accessibility-task-tracker/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Track accessibility review tasks, owners, notes, and follow-up status inside WordPress.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "affiliate-disclosure-manager",
+      "name": "Affiliate Disclosure Manager",
+      "route": "https://techmaxxed.com/plugins/affiliate-disclosure-manager/",
+      "publicRoute": "https://techmaxxed.com/plugins/affiliate-disclosure-manager/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Manage affiliate disclosure reminders and placement checks for content review workflows.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "allergy-symptom-journal",
+      "name": "Allergy Symptom Journal",
+      "route": "https://techmaxxed.com/tools/allergy-symptom-journal/",
+      "publicRoute": "https://techmaxxed.com/tools/allergy-symptom-journal/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Allergy Symptom Journal is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "appointment-care-pro",
+      "name": "Appointment Care Pro",
+      "route": "https://techmaxxed.com/tools/appointment-care-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/appointment-care-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Appointment Care Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "art-commission-manager",
+      "name": "Art Commission Manager",
+      "route": "https://techmaxxed.com/tools/art-commission-manager/",
+      "publicRoute": "https://techmaxxed.com/tools/art-commission-manager/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Art Commission Manager organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "aspiration",
+      "name": "Aspiration",
+      "route": "/products/aspiration/",
+      "publicRoute": null,
+      "state": "Admin tracked",
+      "family": "Upcoming app",
+      "summary": "Admin-tracked aspiration planning app entry reserved for product scoping, routing, and future build review.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "baby-toddler-control-center",
+      "name": "Baby Toddler Control Center",
+      "route": "https://techmaxxed.com/tools/baby-toddler-control-center/",
+      "publicRoute": "https://techmaxxed.com/tools/baby-toddler-control-center/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Baby Toddler Control Center is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "beauty-client-pro",
+      "name": "Beauty Client Pro",
+      "route": "https://techmaxxed.com/tools/beauty-client-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/beauty-client-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Beauty Client Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "boat-bike-powersport-garage",
+      "name": "Boat Bike Powersport Garage",
+      "route": "https://techmaxxed.com/tools/boat-bike-powersport-garage/",
+      "publicRoute": "https://techmaxxed.com/tools/boat-bike-powersport-garage/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Boat Bike Powersport Garage is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "book-writing-studio",
+      "name": "Book Writing Studio",
+      "route": "https://techmaxxed.com/tools/book-writing-studio/",
+      "publicRoute": "https://techmaxxed.com/tools/book-writing-studio/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Book Writing Studio is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "broken-link-capture",
+      "name": "Broken Link Capture",
+      "route": "https://techmaxxed.com/tools/broken-link-capture/",
+      "publicRoute": "https://techmaxxed.com/tools/broken-link-capture/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Broken Link Capture is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "broken-shortcode-finder",
+      "name": "Broken Shortcode Finder",
+      "route": "https://techmaxxed.com/plugins/broken-shortcode-finder/",
+      "publicRoute": "https://techmaxxed.com/plugins/broken-shortcode-finder/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Find unregistered or malformed shortcode-like tokens without executing post content.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "bulk-price-update-planner",
+      "name": "Bulk Price Update Planner",
+      "route": "https://techmaxxed.com/plugins/bulk-price-update-planner/",
+      "publicRoute": "https://techmaxxed.com/plugins/bulk-price-update-planner/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Plan bulk pricing changes with a review-first workflow before store updates are applied.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "business-letter-builder",
+      "name": "Business Letter Builder",
+      "route": "https://techmaxxed.com/tools/business-letter-builder/",
+      "publicRoute": "https://techmaxxed.com/tools/business-letter-builder/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Business Letter Builder builds structured working documents and repeatable outputs in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "car-rental-lite",
+      "name": "Car Rental Lite",
+      "route": "https://techmaxxed.com/tools/car-rental-lite/",
+      "publicRoute": "https://techmaxxed.com/tools/car-rental-lite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Car Rental Lite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "cash-job-receipt-log",
+      "name": "Cash Job Receipt Log",
+      "route": "https://techmaxxed.com/tools/cash-job-receipt-log/",
+      "publicRoute": "https://techmaxxed.com/tools/cash-job-receipt-log/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Cash Job Receipt Log tracks tasks, records, deadlines, and follow-up status in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "catering-event-suite",
+      "name": "Catering Event Suite",
+      "route": "https://techmaxxed.com/tools/catering-event-suite/",
+      "publicRoute": "https://techmaxxed.com/tools/catering-event-suite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Catering Event Suite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "civic-deadline-reminder",
+      "name": "Civic Deadline Reminder",
+      "route": "https://techmaxxed.com/tools/civic-deadline-reminder/",
+      "publicRoute": "https://techmaxxed.com/tools/civic-deadline-reminder/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Civic Deadline Reminder tracks tasks, records, deadlines, and follow-up status in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "client-content-approval",
+      "name": "Client Content Approval",
+      "route": "https://techmaxxed.com/plugins/client-content-approval/",
+      "publicRoute": "https://techmaxxed.com/plugins/client-content-approval/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Organize client review, approval notes, and content signoff states inside WordPress.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "client-intake-packet-builder",
+      "name": "Client Intake Packet Builder",
+      "route": "https://techmaxxed.com/tools/client-intake-packet-builder/",
+      "publicRoute": "https://techmaxxed.com/tools/client-intake-packet-builder/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Client Intake Packet Builder builds structured working documents and repeatable outputs in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "client-maintenance-portal",
+      "name": "Client Maintenance Portal",
+      "route": "https://techmaxxed.com/plugins/client-maintenance-portal/",
+      "publicRoute": "https://techmaxxed.com/plugins/client-maintenance-portal/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Give maintenance clients a focused portal for status notes, requests, and service visibility.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "client-ops-command-center",
+      "name": "Client Ops Command Center",
+      "route": "https://techmaxxed.com/tools/client-ops-command-center/",
+      "publicRoute": "https://techmaxxed.com/tools/client-ops-command-center/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Client Ops Command Center is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "clinic-admin-lite",
+      "name": "Clinic Admin Lite",
+      "route": "https://techmaxxed.com/tools/clinic-admin-lite/",
+      "publicRoute": "https://techmaxxed.com/tools/clinic-admin-lite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Clinic Admin Lite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "club-membership-manager",
+      "name": "Club Membership Manager",
+      "route": "https://techmaxxed.com/tools/club-membership-manager/",
+      "publicRoute": "https://techmaxxed.com/tools/club-membership-manager/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Club Membership Manager organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "coffee-bakery-batch-pro",
+      "name": "Coffee Bakery Batch Pro",
+      "route": "https://techmaxxed.com/tools/coffee-bakery-batch-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/coffee-bakery-batch-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Coffee Bakery Batch Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "collection-manager-pro",
+      "name": "Collection Manager Pro",
+      "route": "https://techmaxxed.com/tools/collection-manager-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/collection-manager-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Collection Manager Pro organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "community-event-command",
+      "name": "Community Event Command",
+      "route": "https://techmaxxed.com/tools/community-event-command/",
+      "publicRoute": "https://techmaxxed.com/tools/community-event-command/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Community Event Command is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "community-meeting-tracker",
+      "name": "Community Meeting Tracker",
+      "route": "https://techmaxxed.com/tools/community-meeting-tracker/",
+      "publicRoute": "https://techmaxxed.com/tools/community-meeting-tracker/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Community Meeting Tracker tracks tasks, records, deadlines, and follow-up status in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "community-resource-directory",
+      "name": "Community Resource Directory",
+      "route": "https://techmaxxed.com/tools/community-resource-directory/",
+      "publicRoute": "https://techmaxxed.com/tools/community-resource-directory/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Community Resource Directory organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "community-survey-builder",
+      "name": "Community Survey Builder",
+      "route": "https://techmaxxed.com/tools/community-survey-builder/",
+      "publicRoute": "https://techmaxxed.com/tools/community-survey-builder/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Community Survey Builder builds structured working documents and repeatable outputs in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "conference-planning-pro",
+      "name": "Conference Planning Pro",
+      "route": "https://techmaxxed.com/tools/conference-planning-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/conference-planning-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Conference Planning Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "construction-site-logbook",
+      "name": "Construction Site Logbook",
+      "route": "https://techmaxxed.com/tools/construction-site-logbook/",
+      "publicRoute": "https://techmaxxed.com/tools/construction-site-logbook/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Construction Site Logbook tracks tasks, records, deadlines, and follow-up status in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "content-approval-extension",
+      "name": "Content Approval Extension",
+      "route": "https://techmaxxed.com/tools/content-approval-extension/",
+      "publicRoute": "https://techmaxxed.com/tools/content-approval-extension/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Content Approval Extension is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "contract-renewal-reminder",
+      "name": "Contract Renewal Reminder",
+      "route": "https://techmaxxed.com/tools/contract-renewal-reminder/",
+      "publicRoute": "https://techmaxxed.com/tools/contract-renewal-reminder/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Contract Renewal Reminder tracks tasks, records, deadlines, and follow-up status in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "contractor-before-after-gallery",
+      "name": "Contractor Before After Gallery",
+      "route": "https://techmaxxed.com/plugins/contractor-before-after-gallery/",
+      "publicRoute": "https://techmaxxed.com/plugins/contractor-before-after-gallery/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Build simple before-and-after project galleries for contractor portfolio pages.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "contractor-estimate-suite",
+      "name": "Contractor Estimate Suite",
+      "route": "https://techmaxxed.com/tools/contractor-estimate-suite/",
+      "publicRoute": "https://techmaxxed.com/tools/contractor-estimate-suite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Contractor Estimate Suite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "courier-delivery-board",
+      "name": "Courier Delivery Board",
+      "route": "https://techmaxxed.com/tools/courier-delivery-board/",
+      "publicRoute": "https://techmaxxed.com/tools/courier-delivery-board/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Courier Delivery Board is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "course-creator-suite",
+      "name": "Course Creator Suite",
+      "route": "https://techmaxxed.com/tools/course-creator-suite/",
+      "publicRoute": "https://techmaxxed.com/tools/course-creator-suite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Course Creator Suite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "creator-command-center",
+      "name": "Creator Command Center",
+      "route": "https://techmaxxed.com/tools/creator-command-center/",
+      "publicRoute": "https://techmaxxed.com/tools/creator-command-center/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Creator Command Center is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "database-cleanup-planner",
+      "name": "Database Cleanup Planner",
+      "route": "https://techmaxxed.com/plugins/database-cleanup-planner/",
+      "publicRoute": "https://techmaxxed.com/plugins/database-cleanup-planner/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Review cleanup candidates and maintenance notes before touching WordPress database data.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "decision-notes-vault",
+      "name": "Decision Notes Vault",
+      "route": "https://techmaxxed.com/tools/decision-notes-vault/",
+      "publicRoute": "https://techmaxxed.com/tools/decision-notes-vault/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Decision Notes Vault is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "dental-vision-care-vault",
+      "name": "Dental Vision Care Vault",
+      "route": "https://techmaxxed.com/tools/dental-vision-care-vault/",
+      "publicRoute": "https://techmaxxed.com/tools/dental-vision-care-vault/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Dental Vision Care Vault is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "digital-cleanup-pro",
+      "name": "Digital Cleanup Pro",
+      "route": "https://techmaxxed.com/tools/digital-cleanup-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/digital-cleanup-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Digital Cleanup Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "document-approval-queue",
+      "name": "Document Approval Queue",
+      "route": "https://techmaxxed.com/tools/document-approval-queue/",
+      "publicRoute": "https://techmaxxed.com/tools/document-approval-queue/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Document Approval Queue tracks tasks, records, deadlines, and follow-up status in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "document-version-register",
+      "name": "Document Version Register",
+      "route": "https://techmaxxed.com/tools/document-version-register/",
+      "publicRoute": "https://techmaxxed.com/tools/document-version-register/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Document Version Register tracks tasks, records, deadlines, and follow-up status in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "duplicate-media-finder",
+      "name": "Duplicate Media Finder",
+      "route": "https://techmaxxed.com/plugins/duplicate-media-finder/",
+      "publicRoute": "https://techmaxxed.com/plugins/duplicate-media-finder/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Review exact-byte media duplicates using file size and streamed hashing without deletion automation.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "emergency-prep-command",
+      "name": "Emergency Prep Command",
+      "route": "https://techmaxxed.com/tools/emergency-prep-command/",
+      "publicRoute": "https://techmaxxed.com/tools/emergency-prep-command/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Emergency Prep Command is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "equipment-payback-calculator",
+      "name": "Equipment Payback Calculator",
+      "route": "https://techmaxxed.com/tools/equipment-payback-calculator/",
+      "publicRoute": "https://techmaxxed.com/tools/equipment-payback-calculator/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Equipment Payback Calculator helps plan, calculate, and compare practical financial decisions in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "facility-maintenance-board",
+      "name": "Facility Maintenance Board",
+      "route": "https://techmaxxed.com/tools/facility-maintenance-board/",
+      "publicRoute": "https://techmaxxed.com/tools/facility-maintenance-board/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Facility Maintenance Board is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "family-care-coordinator",
+      "name": "Family Care Coordinator",
+      "route": "https://techmaxxed.com/tools/family-care-coordinator/",
+      "publicRoute": "https://techmaxxed.com/tools/family-care-coordinator/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Family Care Coordinator is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "family-food-planner",
+      "name": "Family Food Planner",
+      "route": "https://techmaxxed.com/tools/family-food-planner/",
+      "publicRoute": "https://techmaxxed.com/tools/family-food-planner/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Family Food Planner is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "field-inspection-pro",
+      "name": "Field Inspection Pro",
+      "route": "https://techmaxxed.com/tools/field-inspection-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/field-inspection-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Field Inspection Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "field-ops-command-center",
+      "name": "Field Ops Command Center",
+      "route": "https://techmaxxed.com/tools/field-ops-command-center/",
+      "publicRoute": "https://techmaxxed.com/tools/field-ops-command-center/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Field Ops Command Center is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "fishing-maxxed",
+      "name": "Fishing Maxxed",
+      "route": "/products/fishing-maxxed/",
+      "publicRoute": "https://techmaxxed.com/apps/fishing-maxxed/",
+      "state": "Beta testers needed",
+      "family": "Android app",
+      "summary": "An offline-first catch journal with guided photos, known-reference length measurement, uncertainty, manual species confirmation, and privacy-minded exports.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "fitness-coach-board",
+      "name": "Fitness Coach Board",
+      "route": "https://techmaxxed.com/tools/fitness-coach-board/",
+      "publicRoute": "https://techmaxxed.com/tools/fitness-coach-board/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Fitness Coach Board is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "fleet-trip-planner-pro",
+      "name": "Fleet Trip Planner Pro",
+      "route": "https://techmaxxed.com/tools/fleet-trip-planner-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/fleet-trip-planner-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Fleet Trip Planner Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "food-truck-ops-pro",
+      "name": "Food Truck Ops Pro",
+      "route": "https://techmaxxed.com/tools/food-truck-ops-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/food-truck-ops-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Food Truck Ops Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "form-delivery-checker",
+      "name": "Form Delivery Checker",
+      "route": "https://techmaxxed.com/plugins/form-delivery-checker/",
+      "publicRoute": "https://techmaxxed.com/plugins/form-delivery-checker/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Track form delivery checks, test submissions, and follow-up notes for site maintenance.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "form-field-tester",
+      "name": "Form Field Tester",
+      "route": "https://techmaxxed.com/tools/form-field-tester/",
+      "publicRoute": "https://techmaxxed.com/tools/form-field-tester/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Form Field Tester reviews websites, content, fields, or source material in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "fraud-review-checklist",
+      "name": "Fraud Review Checklist",
+      "route": "https://techmaxxed.com/plugins/fraud-review-checklist/",
+      "publicRoute": "https://techmaxxed.com/plugins/fraud-review-checklist/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Coordinate fraud review steps, notes, and decision checkpoints for order or account triage.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "freelance-rate-calculator",
+      "name": "Freelance Rate Calculator",
+      "route": "https://techmaxxed.com/tools/freelance-rate-calculator/",
+      "publicRoute": "https://techmaxxed.com/tools/freelance-rate-calculator/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Freelance Rate Calculator helps plan, calculate, and compare practical financial decisions in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "freelancer-studio-pro",
+      "name": "Freelancer Studio Pro",
+      "route": "https://techmaxxed.com/tools/freelancer-studio-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/freelancer-studio-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Freelancer Studio Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "fundraising-command",
+      "name": "Fundraising Command",
+      "route": "https://techmaxxed.com/tools/fundraising-command/",
+      "publicRoute": "https://techmaxxed.com/tools/fundraising-command/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Fundraising Command is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "garden-homestead-pro",
+      "name": "Garden Homestead Pro",
+      "route": "https://techmaxxed.com/tools/garden-homestead-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/garden-homestead-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Garden Homestead Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "garden-to-kitchen-pro",
+      "name": "Garden To Kitchen Pro",
+      "route": "https://techmaxxed.com/tools/garden-to-kitchen-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/garden-to-kitchen-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Garden To Kitchen Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "grocery-savings-suite",
+      "name": "Grocery Savings Suite",
+      "route": "https://techmaxxed.com/tools/grocery-savings-suite/",
+      "publicRoute": "https://techmaxxed.com/tools/grocery-savings-suite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Grocery Savings Suite helps plan, calculate, and compare practical financial decisions in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "hoa-community-board",
+      "name": "HOA Community Board",
+      "route": "https://techmaxxed.com/tools/hoa-community-board/",
+      "publicRoute": "https://techmaxxed.com/tools/hoa-community-board/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "HOA Community Board is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "home-command-center",
+      "name": "Home Command Center",
+      "route": "https://techmaxxed.com/tools/home-command-center/",
+      "publicRoute": "https://techmaxxed.com/tools/home-command-center/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Home Command Center is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "home-project-planner",
+      "name": "Home Project Planner",
+      "route": "https://techmaxxed.com/tools/home-project-planner/",
+      "publicRoute": "https://techmaxxed.com/tools/home-project-planner/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Home Project Planner is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "home-service-crew-board",
+      "name": "Home Service Crew Board",
+      "route": "https://techmaxxed.com/tools/home-service-crew-board/",
+      "publicRoute": "https://techmaxxed.com/tools/home-service-crew-board/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Home Service Crew Board is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "hospitality-guest-ops",
+      "name": "Hospitality Guest Ops",
+      "route": "https://techmaxxed.com/tools/hospitality-guest-ops/",
+      "publicRoute": "https://techmaxxed.com/tools/hospitality-guest-ops/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Hospitality Guest Ops is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "household-inventory-vault",
+      "name": "Household Inventory Vault",
+      "route": "https://techmaxxed.com/tools/household-inventory-vault/",
+      "publicRoute": "https://techmaxxed.com/tools/household-inventory-vault/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Household Inventory Vault is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "image-alt-text-audit",
+      "name": "Image Alt Text Audit",
+      "route": "https://techmaxxed.com/plugins/image-alt-text-audit/",
+      "publicRoute": "https://techmaxxed.com/plugins/image-alt-text-audit/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Audit image alt metadata and review accessibility corrections one item at a time.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "job-career-command",
+      "name": "Job Career Command",
+      "route": "https://techmaxxed.com/tools/job-career-command/",
+      "publicRoute": "https://techmaxxed.com/tools/job-career-command/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Job Career Command is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "job-closeout-pro",
+      "name": "Job Closeout Pro",
+      "route": "https://techmaxxed.com/tools/job-closeout-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/job-closeout-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Job Closeout Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "kitchen-inventory-pro",
+      "name": "Kitchen Inventory Pro",
+      "route": "https://techmaxxed.com/tools/kitchen-inventory-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/kitchen-inventory-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Kitchen Inventory Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "learning-growth-dashboard",
+      "name": "Learning Growth Dashboard",
+      "route": "https://techmaxxed.com/tools/learning-growth-dashboard/",
+      "publicRoute": "https://techmaxxed.com/tools/learning-growth-dashboard/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Learning Growth Dashboard is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "legal-page-update-reminder",
+      "name": "Legal Page Update Reminder",
+      "route": "https://techmaxxed.com/plugins/legal-page-update-reminder/",
+      "publicRoute": "https://techmaxxed.com/plugins/legal-page-update-reminder/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Keep legal, policy, and compliance pages visible for scheduled review.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "life-admin-command",
+      "name": "Life Admin Command",
+      "route": "https://techmaxxed.com/tools/life-admin-command/",
+      "publicRoute": "https://techmaxxed.com/tools/life-admin-command/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Life Admin Command is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "listing-prep-studio",
+      "name": "Listing Prep Studio",
+      "route": "https://techmaxxed.com/tools/listing-prep-studio/",
+      "publicRoute": "https://techmaxxed.com/tools/listing-prep-studio/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Listing Prep Studio is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "local-business-schema-manager",
+      "name": "Local Business Schema Manager",
+      "route": "https://techmaxxed.com/plugins/local-business-schema-manager/",
+      "publicRoute": "https://techmaxxed.com/plugins/local-business-schema-manager/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Manage local business schema details with editable business information and review notes.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "local-project-watchlist",
+      "name": "Local Project Watchlist",
+      "route": "https://techmaxxed.com/tools/local-project-watchlist/",
+      "publicRoute": "https://techmaxxed.com/tools/local-project-watchlist/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Local Project Watchlist tracks tasks, records, deadlines, and follow-up status in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "local-seo-page-checker",
+      "name": "Local SEO Page Checker",
+      "route": "https://techmaxxed.com/tools/local-seo-page-checker/",
+      "publicRoute": "https://techmaxxed.com/tools/local-seo-page-checker/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Local SEO Page Checker reviews websites, content, fields, or source material in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "local-volunteer-matcher",
+      "name": "Local Volunteer Matcher",
+      "route": "https://techmaxxed.com/tools/local-volunteer-matcher/",
+      "publicRoute": "https://techmaxxed.com/tools/local-volunteer-matcher/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Local Volunteer Matcher is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "low-bridge-trip-ops",
+      "name": "Low Bridge Trip Ops",
+      "route": "https://techmaxxed.com/tools/low-bridge-trip-ops/",
+      "publicRoute": "https://techmaxxed.com/tools/low-bridge-trip-ops/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Low Bridge Trip Ops is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "low-stock-digest",
+      "name": "Low Stock Digest",
+      "route": "https://techmaxxed.com/plugins/low-stock-digest/",
+      "publicRoute": "https://techmaxxed.com/plugins/low-stock-digest/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Prepare low-stock summaries for WooCommerce operators and inventory review.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "maker-workshop-pro",
+      "name": "Maker Workshop Pro",
+      "route": "https://techmaxxed.com/tools/maker-workshop-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/maker-workshop-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Maker Workshop Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "maxxed-compass",
+      "name": "Maxxed Compass",
+      "route": "/products/maxxed-compass/",
+      "publicRoute": "https://techmaxxed.com/apps/maxxed-compass/",
+      "state": "Beta testers needed",
+      "family": "Android app",
+      "summary": "An offline compass, true-north guide, trip tracker, and calculated sky scanner with constellation dots and lines, local history, and practical field modes.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "maxxed-gold-estimator",
+      "name": "Maxxed Gold Estimator",
+      "route": "/products/maxxed-gold-estimator/",
+      "publicRoute": "https://techmaxxed.com/apps/maxxed-gold-estimator/",
+      "state": "Beta testers needed",
+      "family": "Android app",
+      "summary": "An offline visual material estimator with guided multi-angle capture, reference scale, mask correction, material review, saved batches, and CSV export.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "maxxed-measure",
+      "name": "Maxxed Measure",
+      "route": "/products/maxxed-measure/",
+      "publicRoute": "https://techmaxxed.com/apps/maxxed-measure/",
+      "state": "Early access requests open",
+      "family": "Android app",
+      "summary": "A reference-calibrated measuring workflow with draggable points, annotated captures, multiple units, confidence, and local history.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "maxxed-remote",
+      "name": "Maxxed Remote",
+      "route": "/products/maxxed-remote/",
+      "publicRoute": "https://techmaxxed.com/apps/maxxed-remote/",
+      "state": "Beta testers needed",
+      "family": "Android app",
+      "summary": "A streamlined Android remote for compatible Samsung Tizen and LG webOS televisions, built around secure local-network control and fast everyday access.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "meal-planning-command",
+      "name": "Meal Planning Command",
+      "route": "https://techmaxxed.com/tools/meal-planning-command/",
+      "publicRoute": "https://techmaxxed.com/tools/meal-planning-command/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Meal Planning Command is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "meeting-minutes-organizer",
+      "name": "Meeting Minutes Organizer",
+      "route": "https://techmaxxed.com/tools/meeting-minutes-organizer/",
+      "publicRoute": "https://techmaxxed.com/tools/meeting-minutes-organizer/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Meeting Minutes Organizer organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "ministry-ops-suite",
+      "name": "Ministry Ops Suite",
+      "route": "https://techmaxxed.com/tools/ministry-ops-suite/",
+      "publicRoute": "https://techmaxxed.com/tools/ministry-ops-suite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Ministry Ops Suite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "mobile-detailing-manager",
+      "name": "Mobile Detailing Manager",
+      "route": "https://techmaxxed.com/tools/mobile-detailing-manager/",
+      "publicRoute": "https://techmaxxed.com/tools/mobile-detailing-manager/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Mobile Detailing Manager organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "mobile-work-order-pro",
+      "name": "Mobile Work Order Pro",
+      "route": "https://techmaxxed.com/tools/mobile-work-order-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/mobile-work-order-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Mobile Work Order Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "move-relocation-pro",
+      "name": "Move Relocation Pro",
+      "route": "https://techmaxxed.com/tools/move-relocation-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/move-relocation-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Move Relocation Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "moving-storage-vault",
+      "name": "Moving Storage Vault",
+      "route": "https://techmaxxed.com/tools/moving-storage-vault/",
+      "publicRoute": "https://techmaxxed.com/tools/moving-storage-vault/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Moving Storage Vault is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "museum-volunteer-ops",
+      "name": "Museum Volunteer Ops",
+      "route": "https://techmaxxed.com/tools/museum-volunteer-ops/",
+      "publicRoute": "https://techmaxxed.com/tools/museum-volunteer-ops/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Museum Volunteer Ops is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "music-gig-manager",
+      "name": "Music Gig Manager",
+      "route": "https://techmaxxed.com/tools/music-gig-manager/",
+      "publicRoute": "https://techmaxxed.com/tools/music-gig-manager/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Music Gig Manager organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "nap-consistency-checker",
+      "name": "NAP Consistency Checker",
+      "route": "https://techmaxxed.com/plugins/nap-consistency-checker/",
+      "publicRoute": "https://techmaxxed.com/plugins/nap-consistency-checker/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Check name, address, and phone consistency across local business site content.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "neighborhood-action-board",
+      "name": "Neighborhood Action Board",
+      "route": "https://techmaxxed.com/tools/neighborhood-action-board/",
+      "publicRoute": "https://techmaxxed.com/tools/neighborhood-action-board/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Neighborhood Action Board is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "neighborhood-cleanup-planner",
+      "name": "Neighborhood Cleanup Planner",
+      "route": "https://techmaxxed.com/tools/neighborhood-cleanup-planner/",
+      "publicRoute": "https://techmaxxed.com/tools/neighborhood-cleanup-planner/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Neighborhood Cleanup Planner is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "neighborhood-emergency-board",
+      "name": "Neighborhood Emergency Board",
+      "route": "https://techmaxxed.com/tools/neighborhood-emergency-board/",
+      "publicRoute": "https://techmaxxed.com/tools/neighborhood-emergency-board/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Neighborhood Emergency Board is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "neighborhood-issue-reporter",
+      "name": "Neighborhood Issue Reporter",
+      "route": "https://techmaxxed.com/tools/neighborhood-issue-reporter/",
+      "publicRoute": "https://techmaxxed.com/tools/neighborhood-issue-reporter/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Neighborhood Issue Reporter is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "newsletter-growth-studio",
+      "name": "Newsletter Growth Studio",
+      "route": "https://techmaxxed.com/tools/newsletter-growth-studio/",
+      "publicRoute": "https://techmaxxed.com/tools/newsletter-growth-studio/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Newsletter Growth Studio is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "nonprofit-ops-suite",
+      "name": "Nonprofit Ops Suite",
+      "route": "https://techmaxxed.com/tools/nonprofit-ops-suite/",
+      "publicRoute": "https://techmaxxed.com/tools/nonprofit-ops-suite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Nonprofit Ops Suite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "office-people-ops-pro",
+      "name": "Office People Ops Pro",
+      "route": "https://techmaxxed.com/tools/office-people-ops-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/office-people-ops-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Office People Ops Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "order-export-builder",
+      "name": "Order Export Builder",
+      "route": "https://techmaxxed.com/plugins/order-export-builder/",
+      "publicRoute": "https://techmaxxed.com/plugins/order-export-builder/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Create reviewed order export configurations for operational reporting workflows.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "orphan-page-finder",
+      "name": "Orphan Page Finder",
+      "route": "https://techmaxxed.com/plugins/orphan-page-finder/",
+      "publicRoute": "https://techmaxxed.com/plugins/orphan-page-finder/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Find pages that need internal links, review, or removal from navigation plans.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "outdoor-adventure-pro",
+      "name": "Outdoor Adventure Pro",
+      "route": "https://techmaxxed.com/tools/outdoor-adventure-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/outdoor-adventure-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Outdoor Adventure Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "page-accessibility-notes",
+      "name": "Page Accessibility Notes",
+      "route": "https://techmaxxed.com/tools/page-accessibility-notes/",
+      "publicRoute": "https://techmaxxed.com/tools/page-accessibility-notes/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Page Accessibility Notes is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "page-metadata-inspector",
+      "name": "Page Metadata Inspector",
+      "route": "https://techmaxxed.com/tools/page-metadata-inspector/",
+      "publicRoute": "https://techmaxxed.com/tools/page-metadata-inspector/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Page Metadata Inspector reviews websites, content, fields, or source material in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "parent-school-dashboard",
+      "name": "Parent School Dashboard",
+      "route": "https://techmaxxed.com/tools/parent-school-dashboard/",
+      "publicRoute": "https://techmaxxed.com/tools/parent-school-dashboard/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Parent School Dashboard is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "park-condition-reporter",
+      "name": "Park Condition Reporter",
+      "route": "https://techmaxxed.com/tools/park-condition-reporter/",
+      "publicRoute": "https://techmaxxed.com/tools/park-condition-reporter/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Park Condition Reporter is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "pdf-evidence-organizer",
+      "name": "PDF Evidence Organizer",
+      "route": "https://techmaxxed.com/tools/pdf-evidence-organizer/",
+      "publicRoute": "https://techmaxxed.com/tools/pdf-evidence-organizer/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "PDF Evidence Organizer organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "personal-finance-lite-pro",
+      "name": "Personal Finance Lite Pro",
+      "route": "https://techmaxxed.com/tools/personal-finance-lite-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/personal-finance-lite-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Personal Finance Lite Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "personal-health-records",
+      "name": "Personal Health Records",
+      "route": "https://techmaxxed.com/tools/personal-health-records/",
+      "publicRoute": "https://techmaxxed.com/tools/personal-health-records/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Personal Health Records is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "personal-records-safe",
+      "name": "Personal Records Safe",
+      "route": "https://techmaxxed.com/tools/personal-records-safe/",
+      "publicRoute": "https://techmaxxed.com/tools/personal-records-safe/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Personal Records Safe is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "pet-life-manager",
+      "name": "Pet Life Manager",
+      "route": "https://techmaxxed.com/tools/pet-life-manager/",
+      "publicRoute": "https://techmaxxed.com/tools/pet-life-manager/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Pet Life Manager organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "photography-business-pro",
+      "name": "Photography Business Pro",
+      "route": "https://techmaxxed.com/tools/photography-business-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/photography-business-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Photography Business Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "plugin-license-inventory",
+      "name": "Plugin License Inventory",
+      "route": "https://techmaxxed.com/plugins/plugin-license-inventory/",
+      "publicRoute": "https://techmaxxed.com/plugins/plugin-license-inventory/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Track plugin licenses, renewal notes, owners, and operational status.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "podcast-production-suite",
+      "name": "Podcast Production Suite",
+      "route": "https://techmaxxed.com/tools/podcast-production-suite/",
+      "publicRoute": "https://techmaxxed.com/tools/podcast-production-suite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Podcast Production Suite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "policy-review-tracker",
+      "name": "Policy Review Tracker",
+      "route": "https://techmaxxed.com/tools/policy-review-tracker/",
+      "publicRoute": "https://techmaxxed.com/tools/policy-review-tracker/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Policy Review Tracker tracks tasks, records, deadlines, and follow-up status in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "post-purge-pro",
+      "name": "Post Purge Pro",
+      "route": "https://techmaxxed.com/plugins/post-purge-pro/",
+      "publicRoute": "https://techmaxxed.com/plugins/post-purge-pro/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Preview stale posts, export a CSV backup, and review batch move-to-Trash workflows.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "privacy-security-command",
+      "name": "Privacy Security Command",
+      "route": "https://techmaxxed.com/tools/privacy-security-command/",
+      "publicRoute": "https://techmaxxed.com/tools/privacy-security-command/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Privacy Security Command is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "product-compliance-expiration",
+      "name": "Product Compliance Expiration",
+      "route": "https://techmaxxed.com/plugins/product-compliance-expiration/",
+      "publicRoute": "https://techmaxxed.com/plugins/product-compliance-expiration/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Track product compliance dates, expiration reminders, and review notes.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "product-data-cleanup",
+      "name": "Product Data Cleanup",
+      "route": "https://techmaxxed.com/plugins/product-data-cleanup/",
+      "publicRoute": "https://techmaxxed.com/plugins/product-data-cleanup/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Review product data quality issues before making cleanup decisions.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "product-image-audit",
+      "name": "Product Image Audit",
+      "route": "https://techmaxxed.com/plugins/product-image-audit/",
+      "publicRoute": "https://techmaxxed.com/plugins/product-image-audit/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Audit product image coverage, metadata, and content readiness.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "prompt-automation-library",
+      "name": "Prompt Automation Library",
+      "route": "https://techmaxxed.com/tools/prompt-automation-library/",
+      "publicRoute": "https://techmaxxed.com/tools/prompt-automation-library/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Prompt Automation Library is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "property-manager-lite",
+      "name": "Property Manager Lite",
+      "route": "https://techmaxxed.com/tools/property-manager-lite/",
+      "publicRoute": "https://techmaxxed.com/tools/property-manager-lite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Property Manager Lite organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "public-comment-organizer",
+      "name": "Public Comment Organizer",
+      "route": "https://techmaxxed.com/tools/public-comment-organizer/",
+      "publicRoute": "https://techmaxxed.com/tools/public-comment-organizer/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Public Comment Organizer organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "real-estate-agent-pro",
+      "name": "Real Estate Agent Pro",
+      "route": "https://techmaxxed.com/tools/real-estate-agent-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/real-estate-agent-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Real Estate Agent Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "records-request-tracker",
+      "name": "Records Request Tracker",
+      "route": "https://techmaxxed.com/tools/records-request-tracker/",
+      "publicRoute": "https://techmaxxed.com/tools/records-request-tracker/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Records Request Tracker tracks tasks, records, deadlines, and follow-up status in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "redirect-manager-pro",
+      "name": "Redirect Manager Pro",
+      "route": "https://techmaxxed.com/plugins/redirect-manager-pro/",
+      "publicRoute": "https://techmaxxed.com/plugins/redirect-manager-pro/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Plan redirect entries and review URL cleanup work inside WordPress.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "rental-turnover-pro",
+      "name": "Rental Turnover Pro",
+      "route": "https://techmaxxed.com/tools/rental-turnover-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/rental-turnover-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Rental Turnover Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "restaurant-shift-pro",
+      "name": "Restaurant Shift Pro",
+      "route": "https://techmaxxed.com/tools/restaurant-shift-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/restaurant-shift-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Restaurant Shift Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "returns-request-portal",
+      "name": "Returns Request Portal",
+      "route": "https://techmaxxed.com/plugins/returns-request-portal/",
+      "publicRoute": "https://techmaxxed.com/plugins/returns-request-portal/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Organize return requests, status notes, and customer-service review steps.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "rival-rush",
+      "name": "Rival Rush",
+      "route": "/products/rival-rush/",
+      "publicRoute": "https://techmaxxed.com/apps/rival-rush/",
+      "state": "Beta testers needed",
+      "family": "Android app",
+      "summary": "A colorful couples party arcade featuring PickOff, RPS Arena, Tap Battle, and Word Rush, with profiles, scores, avatars, and more games planned.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "rv-camping-command",
+      "name": "RV Camping Command",
+      "route": "https://techmaxxed.com/tools/rv-camping-command/",
+      "publicRoute": "https://techmaxxed.com/tools/rv-camping-command/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "RV Camping Command is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "saas-admin-lite",
+      "name": "SAAS Admin Lite",
+      "route": "https://techmaxxed.com/tools/saas-admin-lite/",
+      "publicRoute": "https://techmaxxed.com/tools/saas-admin-lite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "SAAS Admin Lite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "sales-pipeline-pro",
+      "name": "Sales Pipeline Pro",
+      "route": "https://techmaxxed.com/tools/sales-pipeline-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/sales-pipeline-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Sales Pipeline Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "savings-goal-planner",
+      "name": "Savings Goal Planner",
+      "route": "https://techmaxxed.com/tools/savings-goal-planner/",
+      "publicRoute": "https://techmaxxed.com/tools/savings-goal-planner/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Savings Goal Planner helps plan, calculate, and compare practical financial decisions in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "scheduled-content-expiration",
+      "name": "Scheduled Content Expiration",
+      "route": "https://techmaxxed.com/plugins/scheduled-content-expiration/",
+      "publicRoute": "https://techmaxxed.com/plugins/scheduled-content-expiration/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Track content expiration dates, review windows, and scheduled follow-up.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "scope-of-work-generator",
+      "name": "Scope Of Work Generator",
+      "route": "https://techmaxxed.com/tools/scope-of-work-generator/",
+      "publicRoute": "https://techmaxxed.com/tools/scope-of-work-generator/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Scope Of Work Generator builds structured working documents and repeatable outputs in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "screenshot-evidence-extension",
+      "name": "Screenshot Evidence Extension",
+      "route": "https://techmaxxed.com/tools/screenshot-evidence-extension/",
+      "publicRoute": "https://techmaxxed.com/tools/screenshot-evidence-extension/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Screenshot Evidence Extension is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "security-header-audit",
+      "name": "Security Header Audit",
+      "route": "https://techmaxxed.com/plugins/security-header-audit/",
+      "publicRoute": "https://techmaxxed.com/plugins/security-header-audit/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Review website security header presence and maintenance notes.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "senior-support-suite",
+      "name": "Senior Support Suite",
+      "route": "https://techmaxxed.com/tools/senior-support-suite/",
+      "publicRoute": "https://techmaxxed.com/tools/senior-support-suite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Senior Support Suite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "service-area-page-builder",
+      "name": "Service Area Page Builder",
+      "route": "https://techmaxxed.com/plugins/service-area-page-builder/",
+      "publicRoute": "https://techmaxxed.com/plugins/service-area-page-builder/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Create and organize service-area page drafts for local business websites.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "shipping-rule-auditor",
+      "name": "Shipping Rule Auditor",
+      "route": "https://techmaxxed.com/plugins/shipping-rule-auditor/",
+      "publicRoute": "https://techmaxxed.com/plugins/shipping-rule-auditor/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Review WooCommerce shipping rules, notes, and coverage gaps.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "shop-ops-pro",
+      "name": "Shop Ops Pro",
+      "route": "https://techmaxxed.com/tools/shop-ops-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/shop-ops-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Shop Ops Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "short-term-rental-host-pro",
+      "name": "Short Term Rental Host Pro",
+      "route": "https://techmaxxed.com/tools/short-term-rental-host-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/short-term-rental-host-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Short Term Rental Host Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "side-job-profit-calculator",
+      "name": "Side Job Profit Calculator",
+      "route": "https://techmaxxed.com/tools/side-job-profit-calculator/",
+      "publicRoute": "https://techmaxxed.com/tools/side-job-profit-calculator/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Side Job Profit Calculator helps plan, calculate, and compare practical financial decisions in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "simple-debt-payoff-planner",
+      "name": "Simple Debt Payoff Planner",
+      "route": "https://techmaxxed.com/tools/simple-debt-payoff-planner/",
+      "publicRoute": "https://techmaxxed.com/tools/simple-debt-payoff-planner/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Simple Debt Payoff Planner helps plan, calculate, and compare practical financial decisions in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "simple-proposal-builder",
+      "name": "Simple Proposal Builder",
+      "route": "https://techmaxxed.com/tools/simple-proposal-builder/",
+      "publicRoute": "https://techmaxxed.com/tools/simple-proposal-builder/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Simple Proposal Builder builds structured working documents and repeatable outputs in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "small-business-admin-suite",
+      "name": "Small Business Admin Suite",
+      "route": "https://techmaxxed.com/tools/small-business-admin-suite/",
+      "publicRoute": "https://techmaxxed.com/tools/small-business-admin-suite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Small Business Admin Suite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "social-media-ops-pro",
+      "name": "Social Media Ops Pro",
+      "route": "https://techmaxxed.com/tools/social-media-ops-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/social-media-ops-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Social Media Ops Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "sports-league-manager",
+      "name": "Sports League Manager",
+      "route": "https://techmaxxed.com/tools/sports-league-manager/",
+      "publicRoute": "https://techmaxxed.com/tools/sports-league-manager/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Sports League Manager organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "stale-content-detector",
+      "name": "Stale Content Detector",
+      "route": "https://techmaxxed.com/plugins/stale-content-detector/",
+      "publicRoute": "https://techmaxxed.com/plugins/stale-content-detector/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Score stale content candidates with explainable freshness signals and CSV export.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "stale-inventory-reporter",
+      "name": "Stale Inventory Reporter",
+      "route": "https://techmaxxed.com/plugins/stale-inventory-reporter/",
+      "publicRoute": "https://techmaxxed.com/plugins/stale-inventory-reporter/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Identify old inventory records and prepare review notes for cleanup.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "startup-ops-dashboard",
+      "name": "Startup Ops Dashboard",
+      "route": "https://techmaxxed.com/tools/startup-ops-dashboard/",
+      "publicRoute": "https://techmaxxed.com/tools/startup-ops-dashboard/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Startup Ops Dashboard is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "streetlight-issue-log",
+      "name": "Streetlight Issue Log",
+      "route": "https://techmaxxed.com/tools/streetlight-issue-log/",
+      "publicRoute": "https://techmaxxed.com/tools/streetlight-issue-log/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Streetlight Issue Log tracks tasks, records, deadlines, and follow-up status in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "structured-data-viewer",
+      "name": "Structured Data Viewer",
+      "route": "https://techmaxxed.com/tools/structured-data-viewer/",
+      "publicRoute": "https://techmaxxed.com/tools/structured-data-viewer/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Structured Data Viewer is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "studio-class-manager",
+      "name": "Studio Class Manager",
+      "route": "https://techmaxxed.com/tools/studio-class-manager/",
+      "publicRoute": "https://techmaxxed.com/tools/studio-class-manager/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Studio Class Manager organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "subscription-cost-analyzer",
+      "name": "Subscription Cost Analyzer",
+      "route": "https://techmaxxed.com/tools/subscription-cost-analyzer/",
+      "publicRoute": "https://techmaxxed.com/tools/subscription-cost-analyzer/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Subscription Cost Analyzer helps plan, calculate, and compare practical financial decisions in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "supplier-tracker-for-woocommerce",
+      "name": "Supplier Tracker for WooCommerce",
+      "route": "https://techmaxxed.com/plugins/supplier-tracker-for-woocommerce/",
+      "publicRoute": "https://techmaxxed.com/plugins/supplier-tracker-for-woocommerce/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Track suppliers, product relationships, and operational notes for WooCommerce stores.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "support-desk-lite",
+      "name": "Support Desk Lite",
+      "route": "https://techmaxxed.com/tools/support-desk-lite/",
+      "publicRoute": "https://techmaxxed.com/tools/support-desk-lite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Support Desk Lite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "tab-session-organizer",
+      "name": "Tab Session Organizer",
+      "route": "https://techmaxxed.com/tools/tab-session-organizer/",
+      "publicRoute": "https://techmaxxed.com/tools/tab-session-organizer/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Tab Session Organizer organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "tax-document-admin",
+      "name": "Tax Document Admin",
+      "route": "https://techmaxxed.com/tools/tax-document-admin/",
+      "publicRoute": "https://techmaxxed.com/tools/tax-document-admin/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Tax Document Admin is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "template-variable-manager",
+      "name": "Template Variable Manager",
+      "route": "https://techmaxxed.com/tools/template-variable-manager/",
+      "publicRoute": "https://techmaxxed.com/tools/template-variable-manager/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Template Variable Manager organizes operational details, contacts, assets, or records in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "tenant-experience-hub",
+      "name": "Tenant Experience Hub",
+      "route": "https://techmaxxed.com/tools/tenant-experience-hub/",
+      "publicRoute": "https://techmaxxed.com/tools/tenant-experience-hub/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Tenant Experience Hub is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "trade-material-planner",
+      "name": "Trade Material Planner",
+      "route": "https://techmaxxed.com/tools/trade-material-planner/",
+      "publicRoute": "https://techmaxxed.com/tools/trade-material-planner/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Trade Material Planner is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "travel-planning-hub",
+      "name": "Travel Planning Hub",
+      "route": "https://techmaxxed.com/tools/travel-planning-hub/",
+      "publicRoute": "https://techmaxxed.com/tools/travel-planning-hub/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Travel Planning Hub is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "uptime-digest-plugin",
+      "name": "Uptime Digest Plugin",
+      "route": "https://techmaxxed.com/plugins/uptime-digest-plugin/",
+      "publicRoute": "https://techmaxxed.com/plugins/uptime-digest-plugin/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Prepare uptime digest records and maintenance visibility for site operators.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "vehicle-cost-per-mile",
+      "name": "Vehicle Cost Per Mile",
+      "route": "https://techmaxxed.com/tools/vehicle-cost-per-mile/",
+      "publicRoute": "https://techmaxxed.com/tools/vehicle-cost-per-mile/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Vehicle Cost Per Mile helps plan, calculate, and compare practical financial decisions in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "vehicle-maintenance-suite",
+      "name": "Vehicle Maintenance Suite",
+      "route": "https://techmaxxed.com/tools/vehicle-maintenance-suite/",
+      "publicRoute": "https://techmaxxed.com/tools/vehicle-maintenance-suite/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Vehicle Maintenance Suite is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "venue-event-ops",
+      "name": "Venue Event Ops",
+      "route": "https://techmaxxed.com/tools/venue-event-ops/",
+      "publicRoute": "https://techmaxxed.com/tools/venue-event-ops/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Venue Event Ops is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "warehouse-micro-ops",
+      "name": "Warehouse Micro Ops",
+      "route": "https://techmaxxed.com/tools/warehouse-micro-ops/",
+      "publicRoute": "https://techmaxxed.com/tools/warehouse-micro-ops/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Warehouse Micro Ops is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "web-launch-qa-pro",
+      "name": "Web Launch QA Pro",
+      "route": "https://techmaxxed.com/tools/web-launch-qa-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/web-launch-qa-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Web Launch QA Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "web-research-source-collector",
+      "name": "Web Research Source Collector",
+      "route": "https://techmaxxed.com/tools/web-research-source-collector/",
+      "publicRoute": "https://techmaxxed.com/tools/web-research-source-collector/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Web Research Source Collector reviews websites, content, fields, or source material in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "webpage-change-monitor",
+      "name": "Webpage Change Monitor",
+      "route": "https://techmaxxed.com/tools/webpage-change-monitor/",
+      "publicRoute": "https://techmaxxed.com/tools/webpage-change-monitor/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Webpage Change Monitor reviews websites, content, fields, or source material in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "website-contact-extractor",
+      "name": "Website Contact Extractor",
+      "route": "https://techmaxxed.com/tools/website-contact-extractor/",
+      "publicRoute": "https://techmaxxed.com/tools/website-contact-extractor/",
+      "state": "Product concept",
+      "family": "Focused web tool",
+      "summary": "Website Contact Extractor reviews websites, content, fields, or source material in a focused web workflow.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "website-maintenance-reporter",
+      "name": "Website Maintenance Reporter",
+      "route": "https://techmaxxed.com/plugins/website-maintenance-reporter/",
+      "publicRoute": "https://techmaxxed.com/plugins/website-maintenance-reporter/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Summarize maintenance work, findings, and client-ready website status notes.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "wedding-event-planner-pro",
+      "name": "Wedding Event Planner Pro",
+      "route": "https://techmaxxed.com/tools/wedding-event-planner-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/wedding-event-planner-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Wedding Event Planner Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "wellness-rhythm-pro",
+      "name": "Wellness Rhythm Pro",
+      "route": "https://techmaxxed.com/tools/wellness-rhythm-pro/",
+      "publicRoute": "https://techmaxxed.com/tools/wellness-rhythm-pro/",
+      "state": "Product concept",
+      "family": "Business tool",
+      "summary": "Wellness Rhythm Pro is a focused Maxxed software tool prepared for the public product catalog.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "woocommerce-margin-calculator",
+      "name": "WooCommerce Margin Calculator",
+      "route": "https://techmaxxed.com/plugins/woocommerce-margin-calculator/",
+      "publicRoute": "https://techmaxxed.com/plugins/woocommerce-margin-calculator/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Calculate and review product margin information for WooCommerce catalog planning.",
+      "supportEmail": "support@techmaxxed.com"
+    },
+    {
+      "id": "wordpress-role-auditor",
+      "name": "WordPress Role Auditor",
+      "route": "https://techmaxxed.com/plugins/wordpress-role-auditor/",
+      "publicRoute": "https://techmaxxed.com/plugins/wordpress-role-auditor/",
+      "state": "WordPress tool",
+      "family": "WordPress plugin",
+      "summary": "Audit WordPress user roles, access notes, and permissions review status.",
+      "supportEmail": "support@techmaxxed.com"
+    }
   ]
 }
