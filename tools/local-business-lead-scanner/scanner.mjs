@@ -154,27 +154,35 @@ export function parsePage(url, html = "") {
   };
 }
 
-export function buildCrawlPlan(seedUrl, html, options = {}) {
+export function buildCrawlPlan(seedUrl, input, options = {}) {
   const normalizedSeed = normalizeUrl(seedUrl);
   const origin = new URL(normalizedSeed).origin;
-  const limit = options.maxPages || defaultScanOptions.maxPages;
-  const links = extractLinks(html, normalizedSeed)
-    .map((link) => link.url)
+  const limit = options.pageCap || options.maxPages || defaultScanOptions.maxPages;
+  const sourceLinks = Array.isArray(input)
+    ? input.flatMap((page) => page.links || extractLinks(page.html || "", page.url || normalizedSeed))
+    : extractLinks(input, normalizedSeed);
+  const links = sourceLinks
+    .map((link) => link.url || link)
     .filter((url) => isAllowedPageUrl(url, origin));
   return [normalizedSeed, ...unique(links).filter((url) => url !== normalizedSeed)].slice(0, limit);
 }
 
-export async function scanWebsite(seedUrl, fetchPage, options = {}) {
+export async function scanWebsite(seedUrl, fetchPageOrOptions, options = {}) {
+  const scanOptions = typeof fetchPageOrOptions === "function" ? options : (fetchPageOrOptions || {});
+  const fetchPage = typeof fetchPageOrOptions === "function" ? fetchPageOrOptions : scanOptions.fetchPage;
+  if (typeof fetchPage !== "function") throw new Error("A fetchPage function is required.");
+
   const normalizedSeed = normalizeUrl(seedUrl);
   const origin = new URL(normalizedSeed).origin;
   const errors = [];
   const firstHtml = await fetchPage(normalizedSeed);
-  const plan = buildCrawlPlan(normalizedSeed, firstHtml, options);
+  const firstPage = parsePage(normalizedSeed, firstHtml);
+  const plan = buildCrawlPlan(normalizedSeed, [firstPage], scanOptions);
   const pages = [];
   for (const url of plan) {
     try {
       const html = url === normalizedSeed ? firstHtml : await fetchPage(url);
-      pages.push(parsePage(url, html));
+      pages.push(url === normalizedSeed ? firstPage : parsePage(url, html));
     } catch (error) {
       errors.push({ url, message: error.message });
     }
