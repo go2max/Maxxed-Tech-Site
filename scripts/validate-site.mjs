@@ -112,7 +112,7 @@ assert.match(await readFile(resolve(siteRoot, "beta-credits/index.html"), "utf8"
 const sitemap = await readFile(resolve(siteRoot, "sitemap.xml"), "utf8");
 assert.ok((sitemap.match(/<url>/g) || []).length >= 22, "Sitemap should contain generated indexed pages");
 assert.match(sitemap, /https:\/\/techmaxxed\.com\/plugins\//);
-assert.match(sitemap, /https:\/\/techmaxxed\.com\/admin\//);
+assert.doesNotMatch(sitemap, /https:\/\/techmaxxed\.com\/admin\//);
 assert.doesNotMatch(sitemap, /tools\/wordpress-plugin-lab\//);
 assert.match(await readFile(resolve(siteRoot, "robots.txt"), "utf8"), /Sitemap: https:\/\/techmaxxed\.com\/sitemap\.xml/);
 JSON.parse(await readFile(resolve(siteRoot, "site.webmanifest"), "utf8"));
