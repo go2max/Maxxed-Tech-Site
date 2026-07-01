@@ -4,34 +4,127 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <title>Seed Report | Maxxed Admin</title>
+  <title>Readiness Seed Snapshot | Maxxed Admin</title>
   <style>
-    :root{color-scheme:dark;--bg:#07131f;--panel:#0d1c2b;--panel2:#12263a;--text:#edf7ff;--muted:#9eb2c8;--line:#264158;--accent:#25d0d8;--warn:#ffc44d;--bad:#ff715b;--good:#b9ed45}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,system-ui,sans-serif}.wrap{max-width:1120px;margin:0 auto;padding:28px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;margin-bottom:20px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:800}.muted,small{color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.metrics div,.card{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:16px}.metrics strong{display:block;font-size:28px}.chip{display:inline-block;padding:4px 8px;border-radius:999px;background:#20394f;font-weight:800}.chip-ok{background:#314f20;color:var(--good)}.chip-blocked{background:#55281f;color:var(--bad)}pre{white-space:pre-wrap;background:#06111d;border:1px solid var(--line);border-radius:12px;padding:14px;overflow:auto}@media(max-width:800px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    :root{color-scheme:dark;--bg:#07131f;--panel:#0d1c2b;--panel2:#12263a;--text:#edf7ff;--muted:#9eb2c8;--line:#264158;--accent:#25d0d8;--warn:#ffc44d;--bad:#ff715b;--good:#b9ed45}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,system-ui,sans-serif}a{color:var(--accent)}h1,h2,h3,p{margin-top:0}.wrap{max-width:1120px;margin:0 auto;padding:28px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:20px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:800}.muted,small{color:var(--muted)}.notice{border-left:4px solid var(--warn);background:#221d0d;color:#ffe7a3}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.metrics div,.card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:16px}.metrics strong{display:block;font-size:28px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.chip{display:inline-block;margin:4px 6px 4px 0;padding:4px 8px;border-radius:999px;background:#20394f;font-weight:800}.chip-ok{background:#314f20;color:var(--good)}.chip-warn{background:#443715;color:var(--warn)}.chip-blocked{background:#55281f;color:var(--bad)}.chip-muted{background:#1a2d3f;color:var(--muted)}.table-wrap{overflow-x:auto}table{width:100%;min-width:820px;border-collapse:collapse}th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:#bfe8df;background:#102433;font-size:12px;text-transform:uppercase;letter-spacing:.06em}tr:last-child td{border-bottom:0}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}pre{white-space:pre-wrap;background:#06111d;border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;max-height:460px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.button{display:inline-flex;min-height:38px;align-items:center;justify-content:center;padding:0 14px;border:1px solid var(--accent);border-radius:7px;background:var(--accent);color:#041418;font-weight:800;text-decoration:none}.button.secondary{background:transparent;color:var(--text);border-color:var(--line)}@media(max-width:800px){.metrics,.grid{grid-template-columns:1fr}.wrap{padding:18px}table{min-width:720px}}
   </style>
 </head>
 <body><main class="wrap">
-  <section class="panel"><p class="eyebrow">Private admin</p><h1>Seed Readiness Report</h1><p class="muted">Read-only view for catalog seed readiness. This page should stay behind admin access controls.</p><p id="state"><span class="chip">Loading</span></p></section>
-  <section class="panel"><h2>Catalog Counts</h2><div class="metrics"><div><strong id="groups">--</strong><span>Groups</span></div><div><strong id="products">--</strong><span>Products</span></div><div><strong id="plans">--</strong><span>Plans</span></div><div><strong id="meters">--</strong><span>Meters</span></div></div></section>
-  <section class="panel"><h2>Recommendation</h2><p id="recommendation" class="muted">Waiting for report data.</p><h3>Blockers</h3><pre id="blockers">[]</pre></section>
-  <section class="panel"><h2>Raw Report</h2><pre id="raw">Loading report...</pre></section>
+  <section class="panel">
+    <p class="eyebrow">Private admin</p>
+    <h1>Readiness Seed Snapshot</h1>
+    <p class="muted">Conservative read-only view of seeded product and readiness data. This page should stay behind admin access controls.</p>
+    <p id="state"><span class="chip">Loading</span></p>
+    <div class="actions">
+      <a class="button secondary" href="/">Admin dashboard</a>
+      <a class="button secondary" href="/products/">Products</a>
+      <a class="button secondary" href="/operations/">Operations</a>
+    </div>
+  </section>
+
+  <section class="panel notice">
+    <h2>Important</h2>
+    <p>This is not live release readiness. It is a seed snapshot plus static checks that can confirm obvious website/support facts, while keeping evidence-heavy release gates pending until real artifacts or backend evidence exist.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Snapshot Metrics</h2>
+    <div class="metrics">
+      <div><strong id="products">--</strong><span>Products</span></div>
+      <div><strong id="gates">--</strong><span>Readiness gates</span></div>
+      <div><strong id="staticChecks">--</strong><span>Static checks OK</span></div>
+      <div><strong id="evidencePending">--</strong><span>Evidence pending</span></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Recommendation</h2>
+    <p id="recommendation" class="muted">Waiting for report data.</p>
+    <div id="summaryChips"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Product Snapshot</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Product</th><th>Lifecycle</th><th>Public page</th><th>Privacy page</th><th>Support</th><th>Release evidence</th></tr></thead>
+        <tbody id="productRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Gate Summary</h2>
+    <div class="grid">
+      <article class="card"><h3>States</h3><pre id="gateStates">Loading...</pre></article>
+      <article class="card"><h3>Evidence-heavy gates left pending</h3><pre id="pendingGates">Loading...</pre></article>
+    </div>
+  </section>
+
+  <section class="panel"><h2>Raw Data</h2><pre id="raw">Loading report...</pre></section>
 </main>
 <script>
 const text=(id,value)=>{document.getElementById(id).textContent=value};
+const html=(id,value)=>{document.getElementById(id).innerHTML=value};
+const terminalGateKeys=new Set(['play_listing_url_present','signed_release_artifact_recorded','signing_fingerprint_verified','debuggable_false','permissions_reviewed','store_copy_reviewed','data_safety_reviewed','beta_feedback_reviewed','known_blockers_closed','crash_anr_data_reviewed']);
+const goodStates=new Set(['ok','ready','passed','verified','configured','complete']);
+const pendingStates=new Set(['not_configured','not_run','insufficient_data','pending']);
+const staticOk=(value)=>Boolean(value&&String(value).trim());
+const chip=(label,type='muted')=>`<span class="chip chip-${type}">${label}</span>`;
+const stateType=(state)=>goodStates.has(state)?'ok':pendingStates.has(state)?'warn':['failed','blocked','error'].includes(state)?'blocked':'muted';
+function summarizeGates(gates){return gates.reduce((acc,gate)=>{acc[gate.state]=(acc[gate.state]||0)+1;return acc;},{});}
+function renderSeed(seed,sourceLabel){
+  const products=seed.products||[];
+  const gates=seed.readinessGates||[];
+  const stateCounts=summarizeGates(gates);
+  const staticChecks=products.reduce((count,product)=>count+Number(staticOk(product.publicUrl))+Number(staticOk(product.privacyUrl))+Number(staticOk(product.supportUrl)),0);
+  const evidencePending=gates.filter(gate=>terminalGateKeys.has(gate.gateKey)&&!goodStates.has(gate.state)).length;
+  html('state',chip(sourceLabel,'warn')+chip('Static seed snapshot','muted'));
+  text('products',products.length);
+  text('gates',gates.length);
+  text('staticChecks',staticChecks);
+  text('evidencePending',evidencePending);
+  text('recommendation','Use this as a planning snapshot only. Website URLs, privacy URLs, and support routes can be reviewed statically; signed artifacts, Play listing state, fingerprints, beta feedback, crash/ANR data, and blocker closure need real evidence before launch decisions.');
+  html('summaryChips',Object.entries(stateCounts).map(([state,count])=>chip(`${state}: ${count}`,stateType(state))).join('')||chip('No gates found'));
+  html('productRows',products.map(product=>{
+    const productGates=gates.filter(gate=>gate.productId===product.id);
+    const pending=productGates.filter(gate=>terminalGateKeys.has(gate.gateKey)&&!goodStates.has(gate.state)).length;
+    return `<tr><td><strong>${product.name}</strong><br><small>${product.slug}</small></td><td>${product.publicStatus||product.lifecycle||'Unknown'}</td><td>${product.publicUrl?chip('Present','ok'):chip('Missing','blocked')}</td><td>${product.privacyUrl?chip('Present','ok'):chip('Missing','blocked')}</td><td>${product.supportUrl?chip('Present','ok'):chip('Missing','blocked')}</td><td>${pending?chip(`${pending} pending`,'warn'):chip('No pending evidence gates','ok')}</td></tr>`;
+  }).join('')||'<tr><td colspan="6">No products found.</td></tr>');
+  text('gateStates',JSON.stringify(stateCounts,null,2));
+  text('pendingGates',JSON.stringify(gates.filter(gate=>terminalGateKeys.has(gate.gateKey)&&!goodStates.has(gate.state)).map(gate=>({productId:gate.productId,gateKey:gate.gateKey,state:gate.state,notes:gate.notes||''})),null,2));
+  text('raw',JSON.stringify(seed,null,2));
+}
+function renderApiReport(report){
+  html('state',chip(report.ok?'Backend says ready':'Backend says blocked',report.ok?'ok':'blocked')+chip('API report','ok'));
+  text('products',report.counts?.products??'--');
+  text('gates',report.counts?.gates??'--');
+  text('staticChecks','API');
+  text('evidencePending',Array.isArray(report.blockers)?report.blockers.length:'--');
+  text('recommendation',report.recommendation||'No recommendation returned.');
+  html('summaryChips',(report.blockers||[]).length?chip(`${report.blockers.length} blockers`,'blocked'):chip('No blockers returned','ok'));
+  text('gateStates',JSON.stringify(report.counts||{},null,2));
+  text('pendingGates',JSON.stringify(report.blockers||[],null,2));
+  text('raw',JSON.stringify(report,null,2));
+  html('productRows','<tr><td colspan="6">Backend report loaded. Product-level static seed table is only shown when using the seed fallback.</td></tr>');
+}
 async function loadReport(){
   try{
     const response=await fetch('/api/report/seed',{cache:'no-store'});
-    const report=await response.json();
-    document.getElementById('state').innerHTML='<span class="chip '+(report.ok?'chip-ok':'chip-blocked')+'">'+(report.ok?'Ready':'Blocked')+'</span>';
-    text('groups',report.counts?.groups ?? '--');
-    text('products',report.counts?.products ?? '--');
-    text('plans',report.counts?.plans ?? '--');
-    text('meters',report.counts?.meters ?? '--');
-    text('recommendation',report.recommendation || 'No recommendation returned.');
-    text('blockers',JSON.stringify(report.blockers || [], null, 2));
-    text('raw',JSON.stringify(report, null, 2));
-  }catch(error){
-    document.getElementById('state').innerHTML='<span class="chip chip-blocked">Unavailable</span>';
-    text('raw',String(error));
+    if(!response.ok)throw new Error('API report unavailable');
+    renderApiReport(await response.json());
+    return;
+  }catch(apiError){
+    try{
+      const seedResponse=await fetch('/data/admin-seed.json',{cache:'no-store'});
+      if(!seedResponse.ok)throw new Error('Seed data unavailable');
+      renderSeed(await seedResponse.json(),'API unavailable');
+    }catch(seedError){
+      html('state',chip('Unavailable','blocked'));
+      text('recommendation','Neither the backend report nor the static seed file could be loaded.');
+      text('raw',String(apiError)+'\n'+String(seedError));
+    }
   }
 }
 loadReport();
