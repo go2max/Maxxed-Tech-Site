@@ -332,8 +332,8 @@ export class MemoryD1Binding {
   }
 }
 
-const root = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 export async function loadMigrationSql(name) {
+  const root = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
   return readFile(resolve(root, "platform/migrations", name), "utf8");
 }
 
