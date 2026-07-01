@@ -170,7 +170,7 @@ const pluginListing = ([slug, name, icon, summary], index) => ({
   accent: pluginAccents[index % pluginAccents.length],
   icon,
   summary,
-  facts: ["Editable profile", "Zip package", "Installed artifact"],
+  facts: ["Package review", "Zip package", "Installed artifact"],
 });
 
 export const wordpressPlugins = [
@@ -218,6 +218,5 @@ export const roadmap = [
   ["Fishing Maxxed", "Release prep", "Complete builds, signing, known-object measurement tests, device evidence, and regulation-source review."],
   ["Maxxed Gold Estimator", "Release prep", "Run automated checks, signed builds, physical sample validation, and final privacy/store disclosures."],
   ["Maxxed Measure", "In development", "Finish camera calibration, measurement correction, history, export, and known-object validation."],
-  ["Rival Rush", "Internal testing", "Finish Word Rush, credits, navigation, tester feedback, and Android internal-test polish."],
-  ["Post Purge Pro", "Release candidate", "Validate the WordPress plugin ZIP through the local harness, then prepare distribution copy and support materials."],
+  ["Rival Rush", "Internal testing", "Continue Play internal testing, UX polish, credits, touch controls, and store listing preparation."],
 ];
