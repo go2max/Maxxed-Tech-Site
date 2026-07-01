@@ -16,7 +16,9 @@ const normalizeWhitespace = (value = "") => decodeBasicEntities(value).replace(/
 export function normalizeUrl(input) {
   if (!input || typeof input !== "string") throw new Error("A public website URL is required.");
   const trimmed = input.trim();
-  const withProtocol = /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  const explicitScheme = trimmed.match(/^([a-z][a-z0-9+.-]*):/i)?.[1]?.toLowerCase();
+  if (explicitScheme && !["http", "https"].includes(explicitScheme)) throw new Error("Only http and https URLs are supported.");
+  const withProtocol = explicitScheme ? trimmed : `https://${trimmed}`;
   const url = new URL(withProtocol);
   if (!["http:", "https:"].includes(url.protocol)) throw new Error("Only http and https URLs are supported.");
   url.hash = "";
@@ -138,60 +140,44 @@ export function detectContactSignals(page) {
 }
 
 export function parsePage(url, html = "") {
-  const text = normalizeWhitespace(stripTags(html));
   const links = extractLinks(html, url);
-  const meta = extractMeta(html);
   return {
     url,
     html,
-    text,
-    meta,
-    links,
+    text: normalizeWhitespace(stripTags(html)),
+    meta: extractMeta(html),
     emails: extractEmails(html),
-    phones: extractPhones(text),
+    phones: extractPhones(html),
+    links,
     jsonLd: extractJsonLd(html),
-    signals: detectContactSignals({ url, html, links }),
+    signals: detectContactSignals({ html, url, links }),
   };
 }
 
-export function buildCrawlPlan(seedUrl, pages = [], options = {}) {
+export function buildCrawlPlan(seedUrl, html, options = {}) {
   const normalizedSeed = normalizeUrl(seedUrl);
   const origin = new URL(normalizedSeed).origin;
-  const cap = Math.min(options.pageCap || defaultScanOptions.defaultPageCap, defaultScanOptions.hardPageCap);
-  const candidates = [normalizedSeed];
-  for (const page of pages) {
-    const links = page.links || extractLinks(page.html || "", page.url || normalizedSeed);
-    for (const link of links) candidates.push(link.url);
-  }
-  return unique(candidates).filter((url) => isAllowedPageUrl(url, origin)).slice(0, cap);
+  const limit = options.maxPages || defaultScanOptions.maxPages;
+  const links = extractLinks(html, normalizedSeed)
+    .map((link) => link.url)
+    .filter((url) => isAllowedPageUrl(url, origin));
+  return [normalizedSeed, ...unique(links).filter((url) => url !== normalizedSeed)].slice(0, limit);
 }
 
-export async function scanWebsite(seedUrl, { fetchPage, pageCap = defaultScanOptions.defaultPageCap } = {}) {
-  if (typeof fetchPage !== "function") throw new Error("scanWebsite requires an injected fetchPage(url) function.");
+export async function scanWebsite(seedUrl, fetchPage, options = {}) {
   const normalizedSeed = normalizeUrl(seedUrl);
   const origin = new URL(normalizedSeed).origin;
-  const cap = Math.min(pageCap, defaultScanOptions.hardPageCap);
-  const queue = [normalizedSeed];
-  const visited = new Set();
-  const pages = [];
   const errors = [];
-
-  while (queue.length && pages.length < cap) {
-    const next = queue.shift();
-    if (!next || visited.has(next) || !isAllowedPageUrl(next, origin)) continue;
-    visited.add(next);
+  const firstHtml = await fetchPage(normalizedSeed);
+  const plan = buildCrawlPlan(normalizedSeed, firstHtml, options);
+  const pages = [];
+  for (const url of plan) {
     try {
-      const html = await fetchPage(next);
-      const page = parsePage(next, html);
-      pages.push(page);
-      for (const link of page.links) {
-        if (pages.length + queue.length >= cap) break;
-        if (!visited.has(link.url) && isAllowedPageUrl(link.url, origin)) queue.push(link.url);
-      }
+      const html = url === normalizedSeed ? firstHtml : await fetchPage(url);
+      pages.push(parsePage(url, html));
     } catch (error) {
-      errors.push({ url: next, message: error instanceof Error ? error.message : String(error) });
+      errors.push({ url, message: error.message });
     }
   }
-
   return { seedUrl: normalizedSeed, origin, pages, errors };
 }
