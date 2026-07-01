@@ -1,4 +1,4 @@
-import { createSeededPlatformState } from "./dashboard/state.mjs";
+﻿import { createSeededPlatformState } from "./dashboard/state.mjs";
 import { renderAuditPage, renderBackupPage, renderKnowledgeBasePage, renderPortfolioPage, renderReadinessPage, renderRecordPage, renderSecurityMonitoringPage, renderTestingFunctionsPage, renderTestingJobPage, renderUserAdminPage } from "./dashboard/renderers.mjs";
 import { defaultAccessStore, PersistentAccessStore } from "./auth/access-store.mjs";
 import { extractTrustedIdentity } from "./auth/identity.mjs";
@@ -18,6 +18,7 @@ import { MemoryEvidenceStore, R2EvidenceStore, UnavailableEvidenceStore } from "
 import { MemoryBackupStore, R2BackupStore, UnavailableBackupStore } from "./backups/storage.mjs";
 import { createEncryptedBackup, purgeExpiredBackups, verifyEncryptedBackup } from "./backups/service.mjs";
 import { summarizeSecurityPosture } from "./monitoring/security.mjs";
+import { buildLiveOperationsReport } from "./monitoring/live-report.mjs";
 
 const stateCache = new WeakMap();
 const evidenceStoreCache = new WeakMap();
@@ -122,6 +123,7 @@ function requireOrigin(request) {
 function routeTable() {
   return [
     ["GET", /^\/health$/, { public: true, handler: async ({ requestId }) => json({ ok: true, service: "maxxed-private-platform", requestId }) }],
+    ["GET", /^\/api\/report\/live$/, { permission: PERMISSIONS.READINESS_READ, handler: handleLiveOperationsReport }],
     ["POST", /^\/runner\/jobs\/claim$/, { runner: true, handler: claimRunnerJob }],
     ["POST", /^\/runner\/jobs\/[^/]+\/heartbeat$/, { runner: true, handler: heartbeatRunnerJob }],
     ["POST", /^\/runner\/jobs\/[^/]+\/complete$/, { runner: true, handler: completeRunnerJob }],
@@ -250,6 +252,10 @@ function runnerActor(runnerId) {
 
 async function renderDashboardPage({ title, identity, csrfToken, content }) {
   return html(renderShell({ title, identity, csrfToken, content }));
+}
+
+async function handleLiveOperationsReport({ env }) {
+  return json(await buildLiveOperationsReport({ env }));
 }
 
 async function snapshot(state, table) {
@@ -1502,7 +1508,7 @@ export function createPlatformApp(options = {}) {
         const resolvedEnv = { ...env, ...(options.env || {}) };
         const evidenceStore = resolveEvidenceStore(options, resolvedEnv, config);
         const backupStore = resolveBackupStore(options, resolvedEnv, config);
-        const response = await meta.handler({ requestId, request, identity, csrfToken, payload, state, config, evidenceStore, backupStore });
+        const response = await meta.handler({ requestId, request, identity, csrfToken, payload, state, config, env: resolvedEnv, evidenceStore, backupStore });
         response.headers.set("set-cookie", `__Host-maxxed-session=${nextSessionToken}; Path=/; HttpOnly; SameSite=Strict; Secure`);
         return appendSecurityHeaders(response, requestId, url.protocol === "https:");
       } catch (error) {

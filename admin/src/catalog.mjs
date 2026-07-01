@@ -1,4 +1,4 @@
-import { apps, roadmap, site } from '../../content/site-data.mjs';
+﻿import { apps, roadmap, site } from '../../content/site-data.mjs';
 
 export const packageIds = {
   'maxxed-remote': 'com.maxxedtechnicalsystems.maxxedremote',
@@ -24,6 +24,19 @@ const supplementalProducts = [
     privacyUrl: null,
     sourceStatus: 'repo_confirmed',
     notes: 'Contract Extractor v1.2.0 is committed to the org repo and moved to testing after clean clone validation passed.'
+  },
+  {
+    slug: 'wordpress-bulk-content-cleanup',
+    name: 'WordPress Bulk Content Cleanup',
+    shortName: 'Bulk Content Cleanup',
+    category: 'WordPress plugin',
+    lifecycle: 'testing',
+    publicStatus: 'Plugin lab candidate',
+    currentTrack: 'lab_board',
+    publicUrl: `${site.url}/plugins/wordpress-bulk-content-cleanup/`,
+    privacyUrl: null,
+    sourceStatus: 'plugin_catalog_seeded_missing_package',
+    notes: 'Seeded admin product record for WordPress cleanup workflow tracking.'
   }
 ];
 

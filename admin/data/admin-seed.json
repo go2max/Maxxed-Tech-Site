@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-26T17:08:01.104Z",
+  "generatedAt": "2026-07-01T02:34:50.631Z",
   "products": [
     {
       "id": "prod_maxxed-remote",
@@ -122,24 +122,915 @@
       "archived": false
     },
     {
+      "id": "prod_contract-extractor",
+      "slug": "contract-extractor",
+      "name": "Contract Extractor",
+      "shortName": "Contract Extractor",
+      "category": "Web utility",
+      "packageId": null,
+      "lifecycle": "testing",
+      "publicStatus": "Testing",
+      "currentTrack": "live_board",
+      "latestVersionName": "1.2.0",
+      "latestVersionCode": null,
+      "publicUrl": null,
+      "privacyUrl": null,
+      "supportUrl": "https://techmaxxed.com/support/",
+      "sourceStatus": "repo_confirmed",
+      "notes": "Contract Extractor v1.2.0 is committed to the org repo and moved to testing after clean clone validation passed.",
+      "sortOrder": 7,
+      "archived": false
+    },
+    {
       "id": "prod_wordpress-bulk-content-cleanup",
       "slug": "wordpress-bulk-content-cleanup",
       "name": "WordPress Bulk Content Cleanup",
-      "shortName": "WordPress Bulk Content Cleanup",
-      "category": "Software",
+      "shortName": "Bulk Content Cleanup",
+      "category": "WordPress plugin",
       "packageId": null,
-      "lifecycle": "queued",
-      "publicStatus": "Next product",
-      "currentTrack": null,
-      "latestVersionName": null,
+      "lifecycle": "testing",
+      "publicStatus": "Plugin lab candidate",
+      "currentTrack": "lab_board",
+      "latestVersionName": "1.2.0",
       "latestVersionCode": null,
-      "publicUrl": "https://techmaxxed.com/roadmap/",
+      "publicUrl": "https://techmaxxed.com/plugins/wordpress-bulk-content-cleanup/",
       "privacyUrl": null,
       "supportUrl": "https://techmaxxed.com/support/",
-      "sourceStatus": "roadmap_seeded_missing_package",
-      "notes": "Build a controlled bulk auditing and cleanup workflow after the current app release queue.",
-      "sortOrder": 7,
+      "sourceStatus": "plugin_catalog_seeded_missing_package",
+      "notes": "Seeded admin product record for WordPress cleanup workflow tracking.",
+      "sortOrder": 8,
       "archived": false
+    }
+  ],
+  "liveBoardItems": [
+    {
+      "id": "live_maxxed-remote",
+      "productId": "prod_maxxed-remote",
+      "slug": "maxxed-remote",
+      "name": "Maxxed Remote",
+      "type": "app_or_program",
+      "category": "Utility",
+      "packageId": "com.maxxedtechnicalsystems.maxxedremote",
+      "repoUrl": null,
+      "publicUrl": "https://techmaxxed.com/apps/maxxed-remote/",
+      "supportUrl": "https://techmaxxed.com/support/",
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "health": "yellow",
+      "onlineState": "release_prep",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "No live crash feed configured",
+      "evidence": "Release/test status is seeded from catalog until runner or Play reporting integration is connected.",
+      "checkSource": "catalog_seed",
+      "manualOverride": false
+    },
+    {
+      "id": "live_maxxed-compass",
+      "productId": "prod_maxxed-compass",
+      "slug": "maxxed-compass",
+      "name": "Maxxed Compass",
+      "type": "app_or_program",
+      "category": "Navigation",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": "https://techmaxxed.com/apps/maxxed-compass/",
+      "supportUrl": "https://techmaxxed.com/support/",
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "health": "yellow",
+      "onlineState": "release_prep",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "No live crash feed configured",
+      "evidence": "Release/test status is seeded from catalog until runner or Play reporting integration is connected.",
+      "checkSource": "catalog_seed",
+      "manualOverride": false
+    },
+    {
+      "id": "live_maxxed-measure",
+      "productId": "prod_maxxed-measure",
+      "slug": "maxxed-measure",
+      "name": "Maxxed Measure",
+      "type": "app_or_program",
+      "category": "Measurement",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": "https://techmaxxed.com/apps/maxxed-measure/",
+      "supportUrl": "https://techmaxxed.com/support/",
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "health": "gray",
+      "onlineState": "development",
+      "lastTestStatus": "not_run",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "No test signal recorded",
+      "evidence": "No automated test source is connected for this item yet.",
+      "checkSource": "catalog_seed",
+      "manualOverride": false
+    },
+    {
+      "id": "live_maxxed-gold-estimator",
+      "productId": "prod_maxxed-gold-estimator",
+      "slug": "maxxed-gold-estimator",
+      "name": "Maxxed Gold Estimator",
+      "type": "app_or_program",
+      "category": "Field analysis",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": "https://techmaxxed.com/apps/maxxed-gold-estimator/",
+      "supportUrl": "https://techmaxxed.com/support/",
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "health": "yellow",
+      "onlineState": "release_prep",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "No live crash feed configured",
+      "evidence": "Release/test status is seeded from catalog until runner or Play reporting integration is connected.",
+      "checkSource": "catalog_seed",
+      "manualOverride": false
+    },
+    {
+      "id": "live_fishing-maxxed",
+      "productId": "prod_fishing-maxxed",
+      "slug": "fishing-maxxed",
+      "name": "Fishing Maxxed",
+      "type": "app_or_program",
+      "category": "Outdoors",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": "https://techmaxxed.com/apps/fishing-maxxed/",
+      "supportUrl": "https://techmaxxed.com/support/",
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "health": "yellow",
+      "onlineState": "release_prep",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "No live crash feed configured",
+      "evidence": "Release/test status is seeded from catalog until runner or Play reporting integration is connected.",
+      "checkSource": "catalog_seed",
+      "manualOverride": false
+    },
+    {
+      "id": "live_rival-rush",
+      "productId": "prod_rival-rush",
+      "slug": "rival-rush",
+      "name": "Rival Rush",
+      "type": "app_or_program",
+      "category": "Party game",
+      "packageId": "com.maxxed_technical_systems.rivalrushlaunch",
+      "repoUrl": null,
+      "publicUrl": "https://techmaxxed.com/apps/rival-rush/",
+      "supportUrl": "https://techmaxxed.com/support/",
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "health": "yellow",
+      "onlineState": "internal_testing",
+      "lastTestStatus": "needs_review",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Manual review required",
+      "evidence": "Internal testing track is active, but automated crash/ANR sync is not configured.",
+      "checkSource": "catalog_seed",
+      "manualOverride": false
+    },
+    {
+      "id": "live_contract-extractor",
+      "productId": "prod_contract-extractor",
+      "slug": "contract-extractor",
+      "name": "Contract Extractor",
+      "type": "app_or_program",
+      "category": "Web utility",
+      "packageId": null,
+      "repoUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "publicUrl": null,
+      "supportUrl": "https://techmaxxed.com/support/",
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "health": "green",
+      "onlineState": "testing",
+      "lastTestStatus": "pass",
+      "lastTestAt": "2026-06-29T18:20:00-07:00",
+      "lastFailureAt": null,
+      "crashStatus": "No crash signal recorded",
+      "evidence": "Fresh clone npm install and npm test passed on Windows after LF normalization.",
+      "checkSource": "manual_verified",
+      "manualOverride": true,
+      "manualOverrideBy": "Max / ChatGPT operator",
+      "manualOverrideAt": "2026-06-29T18:20:00-07:00",
+      "manualOverrideReason": "Moved Contract Extractor v1.2.0 to testing after org repo push and clean clone validation."
+    },
+    {
+      "id": "live_wordpress-bulk-content-cleanup",
+      "productId": "prod_wordpress-bulk-content-cleanup",
+      "slug": "wordpress-bulk-content-cleanup",
+      "name": "WordPress Bulk Content Cleanup",
+      "type": "plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": "https://techmaxxed.com/plugins/wordpress-bulk-content-cleanup/",
+      "supportUrl": "https://techmaxxed.com/support/",
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "health": "yellow",
+      "onlineState": "testing",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "No live crash feed configured",
+      "evidence": "Release/test status is seeded from catalog until runner or Play reporting integration is connected.",
+      "checkSource": "catalog_seed",
+      "manualOverride": false
+    },
+    {
+      "id": "live_plugin_accessibility-task-tracker",
+      "productId": null,
+      "slug": "accessibility-task-tracker",
+      "name": "Accessibility Task Tracker",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1000
+    },
+    {
+      "id": "live_plugin_affiliate-disclosure-manager",
+      "productId": null,
+      "slug": "affiliate-disclosure-manager",
+      "name": "Affiliate Disclosure Manager",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1001
+    },
+    {
+      "id": "live_plugin_broken-shortcode-finder",
+      "productId": null,
+      "slug": "broken-shortcode-finder",
+      "name": "Broken Shortcode Finder",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1002
+    },
+    {
+      "id": "live_plugin_bulk-price-update-planner",
+      "productId": null,
+      "slug": "bulk-price-update-planner",
+      "name": "Bulk Price Update Planner",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1003
+    },
+    {
+      "id": "live_plugin_client-content-approval",
+      "productId": null,
+      "slug": "client-content-approval",
+      "name": "Client Content Approval",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1004
+    },
+    {
+      "id": "live_plugin_client-maintenance-portal",
+      "productId": null,
+      "slug": "client-maintenance-portal",
+      "name": "Client Maintenance Portal",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1005
+    },
+    {
+      "id": "live_plugin_contractor-before-after-gallery",
+      "productId": null,
+      "slug": "contractor-before-after-gallery",
+      "name": "Contractor Before After Gallery",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1006
+    },
+    {
+      "id": "live_plugin_database-cleanup-planner",
+      "productId": null,
+      "slug": "database-cleanup-planner",
+      "name": "Database Cleanup Planner",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1007
+    },
+    {
+      "id": "live_plugin_duplicate-media-finder",
+      "productId": null,
+      "slug": "duplicate-media-finder",
+      "name": "Duplicate Media Finder",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1008
+    },
+    {
+      "id": "live_plugin_form-delivery-checker",
+      "productId": null,
+      "slug": "form-delivery-checker",
+      "name": "Form Delivery Checker",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1009
+    },
+    {
+      "id": "live_plugin_fraud-review-checklist",
+      "productId": null,
+      "slug": "fraud-review-checklist",
+      "name": "Fraud Review Checklist",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1010
+    },
+    {
+      "id": "live_plugin_image-alt-text-audit",
+      "productId": null,
+      "slug": "image-alt-text-audit",
+      "name": "Image Alt Text Audit",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1011
+    },
+    {
+      "id": "live_plugin_legal-page-update-reminder",
+      "productId": null,
+      "slug": "legal-page-update-reminder",
+      "name": "Legal Page Update Reminder",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1012
+    },
+    {
+      "id": "live_plugin_local-business-schema-manager",
+      "productId": null,
+      "slug": "local-business-schema-manager",
+      "name": "Local Business Schema Manager",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1013
+    },
+    {
+      "id": "live_plugin_low-stock-digest",
+      "productId": null,
+      "slug": "low-stock-digest",
+      "name": "Low Stock Digest",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1014
+    },
+    {
+      "id": "live_plugin_nap-consistency-checker",
+      "productId": null,
+      "slug": "nap-consistency-checker",
+      "name": "NAP Consistency Checker",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1015
+    },
+    {
+      "id": "live_plugin_order-export-builder",
+      "productId": null,
+      "slug": "order-export-builder",
+      "name": "Order Export Builder",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1016
+    },
+    {
+      "id": "live_plugin_orphan-page-finder",
+      "productId": null,
+      "slug": "orphan-page-finder",
+      "name": "Orphan Page Finder",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1017
+    },
+    {
+      "id": "live_plugin_plugin-license-inventory",
+      "productId": null,
+      "slug": "plugin-license-inventory",
+      "name": "Plugin License Inventory",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1018
+    },
+    {
+      "id": "live_plugin_post-purge-pro",
+      "productId": null,
+      "slug": "post-purge-pro",
+      "name": "Post Purge Pro",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1019
+    },
+    {
+      "id": "live_plugin_product-compliance-expiration",
+      "productId": null,
+      "slug": "product-compliance-expiration",
+      "name": "Product Compliance Expiration",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1020
+    },
+    {
+      "id": "live_plugin_product-data-cleanup",
+      "productId": null,
+      "slug": "product-data-cleanup",
+      "name": "Product Data Cleanup",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1021
+    },
+    {
+      "id": "live_plugin_product-image-audit",
+      "productId": null,
+      "slug": "product-image-audit",
+      "name": "Product Image Audit",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1022
+    },
+    {
+      "id": "live_plugin_redirect-manager-pro",
+      "productId": null,
+      "slug": "redirect-manager-pro",
+      "name": "Redirect Manager Pro",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1023
+    },
+    {
+      "id": "live_plugin_returns-request-portal",
+      "productId": null,
+      "slug": "returns-request-portal",
+      "name": "Returns Request Portal",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1024
+    },
+    {
+      "id": "live_plugin_scheduled-content-expiration",
+      "productId": null,
+      "slug": "scheduled-content-expiration",
+      "name": "Scheduled Content Expiration",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1025
+    },
+    {
+      "id": "live_plugin_security-header-audit",
+      "productId": null,
+      "slug": "security-header-audit",
+      "name": "Security Header Audit",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1026
+    },
+    {
+      "id": "live_plugin_service-area-page-builder",
+      "productId": null,
+      "slug": "service-area-page-builder",
+      "name": "Service Area Page Builder",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1027
+    },
+    {
+      "id": "live_plugin_shipping-rule-auditor",
+      "productId": null,
+      "slug": "shipping-rule-auditor",
+      "name": "Shipping Rule Auditor",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1028
+    },
+    {
+      "id": "live_plugin_stale-content-detector",
+      "productId": null,
+      "slug": "stale-content-detector",
+      "name": "Stale Content Detector",
+      "type": "wordpress_plugin",
+      "category": "WordPress plugin",
+      "packageId": null,
+      "repoUrl": null,
+      "publicUrl": null,
+      "supportUrl": null,
+      "health": "gray",
+      "onlineState": "lab_candidate",
+      "lastTestStatus": "not_connected",
+      "lastTestAt": null,
+      "lastFailureAt": null,
+      "crashStatus": "Not live",
+      "evidence": "Plugin is cataloged for the lab board, but no production package/test feed is connected.",
+      "checkSource": "plugin_catalog_seed",
+      "manualOverride": false,
+      "updatedAt": "2026-07-01T02:34:50.631Z",
+      "sortOrder": 1029
     }
   ],
   "betaApplications": [],
@@ -174,6 +1065,14 @@
       "sourceStatus": "not_configured"
     },
     {
+      "id": "mon_contract_extractor_repo",
+      "checkKey": "contract_extractor_repo",
+      "label": "Contract Extractor repository",
+      "targetUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "expectedMarker": "contract-extractor",
+      "sourceStatus": "manual_verified"
+    },
+    {
       "id": "mon_support_mailbox",
       "checkKey": "support_mailbox",
       "label": "support@ mailbox health",
@@ -200,7 +1099,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-remote_privacy_policy_present",
@@ -211,7 +1110,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-remote_play_listing_url_present",
@@ -222,7 +1121,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-remote_signed_release_artifact_recorded",
@@ -233,7 +1132,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-remote_signing_fingerprint_verified",
@@ -244,7 +1143,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-remote_debuggable_false",
@@ -255,7 +1154,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-remote_permissions_reviewed",
@@ -266,7 +1165,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-remote_store_copy_reviewed",
@@ -277,7 +1176,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-remote_data_safety_reviewed",
@@ -288,7 +1187,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-remote_beta_feedback_reviewed",
@@ -299,7 +1198,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-remote_support_path_verified",
@@ -310,7 +1209,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-remote_known_blockers_closed",
@@ -321,7 +1220,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-remote_crash_anr_data_reviewed",
@@ -332,7 +1231,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_public_site_validation",
@@ -343,7 +1242,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_privacy_policy_present",
@@ -354,7 +1253,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_play_listing_url_present",
@@ -365,7 +1264,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_signed_release_artifact_recorded",
@@ -376,7 +1275,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_signing_fingerprint_verified",
@@ -387,7 +1286,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_debuggable_false",
@@ -398,7 +1297,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_permissions_reviewed",
@@ -409,7 +1308,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_store_copy_reviewed",
@@ -420,7 +1319,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_data_safety_reviewed",
@@ -431,7 +1330,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_beta_feedback_reviewed",
@@ -442,7 +1341,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_support_path_verified",
@@ -453,7 +1352,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_known_blockers_closed",
@@ -464,7 +1363,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-compass_crash_anr_data_reviewed",
@@ -475,7 +1374,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_public_site_validation",
@@ -486,7 +1385,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_privacy_policy_present",
@@ -497,7 +1396,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_play_listing_url_present",
@@ -508,7 +1407,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_signed_release_artifact_recorded",
@@ -519,7 +1418,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_signing_fingerprint_verified",
@@ -530,7 +1429,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_debuggable_false",
@@ -541,7 +1440,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_permissions_reviewed",
@@ -552,7 +1451,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_store_copy_reviewed",
@@ -563,7 +1462,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_data_safety_reviewed",
@@ -574,7 +1473,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_beta_feedback_reviewed",
@@ -585,7 +1484,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_support_path_verified",
@@ -596,7 +1495,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_known_blockers_closed",
@@ -607,7 +1506,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-measure_crash_anr_data_reviewed",
@@ -618,7 +1517,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_public_site_validation",
@@ -629,7 +1528,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_privacy_policy_present",
@@ -640,7 +1539,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_play_listing_url_present",
@@ -651,7 +1550,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_signed_release_artifact_recorded",
@@ -662,7 +1561,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_signing_fingerprint_verified",
@@ -673,7 +1572,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_debuggable_false",
@@ -684,7 +1583,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_permissions_reviewed",
@@ -695,7 +1594,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_store_copy_reviewed",
@@ -706,7 +1605,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_data_safety_reviewed",
@@ -717,7 +1616,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_beta_feedback_reviewed",
@@ -728,7 +1627,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_support_path_verified",
@@ -739,7 +1638,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_known_blockers_closed",
@@ -750,7 +1649,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_maxxed-gold-estimator_crash_anr_data_reviewed",
@@ -761,7 +1660,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_public_site_validation",
@@ -772,7 +1671,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_privacy_policy_present",
@@ -783,7 +1682,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_play_listing_url_present",
@@ -794,7 +1693,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_signed_release_artifact_recorded",
@@ -805,7 +1704,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_signing_fingerprint_verified",
@@ -816,7 +1715,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_debuggable_false",
@@ -827,7 +1726,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_permissions_reviewed",
@@ -838,7 +1737,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_store_copy_reviewed",
@@ -849,7 +1748,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_data_safety_reviewed",
@@ -860,7 +1759,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_beta_feedback_reviewed",
@@ -871,7 +1770,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_support_path_verified",
@@ -882,7 +1781,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_known_blockers_closed",
@@ -893,7 +1792,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_fishing-maxxed_crash_anr_data_reviewed",
@@ -904,7 +1803,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_public_site_validation",
@@ -915,7 +1814,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_privacy_policy_present",
@@ -926,7 +1825,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_play_listing_url_present",
@@ -937,7 +1836,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_signed_release_artifact_recorded",
@@ -948,7 +1847,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_signing_fingerprint_verified",
@@ -959,7 +1858,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_debuggable_false",
@@ -970,7 +1869,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_permissions_reviewed",
@@ -981,7 +1880,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_store_copy_reviewed",
@@ -992,7 +1891,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_data_safety_reviewed",
@@ -1003,7 +1902,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_beta_feedback_reviewed",
@@ -1014,7 +1913,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_support_path_verified",
@@ -1025,7 +1924,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_known_blockers_closed",
@@ -1036,7 +1935,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_rival-rush_crash_anr_data_reviewed",
@@ -1047,7 +1946,150 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_public_site_validation",
+      "productId": "prod_contract-extractor",
+      "gateKey": "public_site_validation",
+      "gateName": "Public site validation",
+      "state": "pass",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_privacy_policy_present",
+      "productId": "prod_contract-extractor",
+      "gateKey": "privacy_policy_present",
+      "gateName": "Privacy policy present",
+      "state": "not_configured",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_play_listing_url_present",
+      "productId": "prod_contract-extractor",
+      "gateKey": "play_listing_url_present",
+      "gateName": "Play listing URL present",
+      "state": "not_configured",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_signed_release_artifact_recorded",
+      "productId": "prod_contract-extractor",
+      "gateKey": "signed_release_artifact_recorded",
+      "gateName": "Signed release artifact recorded",
+      "state": "not_configured",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_signing_fingerprint_verified",
+      "productId": "prod_contract-extractor",
+      "gateKey": "signing_fingerprint_verified",
+      "gateName": "Signing fingerprint verified",
+      "state": "not_configured",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_debuggable_false",
+      "productId": "prod_contract-extractor",
+      "gateKey": "debuggable_false",
+      "gateName": "Debuggable false",
+      "state": "not_configured",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_permissions_reviewed",
+      "productId": "prod_contract-extractor",
+      "gateKey": "permissions_reviewed",
+      "gateName": "Manifest permissions reviewed",
+      "state": "not_configured",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_store_copy_reviewed",
+      "productId": "prod_contract-extractor",
+      "gateKey": "store_copy_reviewed",
+      "gateName": "Store copy reviewed",
+      "state": "not_configured",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_data_safety_reviewed",
+      "productId": "prod_contract-extractor",
+      "gateKey": "data_safety_reviewed",
+      "gateName": "Data safety reviewed",
+      "state": "not_configured",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_beta_feedback_reviewed",
+      "productId": "prod_contract-extractor",
+      "gateKey": "beta_feedback_reviewed",
+      "gateName": "Beta feedback reviewed",
+      "state": "not_configured",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_support_path_verified",
+      "productId": "prod_contract-extractor",
+      "gateKey": "support_path_verified",
+      "gateName": "Support path verified",
+      "state": "pass",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_known_blockers_closed",
+      "productId": "prod_contract-extractor",
+      "gateKey": "known_blockers_closed",
+      "gateName": "Known blockers closed",
+      "state": "not_configured",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
+    },
+    {
+      "id": "gate_contract-extractor_crash_anr_data_reviewed",
+      "productId": "prod_contract-extractor",
+      "gateKey": "crash_anr_data_reviewed",
+      "gateName": "Crash/ANR data reviewed when configured",
+      "state": "not_configured",
+      "mandatory": true,
+      "evidenceUrl": "https://github.com/Maxxed-Technical-Systems/contract-extractor",
+      "notes": "No crash signal recorded; web utility currently uses npm validation rather than Play crash/ANR sync.",
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_public_site_validation",
@@ -1058,7 +2100,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_privacy_policy_present",
@@ -1069,7 +2111,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_play_listing_url_present",
@@ -1080,7 +2122,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_signed_release_artifact_recorded",
@@ -1091,7 +2133,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_signing_fingerprint_verified",
@@ -1102,7 +2144,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_debuggable_false",
@@ -1113,7 +2155,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_permissions_reviewed",
@@ -1124,7 +2166,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_store_copy_reviewed",
@@ -1135,7 +2177,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_data_safety_reviewed",
@@ -1146,7 +2188,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_beta_feedback_reviewed",
@@ -1157,7 +2199,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_support_path_verified",
@@ -1168,7 +2210,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_known_blockers_closed",
@@ -1179,7 +2221,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "gate_wordpress-bulk-content-cleanup_crash_anr_data_reviewed",
@@ -1190,7 +2232,7 @@
       "mandatory": true,
       "evidenceUrl": null,
       "notes": "Requires Play Developer Reporting API configuration.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     }
   ],
   "integrations": [
@@ -1206,7 +2248,7 @@
         "ADMIN_HOSTNAME"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "int_cloudflare_d1",
@@ -1220,7 +2262,7 @@
         "ADMIN_D1_BINDING"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "int_cloudflare_r2_evidence",
@@ -1234,7 +2276,7 @@
         "ADMIN_R2_EVIDENCE_BUCKET"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "int_google_play_developer_api",
@@ -1248,7 +2290,7 @@
         "ADMIN_GOOGLE_PLAY_PROJECT_ID"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "int_google_play_reporting_api",
@@ -1262,7 +2304,7 @@
         "ADMIN_GOOGLE_PLAY_PROJECT_ID"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "int_google_workspace_groups",
@@ -1276,7 +2318,7 @@
         "ADMIN_GOOGLE_WORKSPACE_CUSTOMER_ID"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "int_mailbox_domain_health",
@@ -1292,7 +2334,7 @@
         "ADMIN_PRIVACY_MAILBOX"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "int_android_runner_fleet",
@@ -1306,7 +2348,7 @@
         "ADMIN_RUNNER_REGISTRY"
       ],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "int_github_actions",
@@ -1318,7 +2360,7 @@
       "credentialSourceName": null,
       "requiredEnv": [],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     },
     {
       "id": "int_uptime_monitoring",
@@ -1330,7 +2372,7 @@
       "credentialSourceName": null,
       "requiredEnv": [],
       "notes": "Integration placeholder. Configure hosted secrets and least-privilege service identities before enabling live sync.",
-      "updatedAt": "2026-06-26T17:08:01.104Z"
+      "updatedAt": "2026-07-01T02:34:50.631Z"
     }
   ],
   "auditEvents": []
