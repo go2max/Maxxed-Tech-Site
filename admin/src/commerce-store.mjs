@@ -6,7 +6,7 @@ export function nowIso() {
 }
 
 export function stableId(prefix, ...parts) {
-  return `${prefix}_${parts.filter(Boolean).join('_')}`.replaceAll(/[^a-zA-Z0-9_\-]/g, '_').replaceAll(/_+/g, '_');
+  return `${prefix}_${parts.filter(Boolean).join('_')}`.replaceAll(/[^a-zA-Z0-9_]/g, '_').replaceAll(/_+/g, '_');
 }
 
 export function createEmptyCommerceState() {
@@ -96,51 +96,49 @@ export function upsertEntitlement(state, { subscriptionId, customerId = null, bu
   return next;
 }
 
-export function recordUsageEvent(state, { planSlug, meterKey = 'actions', customerId = null, businessId = null, productSlug = null, usedBefore = 0, quantity = 1, idempotencyKey = null, metadata = {} }, actor = 'system') {
-  if (!customerId && !businessId) throw new Error('Usage event requires customerId or businessId');
+export function recordUsageEvent(state, { planSlug, meterKey = 'actions', customerId = null, businessId = null, productSlug, usedBefore = 0, quantity = 1, idempotencyKey = null, metadata = {} }, actor = 'system') {
   const next = structuredClone(state);
-  if (idempotencyKey && next.usageEvents.some((event) => event.idempotencyKey === idempotencyKey)) {
-    return { state: next, decision: { decision: 'allow', duplicate: true, message: 'Duplicate usage event ignored.' } };
-  }
-  const decision = usageDecision({ planSlug, meterKey, used: usedBefore, requested: quantity });
-  if (decision.decision === 'restrict') {
-    next.auditEvents.push(audit('usage.restricted', 'usage', stableId('usage', customerId || businessId, meterKey), actor, decision));
-    return { state: next, decision };
-  }
-  const event = { id: stableId('usage', customerId || businessId, productSlug || 'portfolio', meterKey, Date.now()), meterKey, customerId, businessId, productSlug, quantity, idempotencyKey, metadata, createdAt: nowIso() };
-  next.usageEvents.push(event);
-  next.auditEvents.push(audit('usage.record', 'usage', event.id, actor, { decision }));
-  return { state: next, decision };
+  const existing = idempotencyKey ? next.usageEvents.find((event) => event.idempotencyKey === idempotencyKey) : null;
+  if (existing) return { state: next, decision: { duplicate: true, id: existing.id } };
+  const decision = usageDecision({ planSlug, meterKey, usedBefore, quantity });
+  const id = stableId('usage', customerId || businessId || productSlug || 'unknown', meterKey, Date.now());
+  next.usageEvents.push({ id, meterKey, customerId, businessId, productSlug, quantity, idempotencyKey, metadata, createdAt: nowIso() });
+  next.auditEvents.push(audit('usage.record', 'usage', id, actor, { meterKey, quantity, decision: decision.decision }));
+  return { state: next, decision: { ...decision, duplicate: false, id } };
 }
 
 export function recordWebhookEvent(state, event, actor = 'stripe') {
-  if (!event?.id || !event?.type) throw new Error('Webhook event requires id and type');
+  if (!event?.id || !event?.type) throw new Error('Stripe event requires id and type');
   const next = structuredClone(state);
   const existing = next.webhookEvents.find((item) => item.id === event.id);
-  if (existing) {
-    next.auditEvents.push(audit('webhook.duplicate', 'stripe_webhook', event.id, actor, { type: event.type }));
-    return { state: next, duplicate: true, result: existing.result };
-  }
-  const result = entitlementUpdateFromStripeEvent(event);
-  const record = { id: event.id, type: event.type, processedAt: nowIso(), result };
+  if (existing) return { state: next, duplicate: true, event: existing };
+  const record = {
+    id: event.id,
+    eventType: event.type,
+    livemode: Boolean(event.livemode),
+    receivedAt: nowIso(),
+    processedAt: null,
+    processingState: 'received',
+    resultSummary: null,
+    errorMessage: null
+  };
   next.webhookEvents.push(record);
-  next.auditEvents.push(audit('webhook.record', 'stripe_webhook', event.id, actor, { type: event.type, handled: result.handled }));
-  return { state: next, duplicate: false, result };
+  next.auditEvents.push(audit('webhook.received', 'webhook', event.id, actor, { type: event.type }));
+  return { state: next, duplicate: false, event: record };
 }
 
 export function applyStripeEventToCommerceState(state, event, actor = 'stripe') {
-  const recorded = recordWebhookEvent(state, event, actor);
-  if (recorded.duplicate || !recorded.result?.handled) return recorded;
-  const { result } = recorded;
-  const next = upsertSubscription(recorded.state, {
-    id: result.subscriptionId,
-    customerId: result.customerId,
-    businessId: result.businessId,
-    planSlug: result.planSlug,
-    productSlug: result.productSlug,
-    stripeSubscriptionId: result.subscriptionId,
-    state: result.state,
-    currentPeriodEndsAt: result.entitlement.endsAt
-  }, actor);
-  return { state: next, duplicate: false, result };
+  const webhook = recordWebhookEvent(state, event, actor);
+  if (webhook.duplicate) return { state: webhook.state, result: { duplicate: true, handled: false } };
+  const update = entitlementUpdateFromStripeEvent(event);
+  if (!update) return { state: webhook.state, result: { duplicate: false, handled: false } };
+  const object = event.data.object;
+  const customerId = stableId('cus', object.customer || 'unknown');
+  let next = webhook.state;
+  const existingCustomer = next.customers.find((customer) => customer.id === customerId || customer.stripeCustomerId === object.customer);
+  if (!existingCustomer) next = upsertCustomer(next, { email: '', stripeCustomerId: object.customer, status: 'active' }, actor);
+  next = upsertSubscription(next, { customerId, planSlug: update.planSlug, productSlug: update.productSlug, stripeSubscriptionId: object.id, state: update.state, currentPeriodEndsAt: update.endsAt }, actor);
+  const eventRecord = next.webhookEvents.find((item) => item.id === event.id);
+  if (eventRecord) Object.assign(eventRecord, { processedAt: nowIso(), processingState: 'processed', resultSummary: `subscription ${update.state}` });
+  return { state: next, result: { duplicate: false, handled: true, state: update.state } };
 }
