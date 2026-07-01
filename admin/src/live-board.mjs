@@ -1,4 +1,4 @@
-import { wordpressPlugins } from '../../content/site-data.mjs';
+﻿import { wordpressPlugins } from '../../content/site-data.mjs';
 
 const CONTRACT_EXTRACTOR_REPO = 'https://github.com/Maxxed-Technical-Systems/contract-extractor';
 
@@ -80,29 +80,33 @@ export function liveBoardItemsFromProducts(products, now = new Date().toISOStrin
     };
   });
 
-  const pluginItems = wordpressPlugins.slice(0, 30).map(([slug, name], index) => ({
-    id: `live_plugin_${slug}`,
-    productId: null,
-    slug,
-    name,
-    type: 'wordpress_plugin',
-    category: 'WordPress plugin',
-    packageId: null,
-    repoUrl: null,
-    publicUrl: null,
-    supportUrl: null,
-    health: 'gray',
-    onlineState: 'lab_candidate',
-    lastTestStatus: 'not_connected',
-    lastTestAt: null,
-    lastFailureAt: null,
-    crashStatus: 'Not live',
-    evidence: 'Plugin is cataloged for the lab board, but no production package/test feed is connected.',
-    checkSource: 'plugin_catalog_seed',
-    manualOverride: false,
-    updatedAt: now,
-    sortOrder: 1000 + index
-  }));
+  const pluginItems = wordpressPlugins.slice(0, 30).map((plugin, index) => {
+    const slug = Array.isArray(plugin) ? plugin[0] : plugin.slug;
+    const name = Array.isArray(plugin) ? plugin[1] : plugin.name;
+    return {
+      id: `live_plugin_${slug}`,
+      productId: null,
+      slug,
+      name,
+      type: 'wordpress_plugin',
+      category: 'WordPress plugin',
+      packageId: null,
+      repoUrl: null,
+      publicUrl: null,
+      supportUrl: null,
+      health: 'gray',
+      onlineState: 'lab_candidate',
+      lastTestStatus: 'not_connected',
+      lastTestAt: null,
+      lastFailureAt: null,
+      crashStatus: 'Not live',
+      evidence: 'Plugin is cataloged for the lab board, but no production package/test feed is connected.',
+      checkSource: 'plugin_catalog_seed',
+      manualOverride: false,
+      updatedAt: now,
+      sortOrder: 1000 + index
+    };
+  });
 
   return [...productItems, ...pluginItems];
 }
