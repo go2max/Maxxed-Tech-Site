@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-01",
+  "routes": [
+    { "id": "techmaxxed", "host": "techmaxxed.com", "supportEmail": "support@techmaxxed.com" },
+    { "id": "admin", "host": "admin.techmaxxed.com", "supportEmail": "support@techmaxxed.com" },
+    { "id": "plugins", "host": "plugins.techmaxxed.com", "supportEmail": "support@techmaxxed.com" },
+    { "id": "bunchsigning", "host": "bunchsigning.com", "supportEmail": "support@bunchsigning.com" }
+  ]
+}

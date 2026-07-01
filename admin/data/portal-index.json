@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-01",
+  "groups": [
+    { "id": "sections", "label": "Sections", "source": "/data/section-status.json" },
+    { "id": "products", "label": "Products", "source": "/data/product-registry.json" },
+    { "id": "operations", "label": "Operations", "source": "/data/domain-inventory.json" },
+    { "id": "docs", "label": "Docs", "source": "/data/docs-inventory.json" }
+  ]
+}

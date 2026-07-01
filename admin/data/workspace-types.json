@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-01",
+  "types": [
+    { "id": "overview", "label": "Overview" },
+    { "id": "registry", "label": "Registry" },
+    { "id": "detail", "label": "Detail" },
+    { "id": "checklist", "label": "Checklist" },
+    { "id": "reference", "label": "Reference" }
+  ]
+}

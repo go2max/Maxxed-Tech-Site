@@ -478,6 +478,153 @@ section,
   letter-spacing: 0.08em;
 }
 
+.admin-shell {
+  width: min(calc(100% - 32px), var(--max));
+  margin-inline: auto;
+}
+
+.admin-layout {
+  padding-block: clamp(28px, 4vw, 44px) clamp(56px, 7vw, 88px);
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 28px;
+}
+
+.admin-side-nav {
+  align-self: start;
+  position: sticky;
+  top: 92px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.admin-side-nav strong,
+.admin-side-nav a {
+  display: block;
+  padding: 10px 12px;
+}
+
+.admin-side-nav strong {
+  color: var(--ink);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.admin-side-nav a {
+  border-radius: 6px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.admin-side-nav a:hover,
+.admin-side-nav a[aria-current="page"] {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.admin-notice {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.admin-card-grid,
+.admin-product-grid,
+.admin-data-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.admin-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.admin-data-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.admin-card,
+.admin-product-card,
+.admin-data-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.admin-card:hover,
+.admin-product-card:hover {
+  border-color: rgba(37, 208, 216, 0.55);
+}
+
+.admin-card h2,
+.admin-product-card h2,
+.admin-data-card h2,
+.admin-card h3,
+.admin-product-card h3,
+.admin-data-card h3 {
+  font-size: 21px;
+}
+
+.admin-card p,
+.admin-product-card p,
+.admin-data-card p,
+.admin-list p {
+  color: var(--muted);
+}
+
+.admin-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.admin-pill {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  padding-inline: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #dbe8ed;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.admin-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-list article {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.admin-list h2,
+.admin-list h3 {
+  margin-bottom: 6px;
+  font-size: 20px;
+}
+
+.admin-code {
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: #06111a;
+  color: #dbe8ed;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
 .form-shell { max-width: 880px; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .field { display: grid; gap: 7px; }
@@ -580,6 +727,7 @@ section,
   .ticket-type-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ticket-form { grid-template-columns: 1fr 1fr; }
   .admin-route-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .plugin-admin-grid { grid-template-columns: repeat(3, 1fr); }
   .truth-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
@@ -631,6 +779,11 @@ section,
   .ticket-form .consent-list.full,
   .ticket-form .form-actions { grid-column: auto; }
   .admin-route-grid, .plugin-admin-grid { grid-template-columns: 1fr; }
+  .admin-layout { grid-template-columns: 1fr; }
+  .admin-side-nav { position: static; }
+  .admin-card-grid,
+  .admin-product-grid,
+  .admin-data-grid { grid-template-columns: 1fr; }
   .form-grid, .check-grid, .credit-grid, .policy-summary { grid-template-columns: 1fr; }
   .field.full, .fieldset, .consent-list, .form-actions { grid-column: auto; }
   .contact-band { padding: 34px 24px; grid-template-columns: 1fr; }

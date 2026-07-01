@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-01",
+  "domains": [
+    { "id": "techmaxxed-com", "host": "techmaxxed.com", "purpose": "Public product site" },
+    { "id": "admin-techmaxxed-com", "host": "admin.techmaxxed.com", "purpose": "Protected admin portal" },
+    { "id": "plugins-techmaxxed-com", "host": "plugins.techmaxxed.com", "purpose": "Plugin distribution planning" },
+    { "id": "bunchsigning-com", "host": "bunchsigning.com", "purpose": "A. Bunch Mobile Notary" }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-01",
+  "products": [
+    { "id": "maxxed-remote", "name": "Maxxed Remote", "route": "/products/maxxed-remote/", "state": "release-prep", "supportEmail": "support@techmaxxed.com" },
+    { "id": "maxxed-compass", "name": "Maxxed Compass", "route": "/products/maxxed-compass/", "state": "test-ready", "supportEmail": "support@techmaxxed.com" },
+    { "id": "maxxed-measure", "name": "Maxxed Measure", "route": "/products/maxxed-measure/", "state": "active-build", "supportEmail": "support@techmaxxed.com" },
+    { "id": "fishing-maxxed", "name": "Fishing Maxxed", "route": "/products/fishing-maxxed/", "state": "active-build", "supportEmail": "support@techmaxxed.com" },
+    { "id": "rival-rush", "name": "Rival Rush", "route": "/products/rival-rush/", "state": "internal-test", "supportEmail": "support@techmaxxed.com" },
+    { "id": "maxxed-gold-estimator", "name": "Maxxed Gold Estimator", "route": "/products/maxxed-gold-estimator/", "state": "scaffold", "supportEmail": "support@techmaxxed.com" }
+  ]
+}
