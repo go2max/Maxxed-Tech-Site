@@ -1,0 +1,8 @@
+{
+  "id": "maxxed-compass-runner", "app": "maxxed-compass", "packageId": "com.maxxed.compass", "version": 1,
+  "label": "Maxxed Compass complete test runner", "runner": "powershell-adb", "entrypoint": "maxxed-compass-test.ps1", "timeoutSeconds": 1200,
+  "supportedScriptIds": ["compass-launch", "compass-history", "compass-recovery", "compass-sky-fixtures", "compass-physical", "full"],
+  "requires": ["powershell-7", "android-platform-tools", "android-device-or-emulator"],
+  "parameters": [{"id":"ApkPath","type":"apk-file","required":true},{"id":"TestId","type":"approved-script-id","required":true},{"id":"DeviceSerial","type":"adb-serial","required":false}],
+  "outputs": ["result-json", "logcat", "screenshots", "package-metadata", "memory-snapshot"], "exitCodes": {"0":"pass","1":"fail","2":"blocked-or-manual-review"}
+}

@@ -1,0 +1,8 @@
+{
+  "id": "rival-rush-runner", "app": "rival-rush", "packageId": "com.maxxed_technical_systems.rivalrushlaunch", "version": 1,
+  "label": "Rival Rush complete test runner", "runner": "powershell-adb", "entrypoint": "rival-rush-test.ps1", "timeoutSeconds": 1200,
+  "supportedScriptIds": ["rival-launch", "rival-navigation", "rival-gameplay", "rival-recovery", "rival-physical", "full"],
+  "requires": ["powershell-7", "android-platform-tools", "android-device-or-emulator"],
+  "parameters": [{"id":"ApkPath","type":"apk-file","required":true},{"id":"TestId","type":"approved-script-id","required":true},{"id":"DeviceSerial","type":"adb-serial","required":false}],
+  "outputs": ["result-json", "logcat", "screenshots", "package-metadata", "memory-snapshot"], "exitCodes": {"0":"pass","1":"fail","2":"blocked-or-manual-review"}
+}

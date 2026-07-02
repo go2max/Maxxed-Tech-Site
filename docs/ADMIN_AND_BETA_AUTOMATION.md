@@ -16,6 +16,23 @@ When frequent non-code updates justify an admin interface, place a separate
 identity-aware proxy. Allow only approved Maxxed Technical Systems accounts.
 Do not store site-specific passwords.
 
+## Implemented Testing Console
+
+The private `platform/` Worker now provides app-specific testing controls for
+all six current apps. Its main page includes quick smoke and full-suite runs,
+and its Testing Functions section can queue one approved script or an ordered
+selection of scripts for a single app.
+
+The server expands named suites and validates every selected script against its
+version-controlled catalog. The browser cannot submit commands, executable
+paths, or shell arguments. Ordered jobs and creation audit events are stored in
+D1. Access requires both the hosted identity header and membership in the
+`ADMIN_ALLOWED_EMAILS` environment allowlist; a missing allowlist denies access.
+
+The console queues jobs. Android execution and result ingestion require the
+isolated local runner described in `PRIVATE_OPERATIONS_PLATFORM.md`; queued
+work must never be represented as passed before the runner records a result.
+
 The broader monitoring, release, help, and sequential APK testing design is in
 `PRIVATE_OPERATIONS_PLATFORM.md`.
 

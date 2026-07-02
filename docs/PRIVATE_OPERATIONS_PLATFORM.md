@@ -35,6 +35,15 @@ proxy such as Cloudflare Access. It should accept only explicitly allowed
 Maxxed accounts and should use the identity headers supplied by the access
 layer. Do not create a custom password database.
 
+For Cloudflare Access, configure an application for `admin.techmaxxed.com`,
+allow only the Maxxed owner or builder accounts, and forward the authenticated
+email header to the Worker. The Worker accepts `Cf-Access-Authenticated-User-Email`
+from Cloudflare Access and `oai-authenticated-user-email` in hosted preview
+environments, then checks that address against `ADMIN_ALLOWED_EMAILS` and the
+role-specific env lists (`ADMIN_OWNER_EMAILS`, `ADMIN_BUILDER_EMAILS`,
+`ADMIN_QA_EMAILS`, `ADMIN_VIEWER_EMAILS`). Keep the Access policy and Worker
+env allowlist in sync so losing Access membership also removes Worker access.
+
 ```mermaid
 flowchart TD
     A["Public site"] --> B["Beta and support email"]
