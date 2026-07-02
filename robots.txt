@@ -1,1 +1,4 @@
-placeholder
+User-agent: *
+Allow: /
+
+Sitemap: https://techmaxxed.com/public/sitemap.xml
