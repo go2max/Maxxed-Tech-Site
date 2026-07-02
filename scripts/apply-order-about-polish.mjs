@@ -1,28 +1,12 @@
-import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { site } from "../content/site-data.mjs";
+import { insertBeforeMainEnd, readText, replaceMain, replaceMeta, writeText } from "./public-redesign-utils.mjs";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const siteRoot = resolve(root, "site");
 const cssPath = resolve(siteRoot, "assets/site.css");
-
-function replaceMain(html, body) {
-  return html.replace(/<main id="main">[\s\S]*?<\/main>/, `<main id="main">${body}</main>`);
-}
-
-function replaceMeta(html, title, description, path) {
-  return html
-    .replace(/<title>[\s\S]*?<\/title>/, `<title>${title} | ${site.name}</title>`)
-    .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${description}">`)
-    .replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${site.url}/${path}">`)
-    .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${title} | ${site.name}">`)
-    .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${description}">`)
-    .replace(/<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${site.url}/${path}">`)
-    .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${title} | ${site.name}">`)
-    .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${description}">`);
-}
 
 const orderEmail = `mailto:${site.email}?subject=Custom%20software%20order%20request&body=Project%20type%3A%0APlatform%20needed%3A%0AWorkflow%20or%20problem%3A%0AWho%20will%20use%20it%3A%0AMust-have%20first%20version%3A%0ANice-to-have%20later%3A%0ADeadline%20or%20urgency%3A%0ABudget%20range%20if%20known%3A%0ALinks%20or%20examples%3A%0A`;
 
@@ -39,23 +23,23 @@ const orderBody = `<section class="band product-hero presence-hero"><div class="
 const pricingInsert = `<section class="band"><div class="shell section compact"><div class="order-panel"><div><p class="eyebrow">Custom work</p><h2>Need a quote instead of a listed product?</h2><p>Pricing pages cover product and checkout paths. Custom software, plugin work, dashboards, automations, and MVP cleanup should start through the direct-order page so scope can be reviewed first.</p></div><div class="hero-actions"><a class="button" href="../custom-orders/">Start custom order</a><a class="button secondary" href="mailto:${site.email}?subject=Pricing%20question">Ask pricing question</a></div></div></div></section>`;
 
 const aboutPath = resolve(siteRoot, "about/index.html");
-let aboutHtml = await readFile(aboutPath, "utf8");
-aboutHtml = replaceMeta(replaceMain(aboutHtml, aboutBody), "About", "Learn about Maxxed Technical Systems, the practical software studio built by Max Uland for apps, plugins, tools, and custom software work.", "about/");
-await writeFile(aboutPath, aboutHtml, "utf8");
+let aboutHtml = await readText(aboutPath);
+aboutHtml = replaceMeta(replaceMain(aboutHtml, aboutBody), site, "About", "Learn about Maxxed Technical Systems, the practical software studio built by Max Uland for apps, plugins, tools, and custom software work.", "about/");
+await writeText(aboutPath, aboutHtml);
 
 const customOrdersPath = resolve(siteRoot, "custom-orders/index.html");
-let orderHtml = await readFile(customOrdersPath, "utf8");
-orderHtml = replaceMeta(replaceMain(orderHtml, orderBody), "Custom Orders", "Order custom app, plugin, automation, dashboard, MVP, web tool, or project cleanup work from Maxxed Technical Systems.", "custom-orders/");
-await writeFile(customOrdersPath, orderHtml, "utf8");
+let orderHtml = await readText(customOrdersPath);
+orderHtml = replaceMeta(replaceMain(orderHtml, orderBody), site, "Custom Orders", "Order custom app, plugin, automation, dashboard, MVP, web tool, or project cleanup work from Maxxed Technical Systems.", "custom-orders/");
+await writeText(customOrdersPath, orderHtml);
 
 const pricingPath = resolve(siteRoot, "pricing/index.html");
-let pricingHtml = await readFile(pricingPath, "utf8");
+let pricingHtml = await readText(pricingPath);
 if (!pricingHtml.includes("Need a quote instead of a listed product?")) {
-  pricingHtml = pricingHtml.replace("</main>", `${pricingInsert}</main>`);
-  await writeFile(pricingPath, pricingHtml, "utf8");
+  pricingHtml = insertBeforeMainEnd(pricingHtml, "Need a quote instead of a listed product?", pricingInsert);
+  await writeText(pricingPath, pricingHtml);
 }
 
-let css = await readFile(cssPath, "utf8");
+let css = await readText(cssPath);
 if (!css.includes("/* Order and about polish */")) {
   css += `
 
@@ -80,5 +64,5 @@ if (!css.includes("/* Order and about polish */")) {
 .request-grid article:nth-child(4) { border-color: rgba(185, 237, 69, 0.34); }
 @media (max-width: 900px) { .trust-strip, .request-grid { grid-template-columns: 1fr; } }
 `;
-  await writeFile(cssPath, css, "utf8");
+  await writeText(cssPath, css);
 }
