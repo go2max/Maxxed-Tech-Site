@@ -1,12 +1,13 @@
-import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { readText, writeText } from "./public-redesign-utils.mjs";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const siteRoot = resolve(root, "site");
 const cssPath = resolve(siteRoot, "assets/site.css");
 
-let css = await readFile(cssPath, "utf8");
+let css = await readText(cssPath);
 
 if (!css.includes("/* Visual consistency polish */")) {
   css += `
@@ -115,5 +116,5 @@ if (!css.includes("/* Visual consistency polish */")) {
   .product-conversion-panel { padding-top: 34px; }
 }
 `;
-  await writeFile(cssPath, css, "utf8");
+  await writeText(cssPath, css);
 }
