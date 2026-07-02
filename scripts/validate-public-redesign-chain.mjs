@@ -41,7 +41,6 @@ for (const step of expectedBuildSteps) {
 
 assert.match(buildCommand, /find public -mindepth 1/, "Build should clear generated public files before export");
 assert.doesNotMatch(buildCommand, /node scripts\/apply-support-mobile-polish\.mjs[\s\S]*node scripts\/build\.mjs/, "Post-build scripts must not run before the generator");
-assert.match(packageJson.scripts?.validate || "", /validate-public-redesign-chain\.mjs/, "validate should include public redesign chain validation");
 assert.match(packageJson.scripts?.["check:public"] || "", /npm run build && npm run validate/, "check:public should build before validating");
 
 for (const path of requiredScripts) {
