@@ -1,28 +1,12 @@
-import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { apps, site, wordpressPlugins } from "../content/site-data.mjs";
+import { insertBeforeMainEnd, readText, replaceMain, replaceMeta, writeText } from "./public-redesign-utils.mjs";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const siteRoot = resolve(root, "site");
 const cssPath = resolve(siteRoot, "assets/site.css");
-
-function replaceMain(html, body) {
-  return html.replace(/<main id="main">[\s\S]*?<\/main>/, `<main id="main">${body}</main>`);
-}
-
-function replaceMeta(html, title, description, path) {
-  return html
-    .replace(/<title>[\s\S]*?<\/title>/, `<title>${title} | ${site.name}</title>`)
-    .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${description}">`)
-    .replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${site.url}/${path}">`)
-    .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${title} | ${site.name}">`)
-    .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${description}">`)
-    .replace(/<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${site.url}/${path}">`)
-    .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${title} | ${site.name}">`)
-    .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${description}">`);
-}
 
 const appOptions = apps.map((app) => `<option>${app.name}</option>`).join("");
 const pluginOptions = wordpressPlugins.slice(0, 24).map((plugin) => `<option>${plugin.name}</option>`).join("");
@@ -36,18 +20,18 @@ const supportBody = `<section class="band section-hero"><div class="shell sectio
 const betaInsert = `<section class="shell section compact beta-clarity-panel"><div class="order-panel"><div><p class="eyebrow">Pre-release requests</p><h2>You can request apps still in development.</h2><p>A strong request tells us your device, real use case, and what you can test. That helps prioritize which app gets a launch pass and tester build next.</p></div><div class="hero-actions"><a class="button" href="mailto:${site.betaEmail}?subject=Pre-release%20tester%20request">Email tester request</a><a class="button secondary" href="../apps/">Browse apps</a></div></div></section>`;
 
 const supportPath = resolve(siteRoot, "support/index.html");
-let supportHtml = await readFile(supportPath, "utf8");
-supportHtml = replaceMeta(replaceMain(supportHtml, supportBody), "Help & Support", "Get Maxxed app support, beta access, WordPress plugin guidance, pricing help, or custom build routing.", "support/");
-await writeFile(supportPath, supportHtml, "utf8");
+let supportHtml = await readText(supportPath);
+supportHtml = replaceMeta(replaceMain(supportHtml, supportBody), site, "Help & Support", "Get Maxxed app support, beta access, WordPress plugin guidance, pricing help, or custom build routing.", "support/");
+await writeText(supportPath, supportHtml);
 
 const betaPath = resolve(siteRoot, "beta/index.html");
-let betaHtml = await readFile(betaPath, "utf8");
+let betaHtml = await readText(betaPath);
 if (!betaHtml.includes("You can request apps still in development.")) {
-  betaHtml = betaHtml.replace("</main>", `${betaInsert}</main>`);
-  await writeFile(betaPath, betaHtml, "utf8");
+  betaHtml = insertBeforeMainEnd(betaHtml, "You can request apps still in development.", betaInsert);
+  await writeText(betaPath, betaHtml);
 }
 
-let css = await readFile(cssPath, "utf8");
+let css = await readText(cssPath);
 if (!css.includes("/* Support and mobile polish */")) {
   css += `
 
@@ -93,5 +77,5 @@ if (!css.includes("/* Support and mobile polish */")) {
   .footer-grid { gap: 26px; }
 }
 `;
-  await writeFile(cssPath, css, "utf8");
+  await writeText(cssPath, css);
 }
