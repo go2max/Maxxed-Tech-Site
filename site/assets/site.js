@@ -1,176 +1,6 @@
 const navToggle = document.querySelector("[data-nav-toggle]");
 const navLinks = document.querySelector("[data-nav-links]");
 
-const wordpressPluginListings = [
-  ["AT", "Accessibility Task Tracker", "Track accessibility review tasks, owners, notes, and follow-up status inside WordPress."],
-  ["AD", "Affiliate Disclosure Manager", "Manage affiliate disclosure reminders and placement checks for content review workflows."],
-  ["SC", "Broken Shortcode Finder", "Find unregistered or malformed shortcode-like tokens without executing post content."],
-  ["$", "Bulk Price Update Planner", "Plan bulk pricing changes with a review-first workflow before store updates are applied."],
-  ["CA", "Client Content Approval", "Organize client review, approval notes, and content signoff states inside WordPress."],
-  ["MP", "Client Maintenance Portal", "Give maintenance clients a focused portal for status notes, requests, and service visibility."],
-  ["BG", "Contractor Before After Gallery", "Build simple before-and-after project galleries for contractor portfolio pages."],
-  ["DB", "Database Cleanup Planner", "Review cleanup candidates and maintenance notes before touching WordPress database data."],
-  ["DM", "Duplicate Media Finder", "Review exact-byte media duplicates using file size and streamed hashing without deletion automation."],
-  ["FD", "Form Delivery Checker", "Track form delivery checks, test submissions, and follow-up notes for site maintenance."],
-  ["FR", "Fraud Review Checklist", "Coordinate fraud review steps, notes, and decision checkpoints for order or account triage."],
-  ["ALT", "Image Alt Text Audit", "Audit image alt metadata and review accessibility corrections one item at a time."],
-  ["LG", "Legal Page Update Reminder", "Keep legal, policy, and compliance pages visible for scheduled review."],
-  ["LS", "Local Business Schema Manager", "Manage local business schema details with editable business information and review notes."],
-  ["LS", "Low Stock Digest", "Prepare low-stock summaries for WooCommerce operators and inventory review."],
-  ["NAP", "NAP Consistency Checker", "Check name, address, and phone consistency across local business site content."],
-  ["OE", "Order Export Builder", "Create reviewed order export configurations for operational reporting workflows."],
-  ["OP", "Orphan Page Finder", "Find pages that need internal links, review, or removal from navigation plans."],
-  ["LI", "Plugin License Inventory", "Track plugin licenses, renewal notes, owners, and operational status."],
-  ["PP", "Post Purge Pro", "Preview stale posts, export a CSV backup, and review batch move-to-Trash workflows."],
-  ["CE", "Product Compliance Expiration", "Track product compliance dates, expiration reminders, and review notes."],
-  ["PD", "Product Data Cleanup", "Review product data quality issues before making cleanup decisions."],
-  ["PI", "Product Image Audit", "Audit product image coverage, metadata, and content readiness."],
-  ["RM", "Redirect Manager Pro", "Plan redirect entries and review URL cleanup work inside WordPress."],
-  ["RR", "Returns Request Portal", "Organize return requests, status notes, and customer-service review steps."],
-  ["EX", "Scheduled Content Expiration", "Track content expiration dates, review windows, and scheduled follow-up."],
-  ["SH", "Security Header Audit", "Review website security header presence and maintenance notes."],
-  ["SA", "Service Area Page Builder", "Create and organize service-area page drafts for local business websites."],
-  ["SR", "Shipping Rule Auditor", "Review WooCommerce shipping rules, notes, and coverage gaps."],
-  ["SD", "Stale Content Detector", "Score stale content candidates with explainable freshness signals and CSV export."],
-  ["SI", "Stale Inventory Reporter", "Identify old inventory records and prepare review notes for cleanup."],
-  ["ST", "Supplier Tracker for WooCommerce", "Track suppliers, product relationships, and operational notes for WooCommerce stores."],
-  ["UP", "Uptime Digest Plugin", "Prepare uptime digest records and maintenance visibility for site operators."],
-  ["WR", "Website Maintenance Reporter", "Summarize maintenance work, findings, and client-ready website status notes."],
-  ["MC", "WooCommerce Margin Calculator", "Calculate and review product margin information for WooCommerce catalog planning."],
-  ["RA", "WordPress Role Auditor", "Audit WordPress user roles, access notes, and permissions review status."],
-];
-const pluginAccents = ["#7dd3fc", "#86efac", "#facc15", "#fb7185", "#c084fc", "#25d0d8", "#b9ed45"];
-
-function escapeText(value) {
-  return String(value).replace(/[&<>"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[character]));
-}
-
-function relativePrefix() {
-  const stylesheet = document.querySelector('link[rel="stylesheet"]')?.getAttribute("href") || "assets/site.css";
-  return stylesheet.endsWith("assets/site.css") ? stylesheet.slice(0, -"assets/site.css".length) : "";
-}
-
-function slugifyPluginName(name) {
-  return String(name)
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function pluginSettingsHref(name) {
-  return `${relativePrefix()}admin/plugins/?plugin=${encodeURIComponent(slugifyPluginName(name))}#settings`;
-}
-
-function pluginSettingsLinkHtml(name) {
-  const label = escapeText(`Open ${name} settings`);
-  return `<div class="hero-actions plugin-actions"><a class="button secondary" href="${pluginSettingsHref(name)}" aria-label="${label}">Settings</a></div>`;
-}
-
-function isWordPressPluginCard(card) {
-  const meta = card.querySelector(".app-meta")?.textContent?.toLowerCase() || "";
-  const status = card.querySelector(".status")?.textContent?.toLowerCase() || "";
-  return meta.includes("wordpress plugin") || meta.includes("installed plugin") || status.includes("plugin lab");
-}
-
-function normalizeWordPressPluginCard(card) {
-  if (!isWordPressPluginCard(card)) return;
-
-  const categories = new Set((card.dataset.category || "").split(/\s+/).filter(Boolean));
-  categories.add("wordpress");
-  categories.add("utility");
-  card.dataset.category = [...categories].join(" ");
-
-  if (card.querySelector('[data-plugin-settings-link]')) return;
-  const name = card.querySelector("h3")?.textContent?.trim();
-  if (!name) return;
-
-  const linkWrap = document.createElement("div");
-  linkWrap.className = "hero-actions plugin-actions";
-  const link = document.createElement("a");
-  link.className = "button secondary";
-  link.dataset.pluginSettingsLink = "";
-  link.href = pluginSettingsHref(name);
-  link.setAttribute("aria-label", `Open ${name} settings`);
-  link.textContent = "Settings";
-  linkWrap.appendChild(link);
-  card.appendChild(linkWrap);
-}
-
-function normalizeWordPressPluginCards(scope = document) {
-  scope.querySelectorAll("[data-app-card]").forEach(normalizeWordPressPluginCard);
-}
-
-function addWordPressPluginsToCatalog(catalog) {
-  const existingPluginCards = [...catalog.querySelectorAll("[data-app-card]")].filter(isWordPressPluginCard);
-  if (existingPluginCards.length) {
-    existingPluginCards.forEach(normalizeWordPressPluginCard);
-    return;
-  }
-
-  wordpressPluginListings.forEach(([icon, name, summary], index) => {
-    const card = document.createElement("article");
-    card.className = "app-card";
-    card.dataset.appCard = "";
-    card.dataset.category = "utility wordpress";
-    card.style.setProperty("--accent", pluginAccents[index % pluginAccents.length]);
-    card.innerHTML = `<div class="app-card-top"><span class="app-icon" aria-hidden="true">${escapeText(icon)}</span><span class="status">Plugin lab candidate</span></div><h3>${escapeText(name)}</h3><p>${escapeText(summary)}</p><div class="fact-row"><span>Editable profile</span><span>Zip package</span><span>Installed artifact</span></div><span class="app-meta">WordPress plugin package</span>${pluginSettingsLinkHtml(name)}`;
-    catalog.appendChild(card);
-  });
-}
-
-function addWordPressFilter(filters) {
-  const group = filters[0]?.parentElement;
-  if (!group || group.querySelector('[data-filter="wordpress"]')) return;
-  const button = document.createElement("button");
-  button.className = "filter";
-  button.type = "button";
-  button.dataset.filter = "wordpress";
-  button.setAttribute("aria-pressed", "false");
-  button.textContent = "WordPress";
-  group.appendChild(button);
-}
-
-function addPluginsFooterNavigation() {
-  const prefix = relativePrefix();
-  document.querySelectorAll(".footer-grid ul").forEach((list) => {
-    const heading = list.closest("div")?.querySelector("h2")?.textContent?.trim();
-    if (heading !== "Products" || list.querySelector('a[href$="plugins/"]')) return;
-    const item = document.createElement("li");
-    const link = document.createElement("a");
-    link.href = `${prefix}plugins/`;
-    link.textContent = "WordPress plugins";
-    item.appendChild(link);
-    list.insertBefore(item, list.children[1] || null);
-  });
-}
-
-function removePluginsFromPrimaryNavigation() {
-  document.querySelectorAll('nav[aria-label="Primary"] a, nav[aria-label="Primary navigation"] a').forEach((link) => {
-    const label = link.textContent.trim().toLowerCase();
-    const href = link.getAttribute("href") || "";
-    if (label === "plugins" || /(^|\/)plugins\/?($|[?#])/.test(href)) link.remove();
-  });
-}
-
-function addHomePluginSummary() {
-  if (location.pathname !== "/" || document.querySelector("[data-plugin-summary]")) return;
-  const productSection = document.querySelector(".app-grid")?.closest("section");
-  if (!productSection) return;
-  const prefix = relativePrefix();
-  const section = document.createElement("section");
-  section.className = "band";
-  section.dataset.pluginSummary = "";
-  const highlights = wordpressPluginListings.slice(0, 6).map(([icon, name, summary], index) => `<article class="app-card" data-app-card data-category="utility wordpress" style="--accent:${pluginAccents[index % pluginAccents.length]}"><div class="app-card-top"><span class="app-icon" aria-hidden="true">${escapeText(icon)}</span><span class="status">Plugin lab candidate</span></div><h3>${escapeText(name)}</h3><p>${escapeText(summary)}</p><div class="fact-row"><span>Editable profile</span><span>Zip package</span></div><span class="app-meta">WordPress plugin package</span>${pluginSettingsLinkHtml(name)}</article>`).join("");
-  section.innerHTML = `<div class="shell section"><div class="section-head"><div><p class="eyebrow">WordPress plugin lab</p><h2>${wordpressPluginListings.length} plugins prepared for testing</h2></div><p>The homepage shows a small sample. The dedicated plugin catalog keeps the full list searchable and organized.</p></div><div class="app-grid">${highlights}</div><div class="hero-actions"><a class="button secondary" href="${prefix}plugins/">View all ${wordpressPluginListings.length} WordPress plugins</a><a class="button secondary" href="${prefix}apps/">Open full product catalog</a></div></div>`;
-  productSection.after(section);
-}
-
-removePluginsFromPrimaryNavigation();
-addPluginsFooterNavigation();
-addHomePluginSummary();
-normalizeWordPressPluginCards();
-
 if (navToggle && navLinks) {
   navToggle.addEventListener("click", () => {
     const isOpen = navLinks.dataset.open === "true";
@@ -186,14 +16,11 @@ if (navToggle && navLinks) {
   });
 }
 
-const catalog = document.querySelector("[data-catalog]");
-if (catalog) {
-  addWordPressPluginsToCatalog(catalog);
+const catalogSections = [...document.querySelectorAll("[data-catalog]")];
+if (catalogSections.length) {
+  const cards = catalogSections.flatMap((section) => [...section.querySelectorAll("[data-app-card]")]);
   const search = document.querySelector("[data-app-search]");
   const filters = [...document.querySelectorAll("[data-filter]")];
-  addWordPressFilter(filters);
-  const allFilters = [...document.querySelectorAll("[data-filter]")];
-  const cards = [...catalog.querySelectorAll("[data-app-card]")];
   const resultCount = document.querySelector("[data-result-count]");
   const emptyState = document.querySelector("[data-empty-state]");
   const query = new URLSearchParams(window.location.search).get("q") || "";
@@ -207,10 +34,15 @@ if (catalog) {
 
     cards.forEach((card) => {
       const matchesText = !term || card.textContent.toLowerCase().includes(term);
-      const categories = (card.dataset.category || "").split(" ");
+      const categories = card.dataset.category.split(" ");
       const matchesFilter = activeFilter === "all" || categories.includes(activeFilter);
       card.hidden = !(matchesText && matchesFilter);
       if (!card.hidden) visible += 1;
+    });
+
+    catalogSections.forEach((section) => {
+      const sectionCards = [...section.querySelectorAll("[data-app-card]")];
+      section.hidden = sectionCards.length > 0 && sectionCards.every((card) => card.hidden);
     });
 
     if (resultCount) {
@@ -220,10 +52,10 @@ if (catalog) {
   };
 
   search?.addEventListener("input", updateCatalog);
-  allFilters.forEach((button) => {
+  filters.forEach((button) => {
     button.addEventListener("click", () => {
       activeFilter = button.dataset.filter;
-      allFilters.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+      filters.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
       updateCatalog();
     });
   });
@@ -244,6 +76,74 @@ if (supportSelect && supportLink) {
   };
   supportSelect.addEventListener("change", updateSupportLink);
   updateSupportLink();
+}
+
+const supportForm = document.querySelector("[data-support-form]");
+if (supportForm) {
+  const status = supportForm.querySelector("[data-support-status]");
+  const issueSelect = supportForm.querySelector("[data-support-issue]");
+  const issuePresetButtons = [...document.querySelectorAll("[data-issue-preset]")];
+  const requestedIssue = new URLSearchParams(window.location.search).get("issue");
+
+  if (requestedIssue && issueSelect && [...issueSelect.options].some((option) => option.value === requestedIssue)) {
+    issueSelect.value = requestedIssue;
+  }
+
+  const syncIssueButtons = () => {
+    issuePresetButtons.forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.issuePreset === issueSelect?.value));
+    });
+  };
+
+  issuePresetButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!issueSelect) return;
+      issueSelect.value = button.dataset.issuePreset;
+      issueSelect.dispatchEvent(new Event("change", { bubbles: true }));
+      issueSelect.focus();
+    });
+  });
+
+  supportForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!supportForm.reportValidity()) return;
+
+    const data = new FormData(supportForm);
+    const app = data.get("app");
+    const issueType = data.get("issueType");
+    const recipient = supportForm.dataset.email || "support@techmaxxed.com";
+    const subject = encodeURIComponent(`${app} - ${issueType}`);
+    const body = encodeURIComponent([
+      "Maxxed support ticket",
+      "",
+      `App: ${app}`,
+      `Request type: ${issueType}`,
+      `Severity: ${data.get("severity")}`,
+      `Device and Android version: ${data.get("device") || "Not provided"}`,
+      "",
+      "Steps or request details:",
+      data.get("steps") || "Not provided",
+      "",
+      "Expected result:",
+      data.get("expected") || "Not provided",
+      "",
+      "Actual result:",
+      data.get("actual") || "Not provided",
+      "",
+      "Sensitive information confirmation: No passwords, upload keys, signing material, payment data, or sensitive location history included.",
+    ].join("\n"));
+
+    if (status) status.textContent = "Your email app should open with the support ticket filled in. Send that email to finish the request.";
+    window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
+  });
+
+  issueSelect?.addEventListener("change", () => {
+    if (status) status.textContent = issueSelect.value === "Privacy or data"
+      ? "Privacy requests route to support."
+      : "";
+    syncIssueButtons();
+  });
+  syncIssueButtons();
 }
 
 const betaForm = document.querySelector("[data-beta-form]");
@@ -273,6 +173,7 @@ if (betaForm) {
       `Android device: ${data.get("device")}`,
       `Android version: ${data.get("androidVersion")}`,
       `Testing experience or notes: ${data.get("notes") || "None provided"}`,
+      "Pre-release testing interest: Yes, include development-stage apps when selected",
       `Public credit permission: ${data.get("creditConsent") ? "Yes" : "No"}`,
       "Age or guardian confirmation: Yes",
       "Compensation acknowledged: Yes",
@@ -284,6 +185,66 @@ if (betaForm) {
   });
 
   appInputs.forEach((input) => input.addEventListener("change", () => appInputs[0]?.setCustomValidity("")));
+}
+
+const checkoutForm = document.querySelector("[data-checkout-form]");
+if (checkoutForm) {
+  const offersElement = document.querySelector("#checkout-offers");
+  const offers = offersElement ? JSON.parse(offersElement.textContent) : [];
+  const select = checkoutForm.querySelector("[data-checkout-select]");
+  const summary = checkoutForm.querySelector("[data-checkout-summary]");
+  const action = checkoutForm.querySelector("[data-checkout-action]");
+  const support = checkoutForm.querySelector("[data-checkout-support]");
+  const status = checkoutForm.querySelector("[data-checkout-status]");
+  const email = checkoutForm.dataset.email || "support@techmaxxed.com";
+  const requestedProduct = new URLSearchParams(window.location.search).get("product");
+
+  if (requestedProduct && select && [...select.options].some((option) => option.value === requestedProduct)) {
+    select.value = requestedProduct;
+  }
+
+  const formatPrice = (value) => `$${Number(value).toFixed(value % 1 ? 2 : 0)}`;
+  const mailtoFor = (offer, subjectPrefix) => {
+    const subject = encodeURIComponent(`${subjectPrefix} - ${offer.name}`);
+    const body = encodeURIComponent([
+      `${subjectPrefix}`,
+      "",
+      `Product: ${offer.name}`,
+      `Price shown: ${formatPrice(offer.price)} ${offer.billing}`,
+      `Product family: ${offer.family}`,
+      "",
+      "Buyer email:",
+      "",
+      "Fulfillment question or note:",
+    ].join("\n"));
+    return `mailto:${email}?subject=${subject}&body=${body}`;
+  };
+
+  const updateCheckout = () => {
+    const offer = offers.find((item) => item.id === select?.value) || offers[0];
+    if (!offer || !summary || !action || !support) return;
+    summary.innerHTML = `<span class="status">${offer.label}</span><h2>${offer.name}</h2><strong class="price">${formatPrice(offer.price)}</strong><p>${offer.summary}</p><div class="fact-row"><span>${offer.family}</span><span>${offer.status}</span><span>${offer.billing}</span></div><p class="fine-print"><strong>Fulfillment:</strong> ${offer.fulfillment}</p><p class="fine-print">${offer.notes}</p>`;
+    action.href = offer.checkoutUrl || mailtoFor(offer, "Purchase request");
+    action.textContent = offer.checkoutUrl ? "Continue to hosted checkout" : "Request invoice";
+    support.href = mailtoFor(offer, "Question before purchase");
+    if (status) {
+      status.textContent = offer.checkoutUrl
+        ? "You will leave TechMaxxed.com for hosted checkout. Do not send card details by email."
+        : "Hosted checkout is not configured for this item yet. This will prepare a manual invoice request email.";
+    }
+  };
+
+  action?.addEventListener("click", (event) => {
+    if (!checkoutForm.reportValidity()) {
+      event.preventDefault();
+      if (status) status.textContent = "Confirm the purchase and fulfillment note before continuing.";
+    }
+  });
+  select?.addEventListener("change", updateCheckout);
+  checkoutForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+  });
+  updateCheckout();
 }
 
 document.querySelectorAll("[data-year]").forEach((element) => {

@@ -34,9 +34,31 @@ const privacy = await workerModule.default.fetch(new Request("https://example.te
 assert.equal(privacy.status, 200);
 assert.match(await privacy.text(), /<h1>Rival Rush Privacy Policy<\/h1>/);
 
+const readme = await workerModule.default.fetch(new Request("https://example.test/apps/fishing-maxxed/readme/"));
+assert.equal(readme.status, 200);
+assert.match(await readme.text(), /<h1>Fishing Maxxed README<\/h1>/);
+
 const beta = await workerModule.default.fetch(new Request("https://example.test/beta/?app=rival-rush"));
 assert.equal(beta.status, 200);
 assert.match(await beta.text(), /<h1>Become a beta tester<\/h1>/);
+
+const plugins = await workerModule.default.fetch(new Request("https://example.test/plugins/"));
+assert.equal(plugins.status, 200);
+assert.match(await plugins.text(), /<h1>WordPress plugins<\/h1>/);
+
+const plugin = await workerModule.default.fetch(new Request("https://example.test/plugins/wordpress-role-auditor/"));
+assert.equal(plugin.status, 200);
+assert.match(await plugin.text(), /<h1>WordPress Role Auditor<\/h1>/);
+
+const pluginReadme = await workerModule.default.fetch(new Request("https://example.test/plugins/wordpress-role-auditor/readme/"));
+assert.equal(pluginReadme.status, 200);
+assert.match(await pluginReadme.text(), /<h1>WordPress Role Auditor README<\/h1>/);
+
+const admin = await workerModule.default.fetch(new Request("https://example.test/admin/"));
+assert.equal(admin.status, 404);
+
+const adminPlugins = await workerModule.default.fetch(new Request("https://example.test/admin/plugins/"));
+assert.equal(adminPlugins.status, 404);
 
 const redirect = await workerModule.default.fetch(new Request("https://example.test/apps"));
 assert.equal(redirect.status, 308);
@@ -48,5 +70,12 @@ assert.match(stylesheet.headers.get("content-type"), /^text\/css/);
 
 const missing = await workerModule.default.fetch(new Request("https://example.test/not-a-page"));
 assert.equal(missing.status, 404);
+const missingHtml = await missing.text();
+assert.match(missingHtml, /href="\/assets\/site\.css"/);
+assert.match(missingHtml, /src="\/assets\/site\.js"/);
+
+const deepMissing = await workerModule.default.fetch(new Request("https://example.test/apps/unknown/deep-page"));
+assert.equal(deepMissing.status, 404);
+assert.match(await deepMissing.text(), /href="\/assets\/site\.css"/);
 
 console.log("Artifact is valid ESM; routes, redirects, assets, and 404 responses passed.");

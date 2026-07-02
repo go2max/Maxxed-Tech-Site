@@ -1,11 +1,7 @@
 dist/
-node_modules/
 site.tar.gz
-.env.wordpress
 local-artifacts/
-runner/config/agent.local.json
-runner/config/artifacts.local.json
-runner/config/products.local.json
-runner/state/
-runner/reports/
-wordpress/reports/
+*.apk
+platform/.env
+runner/work/
+runner/**/maxxed-*-test-*/

@@ -1,47 +1,44 @@
-# Maxxed Remote Full Test
+# Maxxed Remote Admin Test
 
-The private platform exposes the approved Maxxed Remote test under
-`/testing-functions`. The sequential runner resolves the
-`full-ux-connection` step from the package-bound manifest at
-`runner/config/script-packs/maxxed-remote/manifest.json`.
+The private admin Testing Functions catalog includes one approved script pack:
+`maxxed-remote-full-ux-connection`.
 
-## Coverage
+## What One Run Covers
 
-- APK package verification, install, launch, process-alive, and crash checks
-- Remote, Media, Apps, and More navigation
-- Remote keys, media controls, number pad, color keys, Help, and themes
-- Saved-TV, service-tile, discovery, rescan, and manual-add controls
-- Optional manual-IP television connection attempt
-- Screenshots, logcat, package metadata, memory evidence, and JSON results
-- Cleanup and uninstall unless explicitly retained
+- APK SHA-256 and Maxxed Remote package verification
+- Install, launch, process-alive, and crash/logcat checks
+- Remote, Media, Apps, and More tab navigation
+- Remote key, media, number-pad, color-key, Help, theme, and app-management controls
+- Discovery sheet open/cancel behavior
+- Optional manual-IP TV creation and connection attempt
+- Screenshots, package metadata, memory snapshot, logcat, and structured JSON result
+- Cleanup and uninstall unless retention is requested
 
-Real television pairing, on-screen response, wake/power, reconnect, and
-manufacturer-specific streaming behavior remain blocked or manual review until
-an operator observes them on compatible hardware.
+The script never reports physical-TV success based only on a click. Pairing,
+television response, power/wake, reconnect, and manufacturer-specific streaming
+IDs remain `manual-review` until observed on real hardware.
 
 ## Direct Windows Run
 
 ```powershell
-pwsh -File runner\scripts\maxxed-remote\maxxed-remote-full-test.ps1 `
+pwsh -File runner\script-packs\maxxed-remote\maxxed-remote-full-test.ps1 `
   -ApkPath C:\builds\maxxed-remote.apk `
   -DeviceSerial R3CT... `
   -TvIp 192.168.1.50 `
   -TvPlatform SamsungTizen
 ```
 
-Add `-HardwareObserved` only after observing the television accept the
-connection and respond. Exit code `0` means passed, `1` means failed, and
-`2` means blocked or awaiting physical review.
+Add `-HardwareObserved` only after the operator watches the TV accept the
+connection and respond. Exit code `0` means fully passed, `1` means failed, and
+`2` means blocked or awaiting manual hardware review.
 
-The browser never supplies commands or executable paths. The local runner loads
-only the version-controlled command reference from the approved manifest.
+## Admin Placement
 
-## Admin Job Lifecycle
+The dashboard must load `manifest.json` as an allowlisted catalog item under
+**Admin > Testing Functions > Maxxed Remote**. It must pass validated fields to
+the local runner and display `result.json`. The browser must never provide a
+free-form command or execute ADB directly.
 
-The Testing Functions page shows the ten most recently updated Remote jobs and
-refreshes every 30 seconds while idle. QA Leads can cancel a job only while it
-is queued. Completed, failed, blocked, interrupted, or cancelled jobs can be
-retried as new audited jobs; the original result and evidence remain intact.
-
-See `docs/MAXXED_REMOTE_OPERATIONS.md` for the production checklist and
-recovery procedures.
+The public website intentionally does not publish this route. The private admin
+application and runner lease/control API are still required before the button
+can launch tests remotely.

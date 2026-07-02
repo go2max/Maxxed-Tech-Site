@@ -1,77 +1,47 @@
-# Maxxed Sequential APK Runner
+# Maxxed Android Test Runner Packs
 
-The Windows-first runner executes package-bound Android test packs for all six
-current apps. It claims only products present in its local artifact catalog,
-runs one job at a time, sends lease heartbeats, and returns bounded results and
-evidence. Credentials and production signing keys never belong in Git or child
-process environments.
+The private admin catalog maps approved script IDs to PowerShell entrypoints in
+`runner/script-packs/`. The browser never supplies a command or path.
 
-## Configure
+Each non-TV app pack accepts an APK, one manifest-approved `TestId`, and an
+optional ADB serial. The shared core verifies the artifact and installed
+package, launches the app, checks process survival and expected UI, exercises
+permission-denied behavior where applicable, performs background/reopen and
+rotation checks, runs controlled input robustness, scans logcat, and captures a
+structured report plus screenshots and device evidence.
 
-Copy these examples to their ignored local equivalents:
-
-- `runner/config/products.example.json` to `products.local.json`
-- `runner/config/artifacts.example.json` to `artifacts.local.json`
-- `runner/config/agent.example.json` to `agent.local.json`
-
-Update APK paths, the ADB device serial, Android SDK tool path, and any products
-this machine should support. Supply `MAXXED_RUNNER_API_TOKEN` through Windows
-secret management.
-
-## Preflight and Start
+Example:
 
 ```powershell
-node runner/agent.mjs --config=runner/config/agent.local.json --check
-node runner/agent.mjs --config=runner/config/agent.local.json
+pwsh -File runner\script-packs\maxxed-compass\maxxed-compass-test.ps1 `
+  -ApkPath C:\builds\MaxxedCompass.apk `
+  -TestId compass-recovery `
+  -DeviceSerial R3CT...
 ```
 
-Preflight verifies the product map, artifact catalog, every configured APK and
-manifest, and the configured Android SDK tool. The agent advertises only those
-products to the claim API and publishes its version on idle and active check-ins.
+Use `-TestId full` for the broad automated pass. Physical checks deliberately
+return `manual-review`; an emulator pass never substitutes for camera, sensor,
+outdoor, television, or two-player acceptance.
 
-The agent waits for each child before polling again. Successful and idle cycles
-use `pollSeconds`; failed cycles use `errorBackoffSeconds`. Active jobs send
-heartbeats at `heartbeatSeconds`; local cross-process leases use
-`localLeaseSeconds` and default to one hour. A server cancellation kills the isolated
-active step and records `cancelled`; repeated heartbeat failure stops work to
-avoid split-brain execution.
+Exit code `0` is pass, `1` is fail, and `2` is blocked or manual review. Each
+run writes `result.json`, screenshots, `logcat.txt`, `meminfo.txt`, and
+`package.txt` to its output directory.
 
-`Ctrl+C` or a service stop signal terminates the active child and exits
-cleanly. Run the process as a dedicated non-administrator Windows account.
+## Build Runner Skeleton
 
-## One Manual Cycle
+`runner/build-agent/maxxed-build-runner.mjs` leases build pipeline steps from
+`/api/build-runner/lease` and resolves only approved `commandRef` values. It is
+dry-run only right now: it confirms the contract, writes a local `result.json`,
+and completes the run as blocked until real Codex/GitHub execution is explicitly
+enabled.
 
-```powershell
-node runner/remote-cli.mjs `
-  --platform=https://admin.techmaxxed.com `
-  --products=C:\maxxed-runner\products.local.json `
-  --artifacts=C:\maxxed-runner\artifacts.local.json `
-  --stateDir=C:\maxxed-runner\state `
-  --reportDir=C:\maxxed-runner\reports `
-  --runnerId=local-windows-runner `
-  --deviceId=R3CT... `
-  --inspectionMode=production `
-  --aaptPath=C:\Android\build-tools\35.0.0\aapt.exe `
-  --heartbeatSeconds=15 `
-  --localLeaseSeconds=3600
+Example:
+
+```sh
+MAXXED_BUILD_RUNNER_TOKEN=... node runner/build-agent/maxxed-build-runner.mjs \
+  --base-url https://admin.techmaxxed.com \
+  --runner-id local-build-runner-1
 ```
 
-Legacy `--apk` and `--manifest` arguments remain available for a dedicated
-Maxxed Remote runner. The artifact catalog is required for portfolio operation.
-
-See `docs/PORTFOLIO_TESTING_CONTROL_PLANE.md` for the full package inventory,
-lease protocol, evidence contract, and recovery procedures.
-
-
-Use a unique local token per runner. Hosted mapping, staged rotation, fleet
-health, and incident procedures are in `docs/RUNNER_FLEET_OPERATIONS.md`.
-
-Before job completion, the runner uploads evidence found beneath `reportDir` to
-the private platform store. Paths outside that directory are ignored; oversized
-files stop completion. Keep `evidenceMaxBytes` aligned with the hosted
-`EVIDENCE_MAX_BYTES` value. Storage and retention operations are documented in
-`docs/PRIVATE_TEST_EVIDENCE.md`.
-
-Automatic pool jobs are assigned by advertised product capability. The server
-allows one active lease per runner-device pair even if duplicate agent processes
-start. See `docs/AUTOMATIC_DEVICE_POOLS.md`.
+The script must never accept shell text from the admin browser. Add new behavior
+by adding a fixed handler for a fixed `commandRef`.

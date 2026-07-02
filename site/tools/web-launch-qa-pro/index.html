@@ -4,80 +4,85 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Web Launch QA Pro | Maxxed Technical Systems</title>
-  <meta name="description" content="Run a structured launch checklist, score readiness, save audits, import and export JSON, print, and export a client-ready launch report.">
+  <meta name="description" content="Web Launch QA Pro is a focused Maxxed software tool prepared for the public product catalog.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="https://techmaxxed.com/tools/web-launch-qa-pro/">
-  <style>
-    :root{color-scheme:dark;--bg:#07131f;--panel:#0e2033;--text:#f4fbff;--muted:#9fb4c8;--accent:#7dd3fc;--line:#1e3a56}*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--text)}a{color:var(--accent)}.wrap{width:min(1080px,calc(100% - 32px));margin:auto}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;margin:20px 0}.check{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;border:1px solid var(--line);border-radius:14px;padding:10px;margin:8px 0}input,textarea{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:#06111e;color:var(--text)}button,.button{border:0;border-radius:999px;padding:10px 14px;background:var(--accent);color:#03101d;font-weight:800;cursor:pointer}.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}.actions{display:flex;gap:8px;flex-wrap:wrap}.score{font-size:4rem;font-weight:900}.muted{color:var(--muted)}@media(max-width:820px){.grid{grid-template-columns:1fr}}@media print{.actions,header{display:none}.panel{background:white;color:#111;border-color:#bbb}body{background:white;color:#111}}
-  </style>
-</head>
-<body>
-  <header class="wrap panel"><strong>Maxxed Technical Systems</strong> · <a href="/support/">Support</a> · <a href="mailto:support@techmaxxed.com">support@techmaxxed.com</a></header>
-  <main class="wrap">
-    <section class="panel">
-      <p class="muted">Production launch utility</p>
-      <h1>Web Launch QA Pro</h1>
-      <p>Score a website launch using a structured 100-point checklist. Save locally with localStorage, import/export JSON, print, and create a Web Launch QA Pro Report.</p>
-      <button id="loadExample" type="button">Load example</button>
-    </section>
-    <section class="grid">
-      <form id="launchForm" class="panel">
-        <h2>Project profile</h2>
-        <label>Site or client name<input name="siteName"></label>
-        <label>Launch URL<input name="siteUrl" inputmode="url"></label>
-        <label>Owner / reviewer<input name="owner"></label>
-        <label>Launch notes<textarea name="notes"></textarea></label>
-        <div id="checkGroups"></div>
-        <div class="actions">
-          <button type="button" id="copyReport">Copy report</button>
-          <button type="button" id="downloadReport" class="secondary">Download Markdown</button>
-          <button type="button" id="exportJson" class="secondary">Export JSON</button>
-          <button type="button" id="importJson" class="secondary">Import JSON</button>
-          <button type="button" id="printReport" class="secondary">Print</button>
-          <button type="reset" class="secondary">Reset</button>
-        </div>
-        <input id="jsonFile" type="file" accept="application/json,.json" hidden>
-      </form>
-      <aside class="panel" aria-live="polite">
-        <h2>Readiness score</h2>
-        <div class="score"><span id="score">0</span>/100</div>
-        <p id="verdict">Complete the checklist to generate a launch verdict.</p>
-        <p id="statusLine"></p>
-        <h3>Priority blockers</h3>
-        <ul id="blockers"><li>No blockers calculated yet.</li></ul>
-        <h3>Summary</h3>
-        <ul id="summaryList"></ul>
-      </aside>
-    </section>
-  </main>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Maxxed Technical Systems">
+  <meta property="og:title" content="Web Launch QA Pro | Maxxed Technical Systems">
+  <meta property="og:description" content="Web Launch QA Pro is a focused Maxxed software tool prepared for the public product catalog.">
+  <meta property="og:url" content="https://techmaxxed.com/tools/web-launch-qa-pro/">
+  <meta property="og:image" content="https://techmaxxed.com/assets/images/og-default.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Web Launch QA Pro | Maxxed Technical Systems">
+  <meta name="twitter:description" content="Web Launch QA Pro is a focused Maxxed software tool prepared for the public product catalog.">
+  <meta name="twitter:image" content="https://techmaxxed.com/assets/images/og-default.png">
+  <meta name="theme-color" content="#07131f">
+  <link rel="icon" href="../../assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="../../site.webmanifest">
+  <style>.site-header{position:sticky;top:0;z-index:30;border-bottom:1px solid rgba(255,255,255,.13);background:#07131f}.nav-shell{width:min(calc(100% - 32px),1180px);min-height:70px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand,.nav-links{display:flex;align-items:center}.brand{gap:11px;color:#f4f7f8;font-weight:850;text-decoration:none}.brand-mark{width:34px;aspect-ratio:1;border-radius:7px;display:grid;place-items:center;background:#b9ed45;color:#07131f;font-size:12px}.nav-links{gap:20px}.nav-links a{color:#a9b7be;font-size:14px;white-space:nowrap;text-decoration:none}.nav-button{min-height:44px;padding:0 18px;border-radius:7px;background:#b9ed45;color:#07131f!important;font-weight:800}@media(max-width:980px){.nav-toggle{display:grid;place-items:center}.nav-links{display:none;position:absolute;left:16px;right:16px;top:76px;padding:14px;border:1px solid rgba(255,255,255,.13);border-radius:8px;background:#0d1c28;flex-direction:column;align-items:stretch}.nav-links[data-open=true]{display:flex}.nav-links a{padding:10px 0}.nav-button{justify-content:center}}</style>
+  <link rel="stylesheet" href="../../assets/site.css">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FPG9XJHGHK"></script>
   <script>
-    const storageKey='web-launch-qa-pro:v1';
-    const checks=[
-      ['Unique title and meta description on key pages',8,'Home, service/product, support/contact, and legal pages reviewed.'],
-      ['Canonical, robots.txt, and sitemap are launch-safe',8,'No accidental noindex, blocked assets, or stale sitemap paths.'],
-      ['Open Graph/social preview is present',4,'Title, description, URL, and share image are ready.'],
-      ['Structured data is valid where applicable',5,'Organization, local business, product, FAQ, or article schema checked.'],
-      ['Primary call to action is visible above the fold',8,'Visitor can immediately request support, join beta, buy, book, or contact.'],
-      ['Every major page has clear support/contact access',6,'No dead-end product page or service page.'],
-      ['Thin placeholder copy removed',7,'No lorem ipsum, vague cards, or unfinished launch promises.'],
-      ['Mobile layout reviewed on narrow screens',7,'Navigation, cards, form controls, and footer remain usable.'],
-      ['Privacy, terms, and accessibility pages exist',7,'Public trust pages are linked and readable.'],
-      ['Business/support email is correct',5,'Support routing points to support@techmaxxed.com where applicable.'],
-      ['Images and icons have meaningful alt or decorative handling',5,'Important visuals are not invisible to assistive tech.'],
-      ['Keyboard focus and contrast pass a basic manual check',6,'Buttons, links, and inputs are reachable and readable.'],
-      ['404 page and broken-link check are clean',8,'Internal links route correctly and missing pages are handled.'],
-      ['Build/check command passes locally or in CI',8,'The repo has a repeatable validation command.'],
-      ['Analytics/measurement decision is documented',4,'Either intentionally absent or configured without hidden assumptions.'],
-      ['Final owner approval captured',4,'The person responsible for launch has signed off.']
-    ];
-    const form=document.querySelector('#launchForm'),checkGroups=document.querySelector('#checkGroups'),scoreEl=document.querySelector('#score'),verdict=document.querySelector('#verdict'),summaryList=document.querySelector('#summaryList'),blockers=document.querySelector('#blockers'),statusLine=document.querySelector('#statusLine'),jsonFile=document.querySelector('#jsonFile');
-    function render(){checkGroups.innerHTML='<h2>Checklist</h2>'+checks.map(([label,weight,help],i)=>`<label class="check"><input type="checkbox" data-label="${label}" data-weight="${weight}"><span><strong>${label}</strong><br><small>${help}</small></span><b>${weight}</b></label>`).join('')}
-    function items(){return [...document.querySelectorAll('[data-weight]')]}function score(){return items().filter(i=>i.checked).reduce((s,i)=>s+Number(i.dataset.weight),0)}
-    function snapshot(){const d=new FormData(form);return{version:1,siteName:d.get('siteName')||'',siteUrl:d.get('siteUrl')||'',owner:d.get('owner')||'',notes:d.get('notes')||'',checks:items().map(i=>({label:i.dataset.label,weight:Number(i.dataset.weight),checked:i.checked})),score:score()}}
-    function apply(data){form.siteName.value=data.siteName||'';form.siteUrl.value=data.siteUrl||'';form.owner.value=data.owner||'';form.notes.value=data.notes||'';const map=new Map((data.checks||[]).map(i=>[i.label,i.checked]));items().forEach(i=>i.checked=!!map.get(i.dataset.label));update(false)}
-    function update(save=true){const s=score();scoreEl.textContent=s;verdict.textContent=s>=90?'Launch-ready: final human approval remains.':s>=75?'Near-ready: resolve high-impact misses.':'Launch blocked: complete required QA items before shipping.';const missing=items().filter(i=>!i.checked).sort((a,b)=>Number(b.dataset.weight)-Number(a.dataset.weight));blockers.innerHTML=missing.slice(0,5).map(i=>`<li>${i.dataset.label} (${i.dataset.weight})</li>`).join('')||'<li>No priority blockers remain.</li>';summaryList.innerHTML=`<li>${items().filter(i=>i.checked).length}/${items().length} complete</li>`;if(save)localStorage.setItem(storageKey,JSON.stringify(snapshot()))}
-    function reportMarkdown(){const d=snapshot();return `# Web Launch QA Pro Report\n\nSite: ${d.siteName||'Untitled'}\nURL: ${d.siteUrl||'Not provided'}\nOwner: ${d.owner||'Not provided'}\nScore: ${d.score}/100\n\n## Completed checks\n${d.checks.filter(i=>i.checked).map(i=>`- [x] ${i.label}`).join('\n')||'- None'}\n\n## Remaining checks\n${d.checks.filter(i=>!i.checked).map(i=>`- [ ] ${i.label}`).join('\n')||'- None'}\n`;}
-    function download(name,type,body){const blob=new Blob([body],{type}),url=URL.createObjectURL(blob),a=Object.assign(document.createElement('a'),{href:url,download:name});a.click();URL.revokeObjectURL(url)}
-    render();try{const saved=localStorage.getItem(storageKey);saved?apply(JSON.parse(saved)):update(false)}catch{update(false)}form.addEventListener('input',()=>update(true));form.addEventListener('reset',()=>setTimeout(()=>{localStorage.removeItem(storageKey);update(false)}));copyReport.onclick=async()=>{await navigator.clipboard.writeText(reportMarkdown());statusLine.textContent='Report copied.'};downloadReport.onclick=()=>download('web-launch-qa-report.md','text/markdown',reportMarkdown());exportJson.onclick=()=>download('web-launch-qa-audit.json','application/json',JSON.stringify(snapshot(),null,2));importJson.onclick=()=>jsonFile.click();printReport.onclick=()=>print();jsonFile.onchange=async()=>{apply(JSON.parse(await jsonFile.files[0].text()));update(true)};loadExample.onclick=()=>{apply({siteName:'TechMaxxed product page launch pass',siteUrl:'https://techmaxxed.com/tools/web-launch-qa-pro/',owner:'Maxxed Technical Systems',checks:checks.map((c,i)=>({label:c[0],checked:i<12}))});update(true)};
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-FPG9XJHGHK');
   </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Maxxed Technical Systems","url":"https://techmaxxed.com","email":"support@techmaxxed.com","logo":"https://techmaxxed.com/assets/images/favicon.svg"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Web Launch QA Pro","applicationCategory":"Business tool","operatingSystem":"Web","description":"Web Launch QA Pro is a focused Maxxed software tool prepared for the public product catalog.","url":"https://techmaxxed.com/tools/web-launch-qa-pro/","author":{"@type":"Organization","name":"Maxxed Technical Systems","url":"https://techmaxxed.com"}}</script>
+</head>
+<body data-support-email="support@techmaxxed.com" data-beta-email="support@techmaxxed.com">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="../../" aria-label="Maxxed Technical Systems home"><span class="brand-mark" aria-hidden="true">MTS</span><span class="brand-name">Maxxed Technical Systems</span></a>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation">☰</button>
+      <nav class="nav-links" id="primary-nav" data-nav-links data-open="false" aria-label="Primary navigation">
+        <a href="../../apps/" aria-current="page">Apps</a>
+        <a href="../../plugins/">Plugins</a>
+        <a href="../../pricing/">Pricing</a>
+        <a href="../../beta/">Beta Testers</a>
+        <a href="../../roadmap/">Roadmap</a>
+        <a href="../../about/">About</a>
+        <a href="../../support/">Help</a>
+        <a class="nav-button" href="../../checkout/">Checkout</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main"><section class="band product-hero"><div class="shell product-hero-grid"><div><div class="product-kicker" style="--accent:#86efac"><span class="app-icon" aria-hidden="true">WL</span><span class="status">Product concept</span></div><p class="eyebrow">Business tool</p><h1>Web Launch QA Pro</h1><p class="lede">Web Launch QA Pro is a focused Maxxed software tool prepared for the public product catalog.</p><div class="fact-row"><span>Content</span><span>Business tool</span><span>Available to discuss</span></div><div class="hero-actions"><a class="button" href="../../support/?app=Web%20Launch%20QA%20Pro&issue=Feature%20request">Request buying info</a><a class="button secondary" href="../../support/?app=Web%20Launch%20QA%20Pro">Get product support</a><a class="button secondary" href="../../apps/">Browse catalog</a><a class="button secondary" href="mailto:support@techmaxxed.com?subject=Web%20Launch%20QA%20Pro%20support%20request">Email support</a></div></div><div class="product-visual" style="--accent:#86efac"><span class="product-visual-label">Product fit</span><span class="app-icon" aria-hidden="true">WL</span><strong>Web Launch QA Pro is a focused Maxxed software tool prepared for the public product catalog.</strong><div class="fact-row"><span>Content</span><span>Business tool</span><span>Available to discuss</span></div></div></div></section>
+  <section class="shell section"><div class="section-head"><div><p class="eyebrow">Details</p><h2>What this product helps with</h2></div><p>Web Launch QA Pro is included so customers can understand the intended workflow, ask for help, or request the right tool for their situation.</p></div><div class="feature-list" style="--accent:#86efac"><article class="feature-item"><span class="feature-number">01</span><h3>Website review workflow</h3><p>Collect page, metadata, accessibility, source, or link findings in a clear checklist before making customer-facing changes.</p></article><article class="feature-item"><span class="feature-number">02</span><h3>Customer support path</h3><p>Questions route to support@techmaxxed.com with the product name, goal, device or browser, and the exact workflow being attempted.</p></article><article class="feature-item"><span class="feature-number">03</span><h3>Clear product state</h3><p>The page describes current intent and fit without promising public availability, timelines, or unsupported results.</p></article></div></section>
+  <section class="band"><div class="shell section compact"><div class="copy-grid"><aside><p class="eyebrow">Good fit</p><h2>When to ask about it</h2></aside><article><p>Use this page when the product name matches a workflow you already need to organize, calculate, review, or hand off. If the current product is not the best fit, support can point you toward a better Maxxed app, WordPress plugin, or web tool.</p><p>For a useful request, include the exact workflow, the current tool you use, what is frustrating about it, and whether you need Android, WordPress, browser, or spreadsheet-style output.</p><p><a class="button" href="../../support/?app=Web%20Launch%20QA%20Pro">Prepare a Web Launch QA Pro support ticket</a></p></article></div></div></section>
+  <section class="shell section compact"><div class="support-callout" style="--accent:#86efac"><div><p class="eyebrow">Product support</p><h2>Get support for Web Launch QA Pro</h2><p>Open a support ticket pre-selected for this product. Include browser or device details, screenshots when safe, expected result, and actual result.</p></div><div class="hero-actions"><a class="button" href="../../support/?app=Web%20Launch%20QA%20Pro">Get support</a><a class="button secondary" href="mailto:support@techmaxxed.com?subject=Web%20Launch%20QA%20Pro%20support%20request">Email support</a></div></div></section>
+  <section class="band"><div class="shell section compact"><div class="section-head"><div><p class="eyebrow">Related tools</p><h2>Similar product ideas</h2></div><p>More focused tools in the same public catalog.</p></div><div class="app-grid"><a class="app-card" data-app-card data-category="repo content" style="--accent:#7dd3fc" href="../../tools/content-approval-extension/">
+    <div class="app-card-top"><span class="app-icon" aria-hidden="true">CA</span><span class="status">Product concept</span></div>
+    <h3>Content Approval Extension</h3>
+    <p>Content Approval Extension is a focused Maxxed software tool prepared for the public product catalog.</p>
+    <div class="fact-row"><span>Content</span><span>Focused web tool</span><span>Available to discuss</span></div>
+    <span class="app-meta">View Content Approval Extension details -></span>
+  </a><a class="app-card" data-app-card data-category="repo content" style="--accent:#facc15" href="../../tools/document-approval-queue/">
+    <div class="app-card-top"><span class="app-icon" aria-hidden="true">DA</span><span class="status">Product concept</span></div>
+    <h3>Document Approval Queue</h3>
+    <p>Document Approval Queue tracks tasks, records, deadlines, and follow-up status in a focused web workflow.</p>
+    <div class="fact-row"><span>Content</span><span>Focused web tool</span><span>Available to discuss</span></div>
+    <span class="app-meta">View Document Approval Queue details -></span>
+  </a><a class="app-card" data-app-card data-category="repo content" style="--accent:#fb7185" href="../../tools/document-version-register/">
+    <div class="app-card-top"><span class="app-icon" aria-hidden="true">DV</span><span class="status">Product concept</span></div>
+    <h3>Document Version Register</h3>
+    <p>Document Version Register tracks tasks, records, deadlines, and follow-up status in a focused web workflow.</p>
+    <div class="fact-row"><span>Content</span><span>Focused web tool</span><span>Available to discuss</span></div>
+    <span class="app-meta">View Document Version Register details -></span>
+  </a></div></div></section></main>
+  <footer class="site-footer">
+    <div class="shell footer-grid">
+      <div><a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">MTS</span><span>Maxxed Technical Systems</span></a><p>Android-first apps and focused software for everyday control, outdoor work, measurement, field records, and friendly competition.</p></div>
+      <div><h2>Products</h2><ul><li><a href="../../apps/">All products</a></li><li><a href="../../pricing/">Pricing</a></li><li><a href="../../checkout/">Checkout</a></li><li><a href="../../plugins/">WordPress tools</a></li><li><a href="../../apps/maxxed-remote/">Maxxed Remote</a></li><li><a href="../../apps/maxxed-compass/">Maxxed Compass</a></li><li><a href="../../apps/rival-rush/">Rival Rush</a></li></ul></div>
+      <div><h2>Community</h2><ul><li><a href="../../beta/">Become a beta tester</a></li><li><a href="../../beta-credits/">Beta tester credits</a></li><li><a href="../../support/">Support</a></li></ul></div>
+      <div><h2>Policies</h2><ul><li><a href="../../privacy/">Privacy</a></li><li><a href="../../terms/">Terms</a></li><li><a href="../../accessibility/">Accessibility</a></li><li><a href="mailto:support@techmaxxed.com">Email us</a></li></ul></div>
+    </div>
+    <div class="shell footer-bottom">© <span data-year></span> Maxxed Technical Systems. Product availability and compatibility vary by app.</div>
+  </footer>
+  <script src="../../assets/site.js" defer></script>
 </body>
 </html>
