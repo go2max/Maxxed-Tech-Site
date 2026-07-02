@@ -13,6 +13,8 @@ const expectedBuildSteps = [
   "node scripts/apply-product-page-conversion-redesign.mjs",
   "node scripts/apply-order-about-polish.mjs",
   "node scripts/apply-support-mobile-polish.mjs",
+  "node scripts/apply-conversion-flow-polish.mjs",
+  "node scripts/apply-visual-consistency-polish.mjs",
   "rm -rf public && cp -R site public",
 ];
 
@@ -23,6 +25,8 @@ const requiredScripts = [
   "scripts/apply-product-page-conversion-redesign.mjs",
   "scripts/apply-order-about-polish.mjs",
   "scripts/apply-support-mobile-polish.mjs",
+  "scripts/apply-conversion-flow-polish.mjs",
+  "scripts/apply-visual-consistency-polish.mjs",
   "scripts/validate-site.mjs",
   "scripts/validate-artifact.mjs",
   "scripts/validate-public-redesign-chain.mjs",
@@ -40,7 +44,7 @@ for (const step of expectedBuildSteps) {
 }
 
 assert.match(buildCommand, /find public -mindepth 1/, "Build should clear generated public files before export");
-assert.doesNotMatch(buildCommand, /node scripts\/apply-support-mobile-polish\.mjs[\s\S]*node scripts\/build\.mjs/, "Post-build scripts must not run before the generator");
+assert.doesNotMatch(buildCommand, /node scripts\/apply-visual-consistency-polish\.mjs[\s\S]*node scripts\/build\.mjs/, "Post-build scripts must not run before the generator");
 assert.match(packageJson.scripts?.["check:public"] || "", /npm run build && npm run validate/, "check:public should build before validating");
 
 for (const path of requiredScripts) {
@@ -55,6 +59,8 @@ for (const lockedPhrase of [
   "Order a custom app, plugin, automation, or workflow tool",
   "Independent software built by Max Uland",
   "Get help, request testing, or ask about a build",
+  "Not every visitor should go to checkout",
+  "Make sure this is the right lane",
 ]) {
   assert.match(validation, new RegExp(lockedPhrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `validate-site should lock redesigned copy: ${lockedPhrase}`);
 }
