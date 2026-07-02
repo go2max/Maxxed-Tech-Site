@@ -1,0 +1,1 @@
+See public/sitemap.xml for the generated sitemap.
