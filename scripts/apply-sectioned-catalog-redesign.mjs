@@ -1,20 +1,14 @@
-import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { powerhouseProducts, repoProducts } from "../content/repo-products.mjs";
 import { apps, site, wordpressPlugins } from "../content/site-data.mjs";
+import { escapeHtml, readText, replaceMain, replaceMeta, writeText } from "./public-redesign-utils.mjs";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const siteRoot = resolve(root, "site");
 const cssPath = resolve(siteRoot, "assets/site.css");
 const allTools = [...repoProducts, ...powerhouseProducts];
-
-const escapeHtml = (value) => String(value)
-  .replaceAll("&", "&amp;")
-  .replaceAll("<", "&lt;")
-  .replaceAll(">", "&gt;")
-  .replaceAll('"', "&quot;");
 
 const appBySlug = new Map(apps.map((app) => [app.slug, app]));
 const appGroups = [
@@ -38,22 +32,6 @@ const toolGroups = [
   ["Content", "Documents, pages, metadata, approvals, and publishing utilities.", "content"],
   ["Civic & Community", "Neighborhood, public records, local coordination, and civic workflow concepts.", "civic"],
 ];
-
-function replaceMain(html, body) {
-  return html.replace(/<main id="main">[\s\S]*?<\/main>/, `<main id="main">${body}</main>`);
-}
-
-function replaceMeta(html, title, description, canonicalPath) {
-  return html
-    .replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(title)} | ${escapeHtml(site.name)}</title>`)
-    .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${escapeHtml(description)}">`)
-    .replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${site.url}/${canonicalPath}">`)
-    .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${escapeHtml(title)} | ${escapeHtml(site.name)}">`)
-    .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${escapeHtml(description)}">`)
-    .replace(/<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${site.url}/${canonicalPath}">`)
-    .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${escapeHtml(title)} | ${escapeHtml(site.name)}">`)
-    .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${escapeHtml(description)}">`);
-}
 
 function appCard(app) {
   return `<a class="app-card section-card" data-app-card data-category="${escapeHtml(app.categoryKey)}" style="--accent:${escapeHtml(app.accent)}" href="${app.slug}/"><div class="app-card-top"><span class="app-icon" aria-hidden="true">${escapeHtml(app.icon)}</span><span class="status">${escapeHtml(app.status)}</span></div><h3>${escapeHtml(app.name)}</h3><p>${escapeHtml(app.summary)}</p><div class="fact-row">${app.facts.slice(0, 4).map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div><span class="app-meta">Open app page →</span></a>`;
@@ -103,25 +81,25 @@ function toolsBodyPatch(html) {
 }
 
 const appsPath = resolve(siteRoot, "apps/index.html");
-let appsHtml = await readFile(appsPath, "utf8");
-appsHtml = replaceMeta(replaceMain(appsHtml, appsBody()), "Apps", "Browse Maxxed Android apps grouped by product lane, with beta access, support, privacy, README, and custom app ordering paths.", "apps/");
-await writeFile(appsPath, appsHtml, "utf8");
+let appsHtml = await readText(appsPath);
+appsHtml = replaceMeta(replaceMain(appsHtml, appsBody()), site, "Apps", "Browse Maxxed Android apps grouped by product lane, with beta access, support, privacy, README, and custom app ordering paths.", "apps/");
+await writeText(appsPath, appsHtml);
 
 const pluginsPath = resolve(siteRoot, "plugins/index.html");
-let pluginsHtml = await readFile(pluginsPath, "utf8");
-pluginsHtml = replaceMeta(replaceMain(pluginsHtml, pluginsBody()), "WordPress Plugins", "Browse Maxxed WordPress plugins grouped by workflow lane with setup, support, ordering, and review-first product paths.", "plugins/");
-await writeFile(pluginsPath, pluginsHtml, "utf8");
+let pluginsHtml = await readText(pluginsPath);
+pluginsHtml = replaceMeta(replaceMain(pluginsHtml, pluginsBody()), site, "WordPress Plugins", "Browse Maxxed WordPress plugins grouped by workflow lane with setup, support, ordering, and review-first product paths.", "plugins/");
+await writeText(pluginsPath, pluginsHtml);
 
 const toolsPath = resolve(siteRoot, "tools/index.html");
 try {
-  let toolsHtml = await readFile(toolsPath, "utf8");
+  let toolsHtml = await readText(toolsPath);
   toolsHtml = toolsBodyPatch(toolsHtml);
-  await writeFile(toolsPath, toolsHtml, "utf8");
+  await writeText(toolsPath, toolsHtml);
 } catch {
   // The homepage redesign pass creates /tools/. If it changes later, this pass can be safely skipped.
 }
 
-let css = await readFile(cssPath, "utf8");
+let css = await readText(cssPath);
 if (!css.includes("/* Sectioned catalog redesign */")) {
   css += `
 
@@ -149,5 +127,5 @@ if (!css.includes("/* Sectioned catalog redesign */")) {
 @media (max-width: 1080px) { .section-lane-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 720px) { .section-lane-grid { grid-template-columns: 1fr; } .section-lane-card { min-height: auto; } }
 `;
-  await writeFile(cssPath, css, "utf8");
+  await writeText(cssPath, css);
 }
