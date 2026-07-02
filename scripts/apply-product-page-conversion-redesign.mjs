@@ -1,9 +1,9 @@
-import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { powerhouseProducts, repoProducts } from "../content/repo-products.mjs";
-import { apps, site, wordpressPlugins } from "../content/site-data.mjs";
+import { apps, wordpressPlugins } from "../content/site-data.mjs";
+import { escapeHtml, insertBeforeMainEnd, readText, writeText } from "./public-redesign-utils.mjs";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const siteRoot = resolve(root, "site");
@@ -12,17 +12,6 @@ const cssPath = resolve(siteRoot, "assets/site.css");
 const appBySlug = new Map(apps.map((item) => [item.slug, item]));
 const pluginBySlug = new Map(wordpressPlugins.map((item) => [item.slug, item]));
 const toolBySlug = new Map([...repoProducts, ...powerhouseProducts].map((item) => [item.slug, item]));
-
-const escapeHtml = (value) => String(value)
-  .replaceAll("&", "&amp;")
-  .replaceAll("<", "&lt;")
-  .replaceAll(">", "&gt;")
-  .replaceAll('"', "&quot;");
-
-function injectBeforeClosingMain(html, section) {
-  if (html.includes("product-conversion-panel")) return html;
-  return html.replace("</main>", `${section}</main>`);
-}
 
 function appPanel(app) {
   return `<section class="shell section compact product-conversion-panel"><div class="conversion-panel" style="--accent:${escapeHtml(app.accent)}"><div><p class="eyebrow">Next step</p><h2>Test, buy, or request related app work.</h2><p>${escapeHtml(app.name)} can route visitors toward beta access, pricing, support, or a custom version of the workflow.</p><div class="fact-row"><span>Android app</span><span>${escapeHtml(app.status)}</span><span>Beta route</span><span>Custom app work</span></div></div><div class="conversion-actions"><a class="button" href="../../beta/?app=${encodeURIComponent(app.slug)}">Request beta access</a><a class="button secondary" href="../../custom-orders/">Order related app work</a><a class="button secondary" href="../../pricing/">View pricing</a><a class="button secondary" href="../../support/?app=${encodeURIComponent(app.name)}">Get support</a></div></div></section>`;
@@ -38,8 +27,8 @@ function toolPanel(tool) {
 
 async function patchProduct(path, panel) {
   const fullPath = resolve(siteRoot, path);
-  const html = await readFile(fullPath, "utf8");
-  await writeFile(fullPath, injectBeforeClosingMain(html, panel), "utf8");
+  const html = await readText(fullPath);
+  await writeText(fullPath, insertBeforeMainEnd(html, "product-conversion-panel", panel));
 }
 
 for (const [slug, app] of appBySlug) {
@@ -52,7 +41,7 @@ for (const [slug, tool] of toolBySlug) {
   await patchProduct(`tools/${slug}/index.html`, toolPanel(tool));
 }
 
-let css = await readFile(cssPath, "utf8");
+let css = await readText(cssPath);
 if (!css.includes("/* Product conversion redesign */")) {
   css += `
 
@@ -76,5 +65,5 @@ if (!css.includes("/* Product conversion redesign */")) {
 .conversion-actions .button { width: 100%; }
 @media (max-width: 860px) { .conversion-panel { grid-template-columns: 1fr; } }
 `;
-  await writeFile(cssPath, css, "utf8");
+  await writeText(cssPath, css);
 }
