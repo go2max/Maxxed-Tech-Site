@@ -28,22 +28,30 @@ The public site is now organized around visitor intent instead of one large mixe
 - #113: Pricing and Checkout conversion-flow polish.
 - #114: Visual consistency polish.
 - #115: Build-chain validator updated for the latest polish passes.
+- #116: Public-site readiness handoff.
+- #117: Shared public-redesign helper utilities.
+- #118: Visual consistency pass migrated to shared helpers.
+- #119: Conversion-flow pass migrated to shared helpers.
 
 ## Build-chain notes
 
-The public build currently runs the base generator, then a set of post-build public-site passes:
+The public build is now consolidated behind one npm build entrypoint:
 
-1. `scripts/build.mjs`
-2. `scripts/apply-homepage-presence-redesign.mjs`
-3. `scripts/apply-sectioned-catalog-redesign.mjs`
-4. `scripts/apply-product-page-conversion-redesign.mjs`
-5. `scripts/apply-order-about-polish.mjs`
-6. `scripts/apply-support-mobile-polish.mjs`
-7. `scripts/apply-conversion-flow-polish.mjs`
-8. `scripts/apply-visual-consistency-polish.mjs`
-9. Copy generated `site/` output into `public/`
+1. `npm run build`
+2. `scripts/build-public-site.mjs`
+3. `scripts/build.mjs`
+4. `scripts/apply-public-redesign.mjs`
+5. Ordered public redesign passes:
+   - `scripts/apply-homepage-presence-redesign.mjs`
+   - `scripts/apply-sectioned-catalog-redesign.mjs`
+   - `scripts/apply-product-page-conversion-redesign.mjs`
+   - `scripts/apply-order-about-polish.mjs`
+   - `scripts/apply-support-mobile-polish.mjs`
+   - `scripts/apply-conversion-flow-polish.mjs`
+   - `scripts/apply-visual-consistency-polish.mjs`
+6. Copy generated `site/` output into `public/`
 
-This is acceptable for short-term batching, but it should not stay this layered forever. Once the redesigned direction is accepted, consolidate the durable pieces into the main generator or shared rendering helpers.
+The old long `package.json` shell chain has been replaced with a Node build wrapper and a single public-redesign orchestrator. This keeps `package.json` stable and gives validation one ordered entrypoint to inspect.
 
 ## Validation commands
 
@@ -80,14 +88,13 @@ When a PC is available, review the generated public pages in a browser:
 
 ## Known follow-up
 
-The main technical debt is consolidation. The redesign was intentionally layered as post-build passes to move quickly and avoid destabilizing the generator. The next maintenance task should reduce duplicated helper functions and move stable rendering into the primary generator once the visual direction is approved.
+The main remaining technical debt is moving stable public page rendering into shared rendering modules or the primary generator. The build entrypoint itself is now consolidated, so future work should migrate internals carefully instead of adding more top-level build steps.
 
-Recommended next batch:
+Recommended next maintenance work:
 
-- Consolidate shared helper functions used across redesign passes.
-- Add `validate-public-redesign-chain.mjs` into the normal `validate` script if the package update is allowed.
-- Replace repeated meta-rewrite helpers with a shared utility.
-- Move stable page templates into `scripts/build.mjs` or a public rendering module.
+- Keep migrating duplicated helper logic into `scripts/public-redesign-utils.mjs`.
+- Migrate full stable page templates into reusable rendering modules only after visual approval.
+- Consider moving durable public pages into `scripts/build.mjs` once the generated output has been manually reviewed.
 - Keep generated public output separate from admin output.
 
 ## Do not touch

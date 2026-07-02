@@ -6,20 +6,10 @@ import { fileURLToPath } from "node:url";
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const packageJson = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
 
-const expectedBuildSteps = [
-  "node scripts/build.mjs",
-  "node scripts/apply-homepage-presence-redesign.mjs",
-  "node scripts/apply-sectioned-catalog-redesign.mjs",
-  "node scripts/apply-product-page-conversion-redesign.mjs",
-  "node scripts/apply-order-about-polish.mjs",
-  "node scripts/apply-support-mobile-polish.mjs",
-  "node scripts/apply-conversion-flow-polish.mjs",
-  "node scripts/apply-visual-consistency-polish.mjs",
-  "rm -rf public && cp -R site public",
-];
-
 const requiredScripts = [
+  "scripts/build-public-site.mjs",
   "scripts/build.mjs",
+  "scripts/apply-public-redesign.mjs",
   "scripts/apply-homepage-presence-redesign.mjs",
   "scripts/apply-sectioned-catalog-redesign.mjs",
   "scripts/apply-product-page-conversion-redesign.mjs",
@@ -27,28 +17,42 @@ const requiredScripts = [
   "scripts/apply-support-mobile-polish.mjs",
   "scripts/apply-conversion-flow-polish.mjs",
   "scripts/apply-visual-consistency-polish.mjs",
+  "scripts/public-redesign-utils.mjs",
   "scripts/validate-site.mjs",
   "scripts/validate-artifact.mjs",
   "scripts/validate-public-redesign-chain.mjs",
 ];
 
+const expectedRedesignPasses = [
+  "./apply-homepage-presence-redesign.mjs",
+  "./apply-sectioned-catalog-redesign.mjs",
+  "./apply-product-page-conversion-redesign.mjs",
+  "./apply-order-about-polish.mjs",
+  "./apply-support-mobile-polish.mjs",
+  "./apply-conversion-flow-polish.mjs",
+  "./apply-visual-consistency-polish.mjs",
+];
+
 const buildCommand = packageJson.scripts?.build || "";
-assert.ok(buildCommand, "package.json must define a build script");
-
-let previousIndex = -1;
-for (const step of expectedBuildSteps) {
-  const index = buildCommand.indexOf(step);
-  assert.ok(index >= 0, `Build command is missing expected step: ${step}`);
-  assert.ok(index > previousIndex, `Build step is out of order: ${step}`);
-  previousIndex = index;
-}
-
-assert.match(buildCommand, /find public -mindepth 1/, "Build should clear generated public files before export");
-assert.doesNotMatch(buildCommand, /node scripts\/apply-visual-consistency-polish\.mjs[\s\S]*node scripts\/build\.mjs/, "Post-build scripts must not run before the generator");
+assert.equal(buildCommand, "node scripts/build-public-site.mjs", "package build should use the consolidated public build wrapper");
 assert.match(packageJson.scripts?.["check:public"] || "", /npm run build && npm run validate/, "check:public should build before validating");
 
 for (const path of requiredScripts) {
   await access(resolve(root, path));
+}
+
+const buildWrapper = await readFile(resolve(root, "scripts/build-public-site.mjs"), "utf8");
+assert.match(buildWrapper, /await import\("\.\/build\.mjs"\)/, "Build wrapper should run the base generator");
+assert.match(buildWrapper, /await import\("\.\/apply-public-redesign\.mjs"\)/, "Build wrapper should run the public redesign orchestrator");
+assert.match(buildWrapper, /await cp\(siteDir, publicDir, \{ recursive: true \}\)/, "Build wrapper should copy generated site output into public");
+
+const orchestrator = await readFile(resolve(root, "scripts/apply-public-redesign.mjs"), "utf8");
+let previousIndex = -1;
+for (const pass of expectedRedesignPasses) {
+  const index = orchestrator.indexOf(pass);
+  assert.ok(index >= 0, `Public redesign orchestrator is missing pass: ${pass}`);
+  assert.ok(index > previousIndex, `Public redesign pass is out of order: ${pass}`);
+  previousIndex = index;
 }
 
 const validation = await readFile(resolve(root, "scripts/validate-site.mjs"), "utf8");
@@ -65,4 +69,4 @@ for (const lockedPhrase of [
   assert.match(validation, new RegExp(lockedPhrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `validate-site should lock redesigned copy: ${lockedPhrase}`);
 }
 
-console.log("Validated public redesign build-chain order and required scripts.");
+console.log("Validated public build wrapper and redesign orchestrator.");
