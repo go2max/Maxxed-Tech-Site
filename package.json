@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "find public -mindepth 1 ! -path 'public/assets' ! -path 'public/assets/*' -exec rm -rf {} + && node scripts/build.mjs && node scripts/apply-homepage-presence-redesign.mjs && node scripts/apply-sectioned-catalog-redesign.mjs && node scripts/apply-product-page-conversion-redesign.mjs && node scripts/apply-order-about-polish.mjs && rm -rf public && cp -R site public",
+    "build": "find public -mindepth 1 ! -path 'public/assets' ! -path 'public/assets/*' -exec rm -rf {} + && node scripts/build.mjs && node scripts/apply-homepage-presence-redesign.mjs && node scripts/apply-sectioned-catalog-redesign.mjs && node scripts/apply-product-page-conversion-redesign.mjs && node scripts/apply-order-about-polish.mjs && node scripts/apply-support-mobile-polish.mjs && rm -rf public && cp -R site public",
     "validate": "node scripts/validate-site.mjs && node scripts/validate-artifact.mjs",
     "check:public": "npm run build && npm run validate",
     "check:admin": "npm --prefix platform run check",
