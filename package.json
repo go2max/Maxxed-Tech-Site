@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build-public-site.mjs",
-    "validate": "node scripts/validate-site.mjs && node scripts/validate-artifact.mjs",
+    "validate": "node scripts/validate-site.mjs && node scripts/validate-artifact.mjs && node scripts/validate-public-redesign-chain.mjs",
     "check:public": "npm run build && npm run validate",
     "check:admin": "npm --prefix platform run check",
     "check:runner": "node scripts/validate-runner.mjs",
