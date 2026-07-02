@@ -117,4 +117,17 @@ assert.doesNotMatch(sitemap, /tools\/wordpress-plugin-lab\//);
 assert.match(await readFile(resolve(siteRoot, "robots.txt"), "utf8"), /Sitemap: https:\/\/techmaxxed\.com\/sitemap\.xml/);
 JSON.parse(await readFile(resolve(siteRoot, "site.webmanifest"), "utf8"));
 
+
+const publicHeaders = await readFile(resolve(siteRoot, "_headers"), "utf8");
+assert.match(publicHeaders, /\/admin\/\*/);
+assert.match(publicHeaders, /X-Robots-Tag: noindex, nofollow, noarchive/);
+assert.match(publicHeaders, /Cache-Control: no-store/);
+assert.match(publicHeaders, /Referrer-Policy: no-referrer/);
+
+const adminHeaders = await readFile(resolve(root, "admin/_headers"), "utf8");
+assert.match(adminHeaders, /X-Robots-Tag: noindex, nofollow, noarchive/);
+assert.match(adminHeaders, /Cache-Control: no-store/);
+assert.match(adminHeaders, /Referrer-Policy: no-referrer/);
+assert.match(adminHeaders, /frame-ancestors 'none'/);
+
 console.log(`Validated ${htmlFiles.length} HTML pages, ${checkedReferences} local references, full product catalog, plugin catalog, admin routing, sitemap, manifest, and client JavaScript.`);
