@@ -187,6 +187,66 @@ if (betaForm) {
   appInputs.forEach((input) => input.addEventListener("change", () => appInputs[0]?.setCustomValidity("")));
 }
 
+const checkoutForm = document.querySelector("[data-checkout-form]");
+if (checkoutForm) {
+  const offersElement = document.querySelector("#checkout-offers");
+  const offers = offersElement ? JSON.parse(offersElement.textContent) : [];
+  const select = checkoutForm.querySelector("[data-checkout-select]");
+  const summary = checkoutForm.querySelector("[data-checkout-summary]");
+  const action = checkoutForm.querySelector("[data-checkout-action]");
+  const support = checkoutForm.querySelector("[data-checkout-support]");
+  const status = checkoutForm.querySelector("[data-checkout-status]");
+  const email = checkoutForm.dataset.email || "support@techmaxxed.com";
+  const requestedProduct = new URLSearchParams(window.location.search).get("product");
+
+  if (requestedProduct && select && [...select.options].some((option) => option.value === requestedProduct)) {
+    select.value = requestedProduct;
+  }
+
+  const formatPrice = (value) => `$${Number(value).toFixed(value % 1 ? 2 : 0)}`;
+  const mailtoFor = (offer, subjectPrefix) => {
+    const subject = encodeURIComponent(`${subjectPrefix} - ${offer.name}`);
+    const body = encodeURIComponent([
+      `${subjectPrefix}`,
+      "",
+      `Product: ${offer.name}`,
+      `Price shown: ${formatPrice(offer.price)} ${offer.billing}`,
+      `Product family: ${offer.family}`,
+      "",
+      "Buyer email:",
+      "",
+      "Fulfillment question or note:",
+    ].join("\n"));
+    return `mailto:${email}?subject=${subject}&body=${body}`;
+  };
+
+  const updateCheckout = () => {
+    const offer = offers.find((item) => item.id === select?.value) || offers[0];
+    if (!offer || !summary || !action || !support) return;
+    summary.innerHTML = `<span class="status">${offer.label}</span><h2>${offer.name}</h2><strong class="price">${formatPrice(offer.price)}</strong><p>${offer.summary}</p><div class="fact-row"><span>${offer.family}</span><span>${offer.status}</span><span>${offer.billing}</span></div><p class="fine-print"><strong>Fulfillment:</strong> ${offer.fulfillment}</p><p class="fine-print">${offer.notes}</p>`;
+    action.href = offer.checkoutUrl || mailtoFor(offer, "Purchase request");
+    action.textContent = offer.checkoutUrl ? "Continue to hosted checkout" : "Request invoice";
+    support.href = mailtoFor(offer, "Question before purchase");
+    if (status) {
+      status.textContent = offer.checkoutUrl
+        ? "You will leave TechMaxxed.com for hosted checkout. Do not send card details by email."
+        : "Hosted checkout is not configured for this item yet. This will prepare a manual invoice request email.";
+    }
+  };
+
+  action?.addEventListener("click", (event) => {
+    if (!checkoutForm.reportValidity()) {
+      event.preventDefault();
+      if (status) status.textContent = "Confirm the purchase and fulfillment note before continuing.";
+    }
+  });
+  select?.addEventListener("change", updateCheckout);
+  checkoutForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+  });
+  updateCheckout();
+}
+
 document.querySelectorAll("[data-year]").forEach((element) => {
   element.textContent = new Date().getFullYear();
 });

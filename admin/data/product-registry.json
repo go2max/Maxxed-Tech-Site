@@ -535,7 +535,7 @@
     {
       "id": "fishing-maxxed",
       "name": "Fishing Maxxed",
-      "route": "/products/fishing-maxxed/",
+      "route": "https://techmaxxed.com/apps/fishing-maxxed/",
       "publicRoute": "https://techmaxxed.com/apps/fishing-maxxed/",
       "state": "Beta testers needed",
       "family": "Android app",
@@ -875,7 +875,7 @@
     {
       "id": "maxxed-compass",
       "name": "Maxxed Compass",
-      "route": "/products/maxxed-compass/",
+      "route": "https://techmaxxed.com/apps/maxxed-compass/",
       "publicRoute": "https://techmaxxed.com/apps/maxxed-compass/",
       "state": "Beta testers needed",
       "family": "Android app",
@@ -885,7 +885,7 @@
     {
       "id": "maxxed-gold-estimator",
       "name": "Maxxed Gold Estimator",
-      "route": "/products/maxxed-gold-estimator/",
+      "route": "https://techmaxxed.com/apps/maxxed-gold-estimator/",
       "publicRoute": "https://techmaxxed.com/apps/maxxed-gold-estimator/",
       "state": "Beta testers needed",
       "family": "Android app",
@@ -895,7 +895,7 @@
     {
       "id": "maxxed-measure",
       "name": "Maxxed Measure",
-      "route": "/products/maxxed-measure/",
+      "route": "https://techmaxxed.com/apps/maxxed-measure/",
       "publicRoute": "https://techmaxxed.com/apps/maxxed-measure/",
       "state": "Early access requests open",
       "family": "Android app",
@@ -905,7 +905,7 @@
     {
       "id": "maxxed-remote",
       "name": "Maxxed Remote",
-      "route": "/products/maxxed-remote/",
+      "route": "https://techmaxxed.com/apps/maxxed-remote/",
       "publicRoute": "https://techmaxxed.com/apps/maxxed-remote/",
       "state": "Beta testers needed",
       "family": "Android app",
@@ -1385,7 +1385,7 @@
     {
       "id": "rival-rush",
       "name": "Rival Rush",
-      "route": "/products/rival-rush/",
+      "route": "https://techmaxxed.com/apps/rival-rush/",
       "publicRoute": "https://techmaxxed.com/apps/rival-rush/",
       "state": "Beta testers needed",
       "family": "Android app",

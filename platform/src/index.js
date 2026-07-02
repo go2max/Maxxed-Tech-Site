@@ -22,9 +22,21 @@ const securityHeaders = {
 };
 
 function authenticatedEmail(request, env) {
-  const email = request.headers.get("oai-authenticated-user-email")?.trim().toLowerCase();
+  const email = (
+    request.headers.get("cf-access-authenticated-user-email") ||
+    request.headers.get("oai-authenticated-user-email") ||
+    ""
+  ).trim().toLowerCase();
   const allowed = String(env.ADMIN_ALLOWED_EMAILS || "").split(",").map((value) => value.trim().toLowerCase()).filter(Boolean);
   return email && allowed.includes(email) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
+}
+
+function requestIdentityEmail(request) {
+  return (
+    request.headers.get("cf-access-authenticated-user-email") ||
+    request.headers.get("oai-authenticated-user-email") ||
+    "anonymous"
+  );
 }
 
 async function requestJson(request) {
@@ -153,7 +165,7 @@ export default {
     const actor = authenticatedEmail(request, env);
     if (!actor) {
       await safeAuditEvent(env, request, url, {
-        actorEmail: request.headers.get("oai-authenticated-user-email") || "anonymous",
+        actorEmail: requestIdentityEmail(request),
         action: "admin.access.denied",
         targetType: "route",
         targetId: url.pathname,

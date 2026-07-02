@@ -1,9 +1,0 @@
-{
-  "version": 1,
-  "updatedAt": "2026-07-01",
-  "docs": [
-    { "id": "page-template", "title": "Page template", "route": "/docs/", "group": "foundation" },
-    { "id": "data-conventions", "title": "Data conventions", "route": "/docs/", "group": "foundation" },
-    { "id": "login-verification", "title": "Login verification", "route": "/system/", "group": "system" }
-  ]
-}

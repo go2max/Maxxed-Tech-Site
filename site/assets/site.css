@@ -518,6 +518,46 @@ section,
 .notice { padding: 20px; border-left: 3px solid var(--accent, var(--lime)); background: var(--surface); }
 .notice p:last-child { margin-bottom: 0; }
 
+.price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.price-card {
+  min-height: 360px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 22px;
+  background: var(--surface);
+}
+.price-card p { color: var(--muted); }
+.price { display: block; color: var(--lime); font-size: clamp(38px, 5vw, 54px); line-height: 1; font-weight: 900; }
+.checkout-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+  gap: 18px;
+  align-items: start;
+}
+.checkout-panel {
+  padding: 30px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 20px;
+  background: var(--surface);
+}
+.checkout-panel.secondary-panel { background: var(--surface-2); }
+.checkout-summary {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+}
+.checkout-summary h2 { margin: 14px 0 12px; font-size: clamp(30px, 4vw, 44px); }
+.checkout-summary p { color: var(--muted); }
+.checkout-summary p:last-child { margin-bottom: 0; }
+.checkout-panel .consent-list { grid-column: auto; }
+
 .credit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .credit-group { padding: 26px; border-top: 3px solid var(--lime); background: var(--surface); }
 .credit-group ul { margin: 20px 0 0; padding: 0; list-style: none; }
@@ -581,6 +621,8 @@ section,
   .ticket-form { grid-template-columns: 1fr 1fr; }
   .admin-route-grid { grid-template-columns: repeat(2, 1fr); }
   .plugin-admin-grid { grid-template-columns: repeat(3, 1fr); }
+  .price-grid { grid-template-columns: repeat(2, 1fr); }
+  .checkout-shell { grid-template-columns: 1fr; }
   .truth-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
@@ -631,6 +673,7 @@ section,
   .ticket-form .consent-list.full,
   .ticket-form .form-actions { grid-column: auto; }
   .admin-route-grid, .plugin-admin-grid { grid-template-columns: 1fr; }
+  .price-grid { grid-template-columns: 1fr; }
   .form-grid, .check-grid, .credit-grid, .policy-summary { grid-template-columns: 1fr; }
   .field.full, .fieldset, .consent-list, .form-actions { grid-column: auto; }
   .contact-band { padding: 34px 24px; grid-template-columns: 1fr; }

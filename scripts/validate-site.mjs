@@ -22,7 +22,7 @@ async function filesUnder(directory) {
 const files = await filesUnder(siteRoot);
 const adminFiles = await filesUnder(adminRoot);
 const htmlFiles = files.filter((file) => extname(file) === ".html");
-assert.equal(htmlFiles.length, 251, "Expected 250 indexed public HTML pages and one 404 page");
+assert.equal(htmlFiles.length, 253, "Expected 252 indexed public HTML pages and one 404 page");
 const expectedAppSlugs = [
   "maxxed-remote",
   "maxxed-compass",
@@ -154,13 +154,22 @@ for (const plugin of wordpressPlugins) {
 }
 
 assert.match(await readFile(resolve(siteRoot, "terms/index.html"), "utf8"), /Beta participation/);
+assert.match(await readFile(resolve(siteRoot, "terms/index.html"), "utf8"), /Purchases and fulfillment/);
+assert.match(await readFile(resolve(siteRoot, "privacy/index.html"), "utf8"), /Purchases and checkout/);
+const pricing = await readFile(resolve(siteRoot, "pricing/index.html"), "utf8");
+assert.match(pricing, /Buy Maxxed apps and tools/);
+assert.match(pricing, /Start checkout/);
+const checkout = await readFile(resolve(siteRoot, "checkout/index.html"), "utf8");
+assert.match(checkout, /No card fields on this site/);
+assert.match(checkout, /Request invoice|Continue to hosted checkout/);
+assert.match(checkout, /checkout-offers/);
 assert.match(await readFile(resolve(siteRoot, "beta-credits/index.html"), "utf8"), /Public credit is recognition, not compensation/);
 assert.match(await readFile(resolve(siteRoot, "plugins/index.html"), "utf8"), /WordPress plugins/);
 assert.equal(((await readFile(resolve(siteRoot, "apps/index.html"), "utf8")).match(/data-app-card/g) || []).length, 186, "Apps page should show 6 Android apps, 36 WordPress tools, 44 focused web tools, and 100 business tools");
 assert.equal(((await readFile(resolve(siteRoot, "plugins/index.html"), "utf8")).match(/data-app-card/g) || []).length, 36, "Plugins page should show all 36 WordPress tools");
 
 const sitemap = await readFile(resolve(siteRoot, "sitemap.xml"), "utf8");
-assert.equal((sitemap.match(/<url>/g) || []).length, 250, "Sitemap should contain all 250 indexed public pages");
+assert.equal((sitemap.match(/<url>/g) || []).length, 252, "Sitemap should contain all 252 indexed public pages");
 assert.match(await readFile(resolve(siteRoot, "robots.txt"), "utf8"), /Sitemap: https:\/\/techmaxxed\.com\/sitemap\.xml/);
 JSON.parse(await readFile(resolve(siteRoot, "site.webmanifest"), "utf8"));
 
