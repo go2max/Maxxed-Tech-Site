@@ -22,7 +22,7 @@ async function filesUnder(directory) {
 const files = await filesUnder(siteRoot);
 const adminFiles = await filesUnder(adminRoot);
 const htmlFiles = files.filter((file) => extname(file) === ".html");
-assert.equal(htmlFiles.length, 253, "Expected 252 indexed public HTML pages and one 404 page");
+assert.equal(htmlFiles.length, 255, "Expected 254 indexed public HTML pages and one 404 page");
 const expectedAppSlugs = [
   "maxxed-remote",
   "maxxed-compass",
@@ -60,6 +60,11 @@ for (const file of htmlFiles) {
 
   const primaryNav = html.match(/<nav class="nav-links" id="primary-nav"[\s\S]*?<\/nav>/)?.[0];
   assert.ok(primaryNav, `${filePath} needs the public primary navigation`);
+  assert.match(primaryNav, />\s*Apps\s*</, `${filePath} public primary navigation should include Apps`);
+  assert.match(primaryNav, />\s*Plugins\s*</, `${filePath} public primary navigation should include Plugins`);
+  assert.match(primaryNav, />\s*Tools\s*</, `${filePath} public primary navigation should include Tools`);
+  assert.match(primaryNav, />\s*Custom Orders\s*</, `${filePath} public primary navigation should include Custom Orders`);
+  assert.match(primaryNav, /Start an Order/, `${filePath} public primary navigation should include Start an Order CTA`);
   assert.doesNotMatch(primaryNav, />\s*Admin\s*</, `${filePath} public primary navigation must not include Admin`);
   assert.doesNotMatch(primaryNav, /href="[^"]*admin/i, `${filePath} public primary navigation must not link to admin`);
 
@@ -120,8 +125,15 @@ assert.doesNotMatch(betaPage, /beta@techmaxxed\.com/);
 assert.match(betaPage, /support@techmaxxed\.com/);
 assert.match(betaPage, /voluntary and unpaid/i);
 assert.match(betaPage, /name="creditConsent"/);
+assert.match(betaPage, /You can request apps still in development\./);
+assert.match(betaPage, /Pre-release requests/);
 
 for (const slug of ["maxxed-remote", "maxxed-compass", "maxxed-measure", "maxxed-gold-estimator", "fishing-maxxed", "rival-rush"]) {
+  const detail = await readFile(resolve(siteRoot, `apps/${slug}/index.html`), "utf8");
+  assert.match(detail, /product-conversion-panel/);
+  assert.match(detail, /Request beta access/);
+  assert.match(detail, /Order related app work/);
+
   const readme = await readFile(resolve(siteRoot, `apps/${slug}/readme/index.html`), "utf8");
   assert.match(readme, /README/);
   assert.match(readme, /Support/);
@@ -144,6 +156,8 @@ for (const plugin of wordpressPlugins) {
   assert.match(detail, /Get plugin support/);
   assert.match(detail, /README/);
   assert.match(detail, /support@techmaxxed\.com/);
+  assert.match(detail, /product-conversion-panel/);
+  assert.match(detail, /Order plugin work/);
 
   const readme = await readFile(resolve(siteRoot, `plugins/${plugin.slug}/readme/index.html`), "utf8");
   assert.match(readme, /README/);
@@ -159,35 +173,77 @@ assert.match(await readFile(resolve(siteRoot, "privacy/index.html"), "utf8"), /P
 const pricing = await readFile(resolve(siteRoot, "pricing/index.html"), "utf8");
 assert.match(pricing, /Buy Maxxed apps and tools/);
 assert.match(pricing, /Start checkout/);
+assert.match(pricing, /Need a quote instead of a listed product\?/);
+assert.match(pricing, /Start custom order/);
 const checkout = await readFile(resolve(siteRoot, "checkout/index.html"), "utf8");
 assert.match(checkout, /No card fields on this site/);
 assert.match(checkout, /Request invoice|Continue to hosted checkout/);
 assert.match(checkout, /checkout-offers/);
 assert.match(await readFile(resolve(siteRoot, "beta-credits/index.html"), "utf8"), /Public credit is recognition, not compensation/);
-assert.match(await readFile(resolve(siteRoot, "plugins/index.html"), "utf8"), /WordPress plugins/);
-assert.equal(((await readFile(resolve(siteRoot, "apps/index.html"), "utf8")).match(/data-app-card/g) || []).length, 186, "Apps page should show 6 Android apps, 36 WordPress tools, 44 focused web tools, and 100 business tools");
-assert.equal(((await readFile(resolve(siteRoot, "plugins/index.html"), "utf8")).match(/data-app-card/g) || []).length, 36, "Plugins page should show all 36 WordPress tools");
+
+const home = await readFile(resolve(siteRoot, "index.html"), "utf8");
+assert.match(home, /Practical software for real-world workflows\./);
+assert.match(home, /Start a Custom Order/);
+assert.match(home, /Built by Max Uland/);
+assert.match(home, /Direct ordering/);
+
+const appsIndex = await readFile(resolve(siteRoot, "apps/index.html"), "utf8");
+assert.match(appsIndex, /Android apps by product lane/);
+assert.match(appsIndex, /Control &amp; Utility/);
+assert.match(appsIndex, /Navigation &amp; Field Tools/);
+assert.match(appsIndex, /Measurement &amp; Estimation/);
+assert.match(appsIndex, /Games/);
+assert.equal((appsIndex.match(/data-app-card/g) || []).length, 6, "Apps page should show the six Android apps only");
+
+const pluginsIndex = await readFile(resolve(siteRoot, "plugins/index.html"), "utf8");
+assert.match(pluginsIndex, /WordPress plugins by workflow lane/);
+assert.match(pluginsIndex, /Accessibility &amp; Compliance/);
+assert.match(pluginsIndex, /Maintenance &amp; Cleanup/);
+assert.match(pluginsIndex, /Commerce Operations/);
+assert.equal((pluginsIndex.match(/data-app-card/g) || []).length, 36, "Plugins page should show all 36 WordPress tools");
+
+const toolsIndex = await readFile(resolve(siteRoot, "tools/index.html"), "utf8");
+assert.match(toolsIndex, /Software tools and product concepts/);
+assert.match(toolsIndex, /Business/);
+assert.match(toolsIndex, /Finance/);
+assert.match(toolsIndex, /Content/);
+assert.match(toolsIndex, /Civic &amp; Community/);
+assert.ok((toolsIndex.match(/data-app-card/g) || []).length >= 24, "Tools page should render a requestable sample of tool concepts");
+
+const customOrders = await readFile(resolve(siteRoot, "custom-orders/index.html"), "utf8");
+assert.match(customOrders, /Order a custom app, plugin, automation, or workflow tool\./);
+assert.match(customOrders, /Max Uland reviews custom requests/);
+assert.match(customOrders, /What can be built/);
+assert.match(customOrders, /What to include in the request/);
+
+const about = await readFile(resolve(siteRoot, "about/index.html"), "utf8");
+assert.match(about, /Independent software built by Max Uland\./);
+assert.match(about, /Maxxed Technical Systems is a practical software studio/);
+assert.match(about, /Order custom work/);
 
 const sitemap = await readFile(resolve(siteRoot, "sitemap.xml"), "utf8");
-assert.equal((sitemap.match(/<url>/g) || []).length, 252, "Sitemap should contain all 252 indexed public pages");
+assert.equal((sitemap.match(/<url>/g) || []).length, 254, "Sitemap should contain all 254 indexed public pages");
+assert.match(sitemap, /https:\/\/techmaxxed\.com\/custom-orders\//);
+assert.match(sitemap, /https:\/\/techmaxxed\.com\/tools\//);
 assert.match(await readFile(resolve(siteRoot, "robots.txt"), "utf8"), /Sitemap: https:\/\/techmaxxed\.com\/sitemap\.xml/);
 JSON.parse(await readFile(resolve(siteRoot, "site.webmanifest"), "utf8"));
 
 const support = await readFile(resolve(siteRoot, "support/index.html"), "utf8");
-assert.match(support, /Prepare support ticket email/);
+assert.match(support, /Get help, request testing, or ask about a build\./);
+assert.match(support, /App issue/);
+assert.match(support, /Beta access/);
+assert.match(support, /Plugin help/);
+assert.match(support, /Custom work/);
+assert.match(support, /Prepare support email/);
 assert.match(support, /Request type/);
 assert.match(support, /Privacy or data/);
 assert.match(support, /Pre-release testing/);
+assert.match(support, /Custom order question/);
 assert.match(support, /data-support-form/);
-assert.match(support, /WordPress Role Auditor/);
-assert.match(support, /Support Desk Lite/);
-assert.match(support, /Android utility apps/);
-assert.match(support, /WordPress cleanup plugins/);
-assert.match(support, /camera measurement apps/);
-assert.match(support, /compass and outdoor tools/);
-assert.match(support, /Android beta testing/);
-const supportProductSelect = support.match(/<select id="support-app"[^>]*>([\s\S]*?)<\/select>/)?.[1] || "";
-assert.equal((supportProductSelect.match(/<option value=/g) || []).length, 192, "Support page should include 186 products and six product-guide topics");
+assert.match(support, /Custom software order/);
+assert.match(support, /Pricing question/);
+const supportProductSelect = support.match(/<select id="support-product-polish"[^>]*>([\s\S]*?)<\/select>/)?.[1] || "";
+assert.equal((supportProductSelect.match(/<option>/g) || []).length, 33, "Support page should include general guidance, six apps, 24 highlighted plugins, and two business routes");
 assert.doesNotMatch(support, /privacy@techmaxxed\.com|beta@techmaxxed\.com/);
 
 const adminExisting = new Set(adminFiles.map((file) => `/${relative(adminRoot, file).split(sep).join("/")}`));
@@ -227,4 +283,4 @@ assert.match(adminProducts, /Aspiration/);
 assert.match(await readFile(resolve(adminRoot, "products/aspiration/index.html"), "utf8"), /Aspiration/);
 JSON.parse(await readFile(resolve(adminRoot, "site.webmanifest"), "utf8"));
 
-console.log(`Validated ${htmlFiles.length} HTML pages, ${checkedReferences} local references, admin subdomain export, unique metadata, sitemap, manifest, and client JavaScript.`);
+console.log(`Validated ${htmlFiles.length} HTML pages, ${checkedReferences} local references, redesigned public routes, admin subdomain export, unique metadata, sitemap, manifest, and client JavaScript.`);
